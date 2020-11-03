@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "pollyxt_pipelines"
+version = "0.1.0"
+description = "Tools and scripts related to the automated processing of PollyXT files"
+authors = ["Thanasis Georgiou <ageorgiou@noa.gr>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+cleo = "^0.8.1"
+netCDF4 = "^1.5.4"
+numpy = "^1.19.4"
+pandas = "^1.1.4"
+
+[tool.poetry.dev-dependencies]
+autopep8 = "^1.5.4"
+pylint = "^2.6.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
