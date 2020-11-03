@@ -136,3 +136,9 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# Ignore vscode directory since most of us use it
+.vscode/
+
+# Ignore sample_scripts directory where I store references
+sample_scripts/
