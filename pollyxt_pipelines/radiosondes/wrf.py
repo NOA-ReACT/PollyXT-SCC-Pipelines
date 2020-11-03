@@ -26,6 +26,7 @@ rs = read_wrf_daily_profile('ANTIKYTHERA', date.fromisoformat('2020-01-01'))
 '''
 
 from datetime import date
+import errno
 from pathlib import Path
 import os
 
@@ -56,7 +57,9 @@ def folder_provider(location: str, date: date) -> Path:
 
     if not file_path.is_file():
         raise FileNotFoundError(
-            f'WRF Radiosonde file not found at {file_path}')
+            errno.ENOENT,
+            f'WRF Profile file not found!',
+            file_path)
 
     return file_path
 
@@ -90,6 +93,6 @@ def read_wrf_daily_profile(location: str, date: date, provider=folder_provider) 
     dtype['timestamp'] = str
 
     rs = pd.read_csv(path, header=0, names=columns, dtype=dtype)
-    rs['timestamp'] = pd.to_datetime(rs['timestamp'], format="%Y-%m-%d_%H:%M:%S")
+    rs['timestamp'] = pd.to_datetime(rs['timestamp'].str.strip(), format="%Y-%m-%d_%H:%M:%S")
 
     return rs
