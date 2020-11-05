@@ -5,12 +5,12 @@ Author: Thanasis Georgiou <ageorgiou@noa.gr>
 
 from datetime import timedelta
 from pathlib import Path
-from pollyxt_pipelines.locations import get_location_by_name
-from pollyxt_pipelines.polly_to_scc.scc_netcdf import convert_pollyxt_file
 
 from cleo import Command
+import pandas as pd
 
-from pollyxt_pipelines.polly_to_scc import pollyxt, scc_netcdf as scc
+from pollyxt_pipelines.polly_to_scc import pollyxt, scc_netcdf
+from pollyxt_pipelines.radiosondes import wrf, scc as rs_scc  # TODO fix this crap naming
 from pollyxt_pipelines import locations
 
 
@@ -24,6 +24,7 @@ class CreateSCC(Command):
         {output-path : Directory to store output (will be created if it doesn't exist)}
         {--interval= : Time interval (in minutes) to split the file. Default is one hour.}
         {--round : When set, output files will start on rounded down hours if possible (e.g. from 00:12 to 00:00, 01:42 to 01:00, etc)}
+        {--no-radiosonde : If set, no radiosonde files will be created}
     '''
 
     def handle(self):
@@ -49,12 +50,34 @@ class CreateSCC(Command):
                 self.line(f'- {l.name}')
             return 1
 
+        # Check for radiosonde files
+        profiles = None
+        if not self.option('no-radiosonde'):
+            day = pollyxt.get_measurement_period(input_path)[0].date()
+            try:
+                profiles = wrf.read_wrf_daily_profile(location, day)
+            except FileNotFoundError as ex:
+                self.line_error(
+                    f'<error>No radiosonde file found for </error>{location.name}<error> at </error>{day.isoformat()}')
+                self.line_error('<error>Use the --no-radiosonde option to skip this.')
+                return 1
+
         # Convert files
-        converter = convert_pollyxt_file(
+        converter = scc_netcdf.convert_pollyxt_file(
             input_path, output_path, location, interval, should_round)
-        for id, path in converter:
+        for id, path, timestamp in converter:
             self.line('<info>Created file with measurement ID </info>' +
                       id + '<info> at </info>' + str(path))
+
+            # Attempt to write radiosonde for this profile
+            if profiles is not None:
+                p = profiles[profiles['timestamp'] == timestamp]
+                if len(p) > 0:
+                    path = output_path / f'rs_{id}.nc'
+                    rs_scc.create_radiosonde_netcdf(p, location, path)
+                    self.line(f'<info>Created radiosonde file at</info> {path}')
+                else:
+                    self.line_error(f'<error>No radiosonde profile found for </error>{id}')
 
 
 class CreateSCCBatch(Command):
@@ -68,6 +91,7 @@ class CreateSCCBatch(Command):
         {output-path : Where to write output files (will create this directory if it doesn't exist)}
         {--interval= : Time interval (in minutes) to split each file. Default is one hour.}
         {--round : When set, output files will start on rounded down hours if possible (e.g. from 00:12 to 00:00, 01:42 to 01:00, etc)}
+        {--no-radiosonde : If set, no radiosonde files will be created}
     '''
 
     def handle(self):
@@ -112,15 +136,37 @@ class CreateSCCBatch(Command):
             self.line(f'\r-> <comment>Converting</comment> {file} <comment>...</comment>')
             progress.display()
 
-            converter = convert_pollyxt_file(
+            # Try to find profiles
+            # Check for radiosonde files
+            profiles = None
+            if not self.option('no-radiosonde'):
+                day = pollyxt.get_measurement_period(file)[0].date()
+                try:
+                    profiles = wrf.read_wrf_daily_profile(location, day)
+                except FileNotFoundError as ex:
+                    self.line_error(
+                        f'<error>No radiosonde file found for </error>{location.name}<error> at </error>{day.isoformat()}')
+                    self.line_error('<error>Use the --no-radiosonde option to skip this.')
+                    return 1
+
+            converter = scc_netcdf.convert_pollyxt_file(
                 file, output_path, location, interval, should_round)
-            for id, path in converter:
+            for id, path, timestamp in converter:
                 progress.clear()
                 self.line('\r<info>Created file with measurement ID </info>' +
                           id + '<info> at </info>' + str(path))
+
+                # Attempt to write radiosonde for this profile
+                if profiles is not None:
+                    p = profiles[profiles['timestamp'] == timestamp]
+                    if len(p) > 0:
+                        path = output_path / f'rs_{id}.nc'
+                        rs_scc.create_radiosonde_netcdf(p, location, path)
+                        self.line(f'<info>Created radiosonde file at</info> {path}')
+                    else:
+                        self.line_error(f'<error>No radiosonde profile found for </error>{id}')
+
                 progress.display()
-
             progress.advance()
-
         progress.finish()
         self.line('\n<comment>Done!</comment>')
