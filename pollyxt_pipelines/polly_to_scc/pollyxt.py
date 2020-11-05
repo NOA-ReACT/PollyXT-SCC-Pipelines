@@ -3,17 +3,56 @@ Routines related to PollyXT files
 '''
 
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Union
 from datetime import datetime, timedelta
 
 import numpy as np
 from netCDF4 import Dataset
-from numpy.core.defchararray import split
-from numpy.lib.arraypad import pad
+
+
+def get_measurement_period(input: Union[Path, Dataset, np.ndarray]) -> Tuple[datetime, datetime]:
+    '''
+    Return the measurement time (i.e. start and end times) from a PollyXT file.
+
+    Parameters
+    ---
+    - input (Path or Dataset): Either a path to a PollyXT netCDF file, an opened netCDF dataset or the
+                               `measurement_time` variable.
+
+    Returns
+    ---
+    A tuple containing the start and end dates.
+    '''
+
+    # Read `measurement_time` variable, a bit different for each source
+    if isinstance(input, Path):
+        nc = Dataset(input, 'r')
+        measurement_time = nc['measurement_time'][:]
+        nc.close()
+    elif isinstance(input, Dataset):
+        measurement_time = input['measurement_time'][:]
+    elif isinstance(input, np.ndarray):
+        measurement_time = input
+    else:
+        raise ValueError(
+            f'Parameter `input` must be a Path, a Dataset (netCDF) or a numpy array, not {type(input)}')
+
+    # Do some sanity checks on its shape
+    shape = measurement_time.shape
+    assert(len(shape) == 2)
+    assert(shape[1] == 2)
+
+    # Parse start/end times
+    day_str = str(measurement_time[0, 0])
+    date = datetime.strptime(day_str, '%Y%m%d')
+    start = date + timedelta(seconds=int(measurement_time[0, 1]))
+    end = date + timedelta(seconds=int(measurement_time[-1, 1]))
+
+    return start, end
 
 
 def find_time_indices(
-        measurement_time: np.ndarray, start: str, end: str) -> Tuple[int, int]:
+        measurement_time: np.ndarray, start: datetime, end: datetime) -> Tuple[int, int]:
     '''
     Given the `measurement_time` array from a PollyXT netCDF file and a time period (`start` and
     `end` in HH:MM format), this function returns the indices of the time period in the array.
@@ -22,39 +61,26 @@ def find_time_indices(
     and the second column contains each measurement's delta from the date, in seconds (!).
     '''
 
-    # Some assertions regrading `measurement_time`'s shape
-    shape = measurement_time.shape
-    assert(len(shape) == 2)
-    assert(shape[1] == 2)
-
-    # Parse the file's first and last timestamp into datetimes
-    day_str = str(measurement_time[0, 0])
-    date = datetime.strptime(day_str, '%Y%m%d')
-    measurement_start = date + timedelta(seconds=int(measurement_time[0, 1]))
-    measurement_end = date + timedelta(seconds=int(measurement_time[-1, 1]))
-
-    # Convert user provided start/end times to datetimes
-    selected_start = datetime.strptime(f'{day_str} {start}', '%Y%m%d %H:%M')
-    selected_end = datetime.strptime(f'{day_str} {start}', '%Y%m%d %H:%M')
+    measurement_start, measurement_end = get_measurement_period(measurement_time)
 
     # Do some validation on the dates
-    if selected_start > selected_end:
+    if start > end:
         raise ValueError(f'Selected start ({start}) is after selected end ({end})!')
-    if selected_start < measurement_start:
+    if start < measurement_start:
         mstart = measurement_start.strftime('%H:%M')
         raise ValueError(f'Selected start ({start}) is before file start ({mstart})!')
-    if selected_end > measurement_end:
+    if start > measurement_end:
         mend = measurement_end.strftime('%H:%M')
         raise ValueError(f'Selected end ({end}) is after file end ({mend})!')
 
     # Find indices
-    dt1 = (selected_start - measurement_start).seconds
-    dt2 = (selected_end - measurement_start).seconds
+    dt1 = (start - measurement_start).seconds
+    dt2 = (end - measurement_start).seconds
 
     index_start = (dt1 // 30)
     index_end = (dt2 // 30)
 
-    return (index_start, measurement_start, index_end, measurement_end)
+    return (index_start, index_end)
 
 
 class PollyXTFile():
@@ -63,10 +89,8 @@ class PollyXTFile():
     '''
 
     path: Path
-    start_str: str
     start_date: datetime
     start_index: int
-    end_str: str
     end_index: int
     end_date: datetime
 
@@ -79,7 +103,7 @@ class PollyXTFile():
     location_coordinates: np.ndarray
     depol_cal_angle:  np.ndarray
 
-    def __init__(self, input_path: Path, start: str, end: str):
+    def __init__(self, input_path: Path, start: datetime, end: datetime):
         '''
         Read a PollyXT netcdf file
 
@@ -90,16 +114,14 @@ class PollyXTFile():
         end (str): Trim file until this time (HH:MM)
         '''
         self.path = input_path
-        self.start_str = start
-        self.end_str = end
 
         # Read the file
         nc = Dataset(self.path, 'r')
 
         # Read measurement time and trim accoarding to the user provided time period
         self.measurement_time = nc['measurement_time'][:]
-        index_start, start_date, index_end, date_end = find_time_indices(
-            self.measurement_time, self.start_time_str, self.end_time_str)
+        index_start, index_end = find_time_indices(
+            self.measurement_time, start, end)
         self.measurement_time = self.measurement_time[index_start:index_end]
 
         # Read the rest of the variables
@@ -116,5 +138,5 @@ class PollyXTFile():
         # Store some variables for easy access
         self.start_index = index_start
         self.end_index = index_end
-        self.start_date = start_date
-        self.date_end = date_end
+        self.start_date = start
+        self.end_date = end
