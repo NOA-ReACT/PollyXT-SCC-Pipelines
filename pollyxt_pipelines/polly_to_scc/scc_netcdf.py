@@ -48,11 +48,11 @@ def create_scc_netcdf(
     nc = Dataset(output_filename, 'w', format='NETCDF3_CLASSIC')
 
     # Create dimensions (mandatory!)
-    points = nc.createDimension('points', np.size(pf.raw_signal, axis=1))
-    channels = nc.createDimension('channels', np.size(pf.raw_signal, axis=2))
-    time = nc.createDimension('time', None)
-    nb_of_time_scales = nc.createDimension('nb_of_time_scales', 1)
-    scan_angles = nc.createDimension('scan_angles', 1)
+    nc.createDimension('points', np.size(pf.raw_signal, axis=1))
+    nc.createDimension('channels', np.size(pf.raw_signal, axis=2))
+    nc.createDimension('time', None)
+    nc.createDimension('nb_of_time_scales', 1)
+    nc.createDimension('scan_angles', 1)
 
     # Create Global Attributes (mandatory!)
     nc.Measurement_ID = measurement_id
