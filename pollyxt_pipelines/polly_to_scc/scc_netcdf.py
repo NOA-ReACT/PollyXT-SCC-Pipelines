@@ -5,18 +5,19 @@ Authors:
 - Thanasis Georgiou <ageorgiou@noa.gr>: Polish
 '''
 
+from datetime import timedelta
 from pathlib import Path
 from typing import Tuple
 
 from netCDF4 import Dataset
 import numpy as np
 
-from pollyxt_pipelines.polly_to_scc.pollyxt import PollyXTFile
+from pollyxt_pipelines.polly_to_scc import pollyxt
 from pollyxt_pipelines.locations import Location
 
 
 def create_scc_netcdf(
-    pf: PollyXTFile,
+    pf: pollyxt.PollyXTFile,
     output_path: Path,
     location: Location
 ) -> Tuple[str, Path]:
@@ -65,7 +66,7 @@ def create_scc_netcdf(
     nc.RawBck_Stop_Time_UT = nc.RawData_Stop_Time_UT
     nc.Sounding_File_Name = f'rs_{measurement_id}.nc'
     # TODO what is this?
-    #nc.Overlap_File_Name = 'ov_' + selected_start.strftime('%Y%m%daky%H') + '.nc'
+    # nc.Overlap_File_Name = 'ov_' + selected_start.strftime('%Y%m%daky%H') + '.nc'
 
     # Create Variables. (mandatory)
     raw_data_start_time = nc.createVariable(
@@ -114,3 +115,31 @@ def create_scc_netcdf(
     nc.close()
 
     return measurement_id, output_filename
+
+
+def convert_pollyxt_file(
+        input_path: Path,
+        output_path: Path,
+        location: Location,
+        interval: timedelta,
+        should_round=False):
+    # Open input netCDF
+    measurement_start, measurement_end = pollyxt.get_measurement_period(input_path)
+
+    # Create output files
+    interval_start = measurement_start
+    while interval_start < measurement_end:
+        # If the option is set, round down hours
+        if should_round:
+            interval_start = interval_start.replace(microsecond=0, second=0, minute=0)
+
+        # Interval end
+        interval_end = interval_start + interval
+
+        # Open netCDF file and convert to SCC
+        pf = pollyxt.PollyXTFile(input_path, interval_start, interval_end)
+        id, path = create_scc_netcdf(pf, output_path, location)
+        yield id, path
+
+        # Set start of next interval to the end of this one
+        interval_start = interval_end

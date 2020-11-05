@@ -5,6 +5,7 @@ Author: Thanasis Georgiou <ageorgiou@noa.gr>
 
 from datetime import timedelta
 from pathlib import Path
+from pollyxt_pipelines.polly_to_scc.scc_netcdf import convert_pollyxt_file
 
 from cleo import Command
 
@@ -33,27 +34,16 @@ class CreateSCCFile(Command):
         input_path = Path(self.argument('input'))
         measurement_start, measurement_end = pollyxt.get_measurement_period(input_path)
 
-        # Create output files
+        # Parse arguments
         should_round = self.option('round')
-        duration = self.option('interval')
-        if duration is None:
-            duration = 60  # Default duration is 1 hour/60 minutes
-        duration = timedelta(minutes=duration)
+        interval = self.option('interval')
+        if interval is None:
+            interval = 60  # Default duration is 1 hour/60 minutes
+        interval = timedelta(minutes=interval)
 
-        interval_start = measurement_start
-        while interval_start < measurement_end:
-            # If the option is set, round down hours
-            if should_round:
-                interval_start = interval_start.replace(microsecond=0, second=0, minute=0)
-
-            # Interval end
-            interval_end = interval_start + duration
-
-            # Open netCDF file and convert to SCC
-            pf = pollyxt.PollyXTFile(input_path, interval_start, interval_end)
-            id, path = scc.create_scc_netcdf(pf, output_path, locations.LOCATION_ANTIKYTHERA)
-
+        # Convert files
+        converter = convert_pollyxt_file(
+            input_path, output_path, locations.LOCATION_ANTIKYTHERA, interval, should_round)
+        for id, path in converter:
             self.line('<info>Created file with measurement ID </info>' +
                       id + '<info> at </info>' + str(path))
-
-            interval_start = interval_end
