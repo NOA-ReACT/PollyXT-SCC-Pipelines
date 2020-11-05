@@ -6,6 +6,7 @@ Author: Thanasis Georgiou <ageorgiou@noa.gr>
 from cleo import Application
 
 from pollyxt_pipelines.radiosondes.commands import WRFProfileToCSVs
+from pollyxt_pipelines.polly_to_scc.commands import CreateSCCFile
 
 
 def prepare_cli_application() -> Application:
@@ -15,6 +16,7 @@ def prepare_cli_application() -> Application:
 
     application = Application()
     application.add(WRFProfileToCSVs())
+    application.add(CreateSCCFile())
 
     return application
 
