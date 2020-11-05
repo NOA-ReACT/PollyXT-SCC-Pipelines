@@ -2,7 +2,7 @@
 Contains information about common locations
 '''
 
-from typing import NamedTuple
+from typing import NamedTuple, Union
 
 
 class Location(NamedTuple):
@@ -39,3 +39,16 @@ LOCATION_FINOKALIA = Location(
     lat=25.6698,
     lon=35.3377
 )
+
+LOCATIONS = [LOCATION_ANTIKYTHERA, LOCATION_FINOKALIA]
+
+
+def get_location_by_name(name: str) -> Union[Location, None]:
+    '''
+    Returns a location by it's friendly name or `None` if it doesn't exist.
+    '''
+
+    for loc in LOCATIONS:
+        if loc.name == name:
+            return loc
+    return None

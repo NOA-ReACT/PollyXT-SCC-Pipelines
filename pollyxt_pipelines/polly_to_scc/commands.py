@@ -5,6 +5,7 @@ Author: Thanasis Georgiou <ageorgiou@noa.gr>
 
 from datetime import timedelta
 from pathlib import Path
+from pollyxt_pipelines.locations import get_location_by_name
 from pollyxt_pipelines.polly_to_scc.scc_netcdf import convert_pollyxt_file
 
 from cleo import Command
@@ -38,9 +39,19 @@ class CreateSCC(Command):
             interval = 60  # Default duration is 1 hour/60 minutes
         interval = timedelta(minutes=interval)
 
+        # Try to get location
+        location_name = self.argument('location')
+        location = locations.get_location_by_name(location_name)
+        if location is None:
+            self.line_error(
+                f'<error>Could not find location </error>{location_name}<error>. Known locations:</error>')
+            for l in locations.LOCATIONS:
+                self.line(f'- {l.name}')
+            return 1
+
         # Convert files
         converter = convert_pollyxt_file(
-            input_path, output_path, locations.LOCATION_ANTIKYTHERA, interval, should_round)
+            input_path, output_path, location, interval, should_round)
         for id, path in converter:
             self.line('<info>Created file with measurement ID </info>' +
                       id + '<info> at </info>' + str(path))
@@ -71,6 +82,16 @@ class CreateSCCBatch(Command):
             interval = 60  # Default duration is 1 hour/60 minutes
         interval = timedelta(minutes=interval)
 
+        # Try to get location
+        location_name = self.argument('location')
+        location = locations.get_location_by_name(location_name)
+        if location is None:
+            self.line_error(
+                f'<error>Could not find location </error>{location_name}<error>. Known locations:</error>')
+            for l in locations.LOCATIONS:
+                self.line(f'- {l.name}')
+            return 1
+
         # Get list of input files
         input_path = Path(self.argument('input'))
         if self.option('recursive'):
@@ -92,7 +113,7 @@ class CreateSCCBatch(Command):
             progress.display()
 
             converter = convert_pollyxt_file(
-                file, output_path, locations.LOCATION_ANTIKYTHERA, interval, should_round)
+                file, output_path, location, interval, should_round)
             for id, path in converter:
                 progress.clear()
                 self.line('\r<info>Created file with measurement ID </info>' +
