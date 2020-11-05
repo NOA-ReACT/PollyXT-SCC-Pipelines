@@ -17,3 +17,8 @@ def prepare_cli_application() -> Application:
     application.add(WRFProfileToCSVs())
 
     return application
+
+
+def main():
+    app = prepare_cli_application()
+    app.run()
