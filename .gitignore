@@ -142,3 +142,6 @@ cython_debug/
 
 # Ignore sample_scripts directory where I store references
 sample_scripts/
+
+# Don't include setup.py in repository since it is automatically generated (sometimes!)
+setup.py
