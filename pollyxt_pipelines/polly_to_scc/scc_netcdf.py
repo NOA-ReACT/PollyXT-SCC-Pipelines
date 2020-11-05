@@ -123,6 +123,25 @@ def convert_pollyxt_file(
         location: Location,
         interval: timedelta,
         should_round=False):
+    '''
+    Converts a PollyXT file into a bunch of SCC files. The input file will be split into intervals before being converted
+    to the new format.
+
+    This function is a generator, so you can use it in a for loop to monitor progress:
+    ```
+    for measurement_id, path in convert_pollyxt_file(...):
+        # Do something with id/path, maybe print a message?
+    ```
+
+    Parameters
+    ---
+    - input_path (Path): PollyXT file to convert
+    - output_path (Path): Directory to write the SCC files
+    - location (Location): Geographical information, where the measurement took place
+    - interval (timedelta): What interval to use when splitting the PollyXT file (e.g. 1 hour)
+    - shoudld_round (bool): If true, the interval starts will be rounded down. For example, from 01:02 to 01:00.
+    '''
+
     # Open input netCDF
     measurement_start, measurement_end = pollyxt.get_measurement_period(input_path)
 
@@ -139,7 +158,7 @@ def convert_pollyxt_file(
         # Open netCDF file and convert to SCC
         pf = pollyxt.PollyXTFile(input_path, interval_start, interval_end)
         id, path = create_scc_netcdf(pf, output_path, location)
-        yield id, path
+        yield id, path, interval_start
 
         # Set start of next interval to the end of this one
         interval_start = interval_end
