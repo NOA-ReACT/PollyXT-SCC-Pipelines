@@ -18,8 +18,6 @@ from pollyxt_pipelines.locations import Location
 def create_scc_netcdf(
     pf: PollyXTFile,
     output_path: Path,
-    input_start: str,
-    input_end: str,
     location: Location
 ) -> Tuple[str, Path]:
     '''
@@ -105,8 +103,9 @@ def create_scc_netcdf(
     background_low[:] = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     background_high[:] = np.array([249, 249, 249, 249, 249, 249, 249, 249, 249, 249, 249, 249])
     molecular_calc[:] = 1
-    pol_calib_range_min[:] = []
-    pol_calib_range_max[:] = []
+    # TODO Is this just trying to leave them empty?
+    # pol_calib_range_min[:] = []
+    # pol_calib_range_max[:] = []
     pressure_at_lidar_station[:] = 1008
     temperature_at_lidar_station[:] = 20
     lr_input[:] = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
