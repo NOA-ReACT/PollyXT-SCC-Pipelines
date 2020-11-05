@@ -16,7 +16,7 @@ from pollyxt_pipelines.locations import Location
 
 
 def create_scc_netcdf(
-    input_path: Path,
+    pf: PollyXTFile,
     output_path: Path,
     input_start: str,
     input_end: str,
@@ -30,21 +30,17 @@ def create_scc_netcdf(
 
     Parameters
     ---
-    - input_path (Path): Where to find the input file
+    - pf (PollyXTFile): An opened PollyXT file
     - output_path (Path): Where to store the produced netCDF file
-    - input_start (str): Start of the output file in HH:MM format
-    - input_end (str): End of the output file in HH:MM format
+    - location (Location): Where did this measurement take place
 
     Returns
     ---
     A tuple containing the measurement ID and the output path
     '''
 
-    first_bin = 251
-
-    # Read polly file and calculate measurement ID
-    pf = PollyXTFile(input_path, input_start, input_end)
-    measurement_id = pf.start_date.strftime(f'%Y%m%d${location.scc_code}%H')
+    # Calculate measurement ID
+    measurement_id = pf.start_date.strftime(f'%Y%m%d{location.scc_code}%H%M')
 
     # Create SCC file
     # Output filename is always the measurement ID
