@@ -32,6 +32,8 @@ import os
 
 import pandas as pd
 
+from pollyxt_pipelines.locations import Location
+
 
 def folder_provider(location: str, date: date) -> Path:
     '''
@@ -64,14 +66,15 @@ def folder_provider(location: str, date: date) -> Path:
     return file_path
 
 
-def read_wrf_daily_profile(location: str, date: date, provider=folder_provider) -> pd.DataFrame:
+def read_wrf_daily_profile(
+        location: Location, date: date, provider=folder_provider) -> pd.DataFrame:
     '''
         Reads a WRF radiosonde/profile file for the given location and date and returns all
         profiles for that day in a DataFrame.
 
         Parameters
         ---
-        - location (str): The location (i.e. city) to lookup
+        - location (Locatiion): The location (i.e. station/city) to lookup
         - date (date): Which day to look for radiosonde files
         - provider: This function, also accepting location and date, will be used to resolve the
                     location of the radiosonde files. The default provider simply looks them up
@@ -84,7 +87,7 @@ def read_wrf_daily_profile(location: str, date: date, provider=folder_provider) 
         '''
 
     # Resolve the filename using the provider
-    path = provider(location, date)
+    path = provider(location.profile_name, date)
 
     # Read the file and do some simple parsing
     columns = ['timestamp', 'pressure',

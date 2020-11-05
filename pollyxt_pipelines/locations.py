@@ -20,6 +20,8 @@ class Location(NamedTuple):
     lat: float
     '''Longitude of station'''
     lon: float
+    '''Altitude of station'''
+    altitude: float
 
 
 '''Location at PANGEA observatory - Antikythera'''
@@ -28,7 +30,8 @@ LOCATION_ANTIKYTHERA = Location(
     profile_name="ANTIKYTHERA",
     scc_code="aky",
     lat=23.3100,  # TODO Verify with lidar team
-    lon=35.8612
+    lon=35.8612,
+    altitude=0  # TODO Find this value
 )
 
 '''Location at Finokalia (UoC)'''
@@ -37,7 +40,8 @@ LOCATION_FINOKALIA = Location(
     profile_name="FINOKALIA",
     scc_code='fik',
     lat=25.6698,
-    lon=35.3377
+    lon=35.3377,
+    altitude=0  # TODO Find this value
 )
 
 LOCATIONS = [LOCATION_ANTIKYTHERA, LOCATION_FINOKALIA]
