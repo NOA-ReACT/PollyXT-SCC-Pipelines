@@ -13,7 +13,7 @@ from pollyxt_pipelines.polly_to_scc import pollyxt, scc_netcdf as scc
 from pollyxt_pipelines import locations
 
 
-class CreateSCCFile(Command):
+class CreateSCC(Command):
     '''
     Creates SCC files from a PollyXT netCDF file.
 
