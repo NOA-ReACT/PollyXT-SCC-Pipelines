@@ -103,7 +103,7 @@ class PollyXTFile():
     location_coordinates: np.ndarray
     depol_cal_angle:  np.ndarray
 
-    def __init__(self, input_path: Path, start: datetime, end: datetime):
+    def __init__(self, input_path: Path, start: datetime, end: datetime, nan_calibration=True):
         '''
         Read a PollyXT netcdf file
 
@@ -112,6 +112,7 @@ class PollyXTFile():
         input_path (str): Which file to read
         start (str): Trim file from this time and onwards (HH:MM)
         end (str): Trim file until this time (HH:MM)
+        nan_calibration (bool): If true, at calibration times the raw signal will be set to `np.nan`
         '''
         self.path = input_path
 
@@ -134,6 +135,11 @@ class PollyXTFile():
         self.depol_cal_angle = nc['depol_cal_angle'][:]
 
         nc.close()
+
+        # Optionally set calibration times to nan
+        if nan_calibration:
+            depol_cal_time = np.where(self.depol_cal_angle != 0.0)
+            self.raw_signal[depol_cal_time[0][0]:depol_cal_time[0][-1], :, :] == np.nan
 
         # Store some variables for easy access
         self.start_index = index_start
