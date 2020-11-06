@@ -29,8 +29,8 @@ LOCATION_ANTIKYTHERA = Location(
     name="Antikythera",
     profile_name="ANTIKYTHERA",
     scc_code="aky",
-    lat=23.3100,  # TODO Verify with lidar team
-    lon=35.8612,
+    lat=23.3100,
+    lon=35.8600,
     altitude=0.1
 )
 
