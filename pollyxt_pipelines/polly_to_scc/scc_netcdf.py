@@ -85,12 +85,10 @@ def create_scc_netcdf(
     nc.RawData_Stop_Time_UT = pf.end_date.strftime('%H%M%S')
 
     # Create Global Attributes (optional)
-    # TODO why are we setting the same values?
     nc.RawBck_Start_Date = nc.RawData_Start_Date
     nc.RawBck_Start_Time_UT = nc.RawData_Start_Time_UT
     nc.RawBck_Stop_Time_UT = nc.RawData_Stop_Time_UT
     nc.Sounding_File_Name = f'rs_{measurement_id}.nc'
-    # TODO what is this?
     # nc.Overlap_File_Name = 'ov_' + selected_start.strftime('%Y%m%daky%H') + '.nc'
 
     # Create Variables. (mandatory)
@@ -129,9 +127,6 @@ def create_scc_netcdf(
     background_low[:] = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     background_high[:] = np.array([249, 249, 249, 249, 249, 249, 249, 249, 249, 249, 249, 249])
     molecular_calc[:] = 1
-    # TODO Is this just trying to leave them empty?
-    # pol_calib_range_min[:] = []
-    # pol_calib_range_max[:] = []
     pressure_at_lidar_station[:] = 1008
     temperature_at_lidar_station[:] = 20
     lr_input[:] = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
@@ -164,8 +159,8 @@ def create_scc_calibration_netcdf(
     - output_path (Path): Where to store the produced netCDF file
     - location (Location): Where did this measurement take place
     - wavelength (Wavelength): Calibration for 355nm or 532nm
-    - pol_calib_range_min (int): No idea TODO
-    - pol_calib_range_max (int): No idea TODO
+    - pol_calib_range_min (int): Calibration contant calculation, minimum height
+    - pol_calib_range_max (int): Calibration contant calculation, maximum height
 
     Returns
     ---
@@ -193,7 +188,6 @@ def create_scc_calibration_netcdf(
     nc.RawData_Stop_Time_UT = pf.end_date.strftime('%H%M%S')
 
     # Create Global Attributes (optional)
-    # TODO why are we setting the same values?
     nc.RawBck_Start_Date = nc.RawData_Start_Date
     nc.RawBck_Start_Time_UT = nc.RawData_Start_Time_UT
     nc.RawBck_Stop_Time_UT = nc.RawData_Stop_Time_UT
@@ -247,17 +241,16 @@ def create_scc_calibration_netcdf(
         total_channel = 0
         cross_channel = 1
         channel_id[:] = np.array([1236, 1266, 1267, 1268])
-        nc.Measurement_ID = measurement_id + '35'
+        nc.Measurement_ID = measurement_id + '35'  # TODO This is the filename!!
     elif wavelength == Wavelength.NM_532:
         total_channel = 4
         cross_channel = 5
         channel_id[:] = np.array([1269, 1270, 1271, 1272])
-        nc.Measurement_ID = measurement_id + '53'
+        nc.Measurement_ID = measurement_id + '53'  # TODO This is the filename!!
     else:
         raise ValueError(f'Unknown wavelength {wavelength}')
 
-    # 532
-    # TODO only 532? skip for 355?
+    # Copy calibration cycles
     raw_data_start_time[0, 0] = start_first_measurement
     raw_data_start_time[1, 0] = start_first_measurement + 1
     raw_data_start_time[2, 0] = start_first_measurement + 2
