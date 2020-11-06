@@ -62,7 +62,7 @@ def create_radiosonde_netcdf(
     # Add global attributes
     nc.Latitude_degrees_north = location.lat
     nc.Longitude_degrees_east = location.lon
-    nc.Altitude = location.altitude
+    nc.Altitude_meter_asl = location.altitude
     nc.Sounding_Start_Date = timestamp.strftime('%Y%m%d')
     nc.Sounding_Start_Time_UT = timestamp.strftime('%H%M%S')
 
