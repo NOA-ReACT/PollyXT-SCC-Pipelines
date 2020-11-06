@@ -31,7 +31,7 @@ LOCATION_ANTIKYTHERA = Location(
     scc_code="aky",
     lat=23.3100,  # TODO Verify with lidar team
     lon=35.8612,
-    altitude=0  # TODO Find this value
+    altitude=0.1
 )
 
 '''Location at Finokalia (UoC)'''
@@ -41,7 +41,7 @@ LOCATION_FINOKALIA = Location(
     scc_code='fik',
     lat=25.6698,
     lon=35.3377,
-    altitude=0  # TODO Find this value
+    altitude=0.1
 )
 
 LOCATIONS = [LOCATION_ANTIKYTHERA, LOCATION_FINOKALIA]
