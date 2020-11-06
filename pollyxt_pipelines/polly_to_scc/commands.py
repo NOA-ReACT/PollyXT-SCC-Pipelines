@@ -25,6 +25,15 @@ class CreateSCC(Command):
         {--interval= : Time interval (in minutes) to split the file. Default is one hour.}
         {--round : When set, output files will start on rounded down hours if possible (e.g. from 00:12 to 00:00, 01:42 to 01:00, etc)}
         {--no-radiosonde : If set, no radiosonde files will be created}
+        {--no-calibration : Do not create calibration file}
+    '''
+
+    help = '''
+    If you try to create an SCC file and it includes of one of the following periods, a calibration file will be created:
+    - 02:31 to 02:41
+    - 17:31 to 17:41
+    - 21:31 to 21:41
+    You can disable this with the `--no-calibration` option.
     '''
 
     def handle(self):
@@ -63,8 +72,9 @@ class CreateSCC(Command):
                 return 1
 
         # Convert files
+        skip_calibration = self.option('no-calibration')
         converter = scc_netcdf.convert_pollyxt_file(
-            input_path, output_path, location, interval, should_round)
+            input_path, output_path, location, interval, should_round, calibration=(not skip_calibration))
         for id, path, timestamp in converter:
             self.line('<info>Created file with measurement ID </info>' +
                       id + '<info> at </info>' + str(path))
@@ -92,6 +102,7 @@ class CreateSCCBatch(Command):
         {--interval= : Time interval (in minutes) to split each file. Default is one hour.}
         {--round : When set, output files will start on rounded down hours if possible (e.g. from 00:12 to 00:00, 01:42 to 01:00, etc)}
         {--no-radiosonde : If set, no radiosonde files will be created}
+        {--no-calibration : Do not create calibration files}
     '''
 
     def handle(self):
@@ -131,6 +142,7 @@ class CreateSCCBatch(Command):
         progress = self.progress_bar(len(file_list))
 
         # Iterate over list and convert files
+        skip_calibration = self.option('no-calibration')
         for file in file_list:
             progress.clear()
             self.line(f'\r-> <comment>Converting</comment> {file} <comment>...</comment>')
@@ -150,7 +162,7 @@ class CreateSCCBatch(Command):
                     return 1
 
             converter = scc_netcdf.convert_pollyxt_file(
-                file, output_path, location, interval, should_round)
+                file, output_path, location, interval, should_round, calibration=(not skip_calibration))
             for id, path, timestamp in converter:
                 progress.clear()
                 self.line('\r<info>Created file with measurement ID </info>' +
