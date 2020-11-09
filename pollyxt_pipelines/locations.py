@@ -22,8 +22,10 @@ class Location(NamedTuple):
     lon: float
     '''Altitude of station'''
     altitude: float
-    '''SCC Lidar System ID'''
-    system_id: int
+    '''SCC Lidar Configuration ID - Daytime'''
+    system_id_day: int
+    '''SCC Lidar Configuration ID - Nightime'''
+    system_id_night: int
 
 
 '''Location at PANGEA observatory - Antikythera'''
@@ -34,7 +36,8 @@ LOCATION_ANTIKYTHERA = Location(
     lat=23.3100,
     lon=35.8600,
     altitude=0.1,
-    system_id=138
+    system_id_day=437,
+    system_id_night=438
 )
 
 '''Location at Finokalia (UoC)'''
@@ -45,7 +48,8 @@ LOCATION_FINOKALIA = Location(
     lat=25.6698,
     lon=35.3377,
     altitude=0.1,
-    system_id=88
+    system_id_day=186,
+    system_id_night=302
 )
 
 LOCATIONS = [LOCATION_ANTIKYTHERA, LOCATION_FINOKALIA]
