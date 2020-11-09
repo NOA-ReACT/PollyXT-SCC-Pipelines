@@ -70,7 +70,7 @@ def create_scc_netcdf(
     # Create SCC file
     # Output filename is always the measurement ID
     output_filename = output_path / f'{measurement_id}.nc'
-    nc = Dataset(output_filename, 'w', format='NETCDF3_CLASSIC')
+    nc = Dataset(output_filename, 'w')
 
     # Create dimensions (mandatory!)
     nc.createDimension('points', np.size(pf.raw_signal, axis=1))
@@ -89,32 +89,42 @@ def create_scc_netcdf(
     nc.RawBck_Start_Date = nc.RawData_Start_Date
     nc.RawBck_Start_Time_UT = nc.RawData_Start_Time_UT
     nc.RawBck_Stop_Time_UT = nc.RawData_Stop_Time_UT
-    nc.Sounding_File_Name = f'rs_{measurement_id}.nc'
+    nc.Sounding_File_Name = f'rs_{measurement_id[:-2]}.nc'
     # nc.Overlap_File_Name = 'ov_' + selected_start.strftime('%Y%m%daky%H') + '.nc'
+
+    # Custom attribute for configuration ID
+    # From 04:00 until 16:00 we use daytime configuration
+    if pf.start_date.replace(hour=4, minute=0) < pf.start_date and pf.start_date < pf.start_date.replace(hour=16, minute=0):
+        nc.NOAReACT_Configuration_ID = location.system_id_day
+    else:
+        nc.NOAReACT_Configuration_ID = location.system_id_night
 
     # Create Variables. (mandatory)
     raw_data_start_time = nc.createVariable(
-        'Raw_Data_Start_Time', 'i4', dimensions=('time', 'nb_of_time_scales'))
+        'Raw_Data_Start_Time', 'i4', dimensions=('time', 'nb_of_time_scales'), zlib=True)
     raw_data_stop_time = nc.createVariable(
-        'Raw_Data_Stop_Time', 'i4', dimensions=('time', 'nb_of_time_scales'))
+        'Raw_Data_Stop_Time', 'i4', dimensions=('time', 'nb_of_time_scales'), zlib=True)
     raw_lidar_data = nc.createVariable(
-        'Raw_Lidar_Data', 'f8', dimensions=('time', 'channels', 'points'))
-    channel_id = nc.createVariable('channel_ID', 'i4', dimensions=('channels'))
-    id_timescale = nc.createVariable('id_timescale', 'i4', dimensions=('channels'))
+        'Raw_Lidar_Data', 'f8', dimensions=('time', 'channels', 'points'), zlib=True)
+    channel_id = nc.createVariable('channel_ID', 'i4', dimensions=('channels'), zlib=True)
+    id_timescale = nc.createVariable('id_timescale', 'i4', dimensions=('channels'), zlib=True)
     laser_pointing_angle = nc.createVariable(
-        'Laser_Pointing_Angle', 'f8', dimensions=('scan_angles'))
+        'Laser_Pointing_Angle', 'f8', dimensions=('scan_angles'), zlib=True)
     laser_pointing_angle_of_profiles = nc.createVariable(
-        'Laser_Pointing_Angle_of_Profiles', 'i4', dimensions=('time', 'nb_of_time_scales'))
-    laser_shots = nc.createVariable('Laser_Shots', 'i4', dimensions=('time', 'channels'))
-    background_low = nc.createVariable('Background_Low', 'f8', dimensions=('channels'))
-    background_high = nc.createVariable('Background_High', 'f8', dimensions=('channels'))
-    molecular_calc = nc.createVariable('Molecular_Calc', 'i4', dimensions=())
-    pol_calib_range_min = nc.createVariable('Pol_Calib_Range_Min', 'f8', dimensions=('channels'))
-    pol_calib_range_max = nc.createVariable('Pol_Calib_Range_Max', 'f8', dimensions=('channels'))
-    pressure_at_lidar_station = nc.createVariable('Pressure_at_Lidar_Station', 'f8', dimensions=())
+        'Laser_Pointing_Angle_of_Profiles', 'i4', dimensions=('time', 'nb_of_time_scales'), zlib=True)
+    laser_shots = nc.createVariable('Laser_Shots', 'i4', dimensions=('time', 'channels'), zlib=True)
+    background_low = nc.createVariable('Background_Low', 'f8', dimensions=('channels'), zlib=True)
+    background_high = nc.createVariable('Background_High', 'f8', dimensions=('channels'), zlib=True)
+    molecular_calc = nc.createVariable('Molecular_Calc', 'i4', dimensions=(), zlib=True)
+    nc.createVariable(
+        'Pol_Calib_Range_Min', 'f8', dimensions=('channels'), zlib=True)
+    nc.createVariable(
+        'Pol_Calib_Range_Max', 'f8', dimensions=('channels'), zlib=True)
+    pressure_at_lidar_station = nc.createVariable(
+        'Pressure_at_Lidar_Station', 'f8', dimensions=(), zlib=True)
     temperature_at_lidar_station = nc.createVariable(
-        'Temperature_at_Lidar_Station', 'f8', dimensions=())
-    lr_input = nc.createVariable('LR_Input', 'i4', dimensions=('channels'))
+        'Temperature_at_Lidar_Station', 'f8', dimensions=(), zlib=True)
+    lr_input = nc.createVariable('LR_Input', 'i4', dimensions=('channels'), zlib=True)
 
     # Fill Variables with Data. (mandatory)
     raw_data_start_time[:] = pf.measurement_time[:, 1] - pf.measurement_time[0, 1]
@@ -174,7 +184,7 @@ def create_scc_calibration_netcdf(
     # Create SCC file
     # Output filename is always the measurement ID
     output_filename = output_path / f'calibration_{measurement_id}.nc'
-    nc = Dataset(output_filename, 'w', format='NETCDF3_CLASSIC')
+    nc = Dataset(output_filename, 'w')
 
     # Create Dimensions. (mandatory)
     nc.createDimension("points", np.size(pf.raw_signal, axis=1))
@@ -195,28 +205,29 @@ def create_scc_calibration_netcdf(
 
     # Create Variables. (mandatory)
     raw_data_start_time = nc.createVariable(
-        "Raw_Data_Start_Time", "i4", dimensions=("time", "nb_of_time_scales"))
+        "Raw_Data_Start_Time", "i4", dimensions=("time", "nb_of_time_scales"), zlib=True)
     raw_data_stop_time = nc.createVariable(
-        "Raw_Data_Stop_Time", "i4", dimensions=("time", "nb_of_time_scales"))
+        "Raw_Data_Stop_Time", "i4", dimensions=("time", "nb_of_time_scales"), zlib=True)
     raw_lidar_data = nc.createVariable(
-        "Raw_Lidar_Data", "f8", dimensions=("time", "channels", "points"))
-    channel_id = nc.createVariable("channel_ID", "i4", dimensions=("channels"))
-    id_timescale = nc.createVariable("id_timescale", "i4", dimensions=("channels"))
+        "Raw_Lidar_Data", "f8", dimensions=("time", "channels", "points"), zlib=True)
+    channel_id = nc.createVariable("channel_ID", "i4", dimensions=("channels"), zlib=True)
+    id_timescale = nc.createVariable("id_timescale", "i4", dimensions=("channels"), zlib=True)
     laser_pointing_angle = nc.createVariable(
-        "Laser_Pointing_Angle", "f8", dimensions=("scan_angles"))
+        "Laser_Pointing_Angle", "f8", dimensions=("scan_angles"), zlib=True)
     laser_pointing_angle_of_profiles = nc.createVariable(
-        "Laser_Pointing_Angle_of_Profiles", "i4", dimensions=("time", "nb_of_time_scales"))
-    laser_shots = nc.createVariable("Laser_Shots", "i4", dimensions=("time", "channels"))
-    background_low = nc.createVariable("Background_Low", "f8", dimensions=("channels"))
-    background_high = nc.createVariable("Background_High", "f8", dimensions=("channels"))
-    molecular_calc = nc.createVariable("Molecular_Calc", "i4", dimensions=())
+        "Laser_Pointing_Angle_of_Profiles", "i4", dimensions=("time", "nb_of_time_scales"), zlib=True)
+    laser_shots = nc.createVariable("Laser_Shots", "i4", dimensions=("time", "channels"), zlib=True)
+    background_low = nc.createVariable("Background_Low", "f8", dimensions=("channels"), zlib=True)
+    background_high = nc.createVariable("Background_High", "f8", dimensions=("channels"), zlib=True)
+    molecular_calc = nc.createVariable("Molecular_Calc", "i4", dimensions=(), zlib=True)
     pol_calib_range_min_var = nc.createVariable(
-        "Pol_Calib_Range_Min", "f8", dimensions=("channels"))
+        "Pol_Calib_Range_Min", "f8", dimensions=("channels"), zlib=True)
     pol_calib_range_max_var = nc.createVariable(
-        "Pol_Calib_Range_Max", "f8", dimensions=("channels"))
-    pressure_at_lidar_station = nc.createVariable("Pressure_at_Lidar_Station", "f8", dimensions=())
+        "Pol_Calib_Range_Max", "f8", dimensions=("channels"), zlib=True)
+    pressure_at_lidar_station = nc.createVariable(
+        "Pressure_at_Lidar_Station", "f8", dimensions=(), zlib=True)
     temperature_at_lidar_station = nc.createVariable(
-        "Temperature_at_Lidar_Station", "f8", dimensions=())
+        "Temperature_at_Lidar_Station", "f8", dimensions=(), zlib=True)
 
     # define measurement_cycles
     start_first_measurement = 0
