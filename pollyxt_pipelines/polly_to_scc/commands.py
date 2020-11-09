@@ -81,7 +81,7 @@ class CreateSCC(Command):
 
             # Attempt to write radiosonde for this profile
             if profiles is not None:
-                p = profiles[profiles['timestamp'] == timestamp]
+                p = profiles[profiles['timestamp'] == timestamp.replace(minute=0, second=0)]
                 if len(p) > 0:
                     path = output_path / f'rs_{id}.nc'
                     rs_scc.create_radiosonde_netcdf(p, location, path)
@@ -170,7 +170,7 @@ class CreateSCCBatch(Command):
 
                 # Attempt to write radiosonde for this profile
                 if profiles is not None:
-                    p = profiles[profiles['timestamp'] == timestamp]
+                    p = profiles[profiles['timestamp'] == timestamp.replace(minute=0, second=0)]
                     if len(p) > 0:
                         path = output_path / f'rs_{id}.nc'
                         rs_scc.create_radiosonde_netcdf(p, location, path)
