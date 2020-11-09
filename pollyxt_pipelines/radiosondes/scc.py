@@ -48,10 +48,6 @@ def create_radiosonde_netcdf(
     timestamp = profile.iloc[0, 0]
 
     # Create the netCDF file and add variables from the dataframe
-    if netcdf_path.is_file():
-        raise FileExistsError(
-            f'A file already exists at {netcdf_path}, cowardly refusing to overwrite')
-
     nc = Dataset(netcdf_path, 'w', format='NETCDF3_CLASSIC')
     nc.createDimension('points', profile.shape[0])
 
