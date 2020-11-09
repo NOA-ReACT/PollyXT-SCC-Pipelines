@@ -138,8 +138,9 @@ class PollyXTFile():
 
         # Optionally set calibration times to nan
         if nan_calibration:
-            depol_cal_time = np.where(self.depol_cal_angle != 0.0)
-            self.raw_signal[depol_cal_time[0][0]:depol_cal_time[0][-1], :, :] == np.nan
+            depol_cal_time = np.where(self.depol_cal_angle != 0.0)[0]
+            if depol_cal_time.size != 0:
+                self.raw_signal[depol_cal_time[0]:depol_cal_time[-1], :, :] == np.nan
 
         # Store some variables for easy access
         self.start_index = index_start
