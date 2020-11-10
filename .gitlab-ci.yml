@@ -1,9 +1,9 @@
 stages:
   - build_package
 
-# workflow:
-#   rules:
-#     - if: "$CI_COMMIT_TAG =~ /v.*/"
+workflow:
+  rules:
+    - if: "$CI_COMMIT_TAG =~ /v.*/"
 
 build:
   stage: build_package
@@ -13,6 +13,5 @@ build:
     - poetry build
     - poetry config repositories.gitlab https://react-gitlab.space.noa.gr/api/v4/projects/${CI_PROJECT_ID}/packages/pypi
     - poetry publish -r gitlab --username gitlab-ci-token --password ${CI_JOB_TOKEN}
-    #- TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --repository-url https://react-gitlab.space.noa.gr/api/v4/projects/${CI_PROJECT_ID}/packages/pypi dist/*.whl
-  # only:
-  #   - tags
+  only:
+    - tags
