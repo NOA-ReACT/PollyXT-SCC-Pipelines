@@ -33,24 +33,27 @@ import os
 import pandas as pd
 
 from pollyxt_pipelines.locations import Location
+from pollyxt_pipelines.config import Config
 
 
-def folder_provider(location: str, date: date) -> Path:
+def folder_provider(config: Config, location: str, date: date) -> Path:
     '''
     Provides radiosonde files from a directory. The storage directory is
-    provided by the WRF_RADIOSONDES environmental variable.
+    provided by the wrf.path config variable.
 
     Parameters
     ---
+    - config (Config): The application's config
     - location (str): The location (i.e. city) to lookup
     - date (date): Which day to look for radiosonde files
     '''
 
     # Get radiosonde storage location
-    radiosonde_storage = os.environ.get("WRF_PROFILES", None)
-    if radiosonde_storage is None:
+    try:
+        radiosonde_storage = config['wrf']['path']
+    except KeyError:
         raise ValueError(
-            f'Environmental variable WRF_PROFILES is undefined. Can\'t locate radiosonde files')
+            f'Config variable wrf.path is undefined. Can\'t locate radiosonde files')
     radiosonde_storage = Path(radiosonde_storage)
 
     # Calculate file path and check if it exists
@@ -67,13 +70,14 @@ def folder_provider(location: str, date: date) -> Path:
 
 
 def read_wrf_daily_profile(
-        location: Location, date: date, provider=folder_provider) -> pd.DataFrame:
+        config: Config, location: Location, date: date, provider=folder_provider) -> pd.DataFrame:
     '''
         Reads a WRF radiosonde/profile file for the given location and date and returns all
         profiles for that day in a DataFrame.
 
         Parameters
         ---
+        - config (Config): The application's configuration
         - location (Locatiion): The location (i.e. station/city) to lookup
         - date (date): Which day to look for radiosonde files
         - provider: This function, also accepting location and date, will be used to resolve the
@@ -87,7 +91,7 @@ def read_wrf_daily_profile(
         '''
 
     # Resolve the filename using the provider
-    path = provider(location.profile_name, date)
+    path = provider(config, location.profile_name, date)
 
     # Read the file and do some simple parsing
     columns = ['timestamp', 'pressure',

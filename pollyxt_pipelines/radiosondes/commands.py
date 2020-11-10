@@ -4,7 +4,8 @@ from pathlib import Path
 
 from cleo import Command
 
-from pollyxt_pipelines.radiosondes import scc, wrf
+from pollyxt_pipelines.radiosondes import wrf
+from pollyxt_pipelines.config import Config
 
 
 class WRFProfileToCSVs(Command):
@@ -33,9 +34,12 @@ class WRFProfileToCSVs(Command):
 
         location = self.argument('location')
 
+        config = Config()
+
         # Read the WRF profile file
         try:
-            df = wrf.read_wrf_daily_profile(self.argument('location'),
+            df = wrf.read_wrf_daily_profile(config,
+                                            self.argument('location'),
                                             profile_date)
         except FileNotFoundError as ex:
             self.line_error('<error>WRF Profile file not found!</error>')

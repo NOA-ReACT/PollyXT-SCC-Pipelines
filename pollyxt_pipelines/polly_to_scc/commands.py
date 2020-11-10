@@ -7,11 +7,11 @@ from datetime import timedelta
 from pathlib import Path
 
 from cleo import Command
-import pandas as pd
 
 from pollyxt_pipelines.polly_to_scc import pollyxt, scc_netcdf
 from pollyxt_pipelines.radiosondes import wrf, scc as rs_scc  # TODO fix this crap naming
 from pollyxt_pipelines import locations
+from pollyxt_pipelines.config import Config
 
 
 class CreateSCC(Command):
@@ -60,11 +60,12 @@ class CreateSCC(Command):
             return 1
 
         # Check for radiosonde files
+        config = Config()
         profiles = None
         if not self.option('no-radiosonde'):
             day = pollyxt.get_measurement_period(input_path)[0].date()
             try:
-                profiles = wrf.read_wrf_daily_profile(location, day)
+                profiles = wrf.read_wrf_daily_profile(config, location, day)
             except FileNotFoundError as ex:
                 self.line_error(
                     f'<error>No radiosonde file found for </error>{location.name}<error> at </error>{day.isoformat()}')
@@ -150,11 +151,12 @@ class CreateSCCBatch(Command):
 
             # Try to find profiles
             # Check for radiosonde files
+            config = Config()
             profiles = None
             if not self.option('no-radiosonde'):
                 day = pollyxt.get_measurement_period(file)[0].date()
                 try:
-                    profiles = wrf.read_wrf_daily_profile(location, day)
+                    profiles = wrf.read_wrf_daily_profile(config, location, day)
                 except FileNotFoundError as ex:
                     self.line_error(
                         f'<error>No radiosonde file found for </error>{location.name}<error> at </error>{day.isoformat()}')
