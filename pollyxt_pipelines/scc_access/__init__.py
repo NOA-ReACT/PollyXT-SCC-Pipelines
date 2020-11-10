@@ -5,6 +5,8 @@ https://repositories.imaa.cnr.it/public/scc_access/file
 
 import logging
 from pathlib import Path
+from pollyxt_pipelines.scc_access.api import Measurement
+from typing import List
 
 from netCDF4 import Dataset
 
@@ -12,6 +14,98 @@ from pollyxt_pipelines.scc_access import api
 
 BASE_URL = 'https://scc.imaa.cnr.it/'
 logger = logging.getLogger(__name__)
+
+
+def upload_files(
+    filenames: List[Path], credentials: api.SCC_Credentials
+):
+    '''
+    Batch upload of files to SCC
+
+    Parameters
+    ---
+    - filenames (List[Path]): Which files to upload. Files must be accompanied by radiosonde
+                              netCDF files (rs_%ID.nc). The radiosonde filename will be read
+                              from the 'Sounding_File_name` attribute. To upload only one file,
+                              provide a list with only one item.
+    - credentials (SCC_Credentials): The authentication credentials to use
+
+    Returns
+    ---
+    This is a generator, yielding each filename and the corresponding measurement ID. You can store these IDs to download
+    the processing results later using `download_products()`.
+
+    ```
+    for filename, id in upload_files(names, credenials):
+        # Do something with id
+    ```
+    '''
+
+    # Login to the API
+    # TODO Remove output_dir from here
+    scc = api.SCC(credentials, output_dir='./')
+    scc.login()
+
+    for filename in filenames:
+        # Determine radiosonde filename and system configuration ID from netCDF attributes
+        with Dataset(filename, 'r') as nc:
+            rs_name: str = nc.Sounding_File_Name
+            configuration_id: int = nc.NOAReACT_Configuration_ID
+
+        # Check radiosonde file existance
+        rs_filename = filename.parent / rs_name
+        if not rs_filename.is_file():
+            scc.logout()  # Logout before raising exception
+            raise FileNotFoundError(
+                f'Dataset {filename} required radiosonde {rs_name} but it is not found at {rs_filename}')
+
+        # Upload file
+        measurement_id = scc.upload_file(filename, configuration_id,
+                                         rs_filename=rs_filename)
+        if measurement_id == False:
+            print(f'Could not upload file {filename}!')
+        else:
+            yield filename, measurement_id
+
+    scc.logout()
+
+
+def download_files(ids: List[str], output_path: Path, credentials: api.SCC_Credentials):
+    '''
+    Batch download of processing products from SCC
+
+    Parameters
+    ---
+    ids (List[str]): List of IDs to check. If processing is completed for each file, the products
+                     are downloaded.
+    output_path (Path): Where to store the downloaded products
+    '''
+
+    # Login to the API
+    scc = api.SCC(credentials, output_dir=output_path)
+    scc.login()
+
+    # Check each ID
+    for id in ids:
+        measurement, _ = scc.get_measurement(id)
+        if measurement is None or measurement.is_running:
+            yield id, False
+            continue
+
+        # Download any available products
+        if measurement.hirelpp == 127:
+            scc.download_hirelpp(id)
+        if measurement.cloudmask == 127:
+            scc.download_cloudmask(id)
+        if measurement.elpp == 127:
+            scc.download_preprocessed(id)
+        if measurement.elda == 127:
+            scc.download_optical(id)
+            scc.download_graphs(id)
+        if measurement.elic == 127:
+            scc.download_elic(id)
+
+        yield id, True
 
 
 def process_file(
