@@ -9,7 +9,7 @@ build:
   stage: build_package
   image: python:3.8
   script:
-    - pipx install poetry
+    - pip install poetry
     - poetry build
     - poetry config repositories.gitlab https://react-gitlab.space.noa.gr/api/v4/projects/${CI_PROJECT_ID}/packages/pypi
     - poetry publish -r gitlab --username gitlab-ci-token --password ${CI_JOB_TOKEN}
