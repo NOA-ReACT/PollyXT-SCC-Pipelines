@@ -1,6 +1,14 @@
+'''
+Tools for communicating with the SCC backend
+
+Author: Thanasis Georgiou <ageorgiou@noa.gr>
+Based on `scc-access` by Iannis Binietoglou <i.binietoglou@impworks.gr>: https://repositories.imaa.cnr.it/public/scc_access
+'''
+
 from datetime import date
 import contextlib
 from typing import Union, List, Tuple
+from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
@@ -15,6 +23,9 @@ from pollyxt_pipelines.scc_access.types import Measurement
 class SCC:
     '''
     Represents a session with SCC.
+    Before making any calls, the user should login using `login()`!
+
+    It's recommended to use the `scc_session()` context manager, which handles logging in and out.
     '''
 
     def __init__(self, credentials: SCC_Credentials):
@@ -28,7 +39,12 @@ class SCC:
         self.session.verify = True
 
     def login(self):
-        '''Login to SCC'''
+        '''
+        Login to SCC
+
+        This function starts a session with the SCC backend, storing the authentication
+        cookies so they can be used by the rest of the methods. Remember to call `logout()`!
+        '''
 
         # Get login form (for csrf token)
         login_page = self.session.get(constants.login_url)
@@ -103,6 +119,14 @@ class SCC:
 def scc_session(credentials: SCC_Credentials):
     '''
     An SCC session as a context, to use with `with:`
+
+    Example
+    ---
+    ```python
+    with scc_access(credentials) as scc:
+        # Use scc
+        # ...
+    ```
     '''
     try:
         scc = SCC(credentials)
