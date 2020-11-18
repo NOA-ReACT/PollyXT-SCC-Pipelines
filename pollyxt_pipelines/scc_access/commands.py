@@ -218,7 +218,7 @@ class SearchSCC(Command):
                 pages, measurements = scc.query_measurements(
                     date_start, date_end, location, credentials)
                 if len(measurements) == 0:
-                    progress.stop(task)
+                    progress.stop()
                     console.print('[warning]No measurements found![/warning]')
                     return 0
 
