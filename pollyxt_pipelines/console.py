@@ -6,7 +6,7 @@ from rich.console import Console
 from rich.theme import Theme
 
 console_theme = Theme({
-    "info": "white",
+    "info": "cyan",
     "warning": "yellow",
     "error": "bold red"
 })
