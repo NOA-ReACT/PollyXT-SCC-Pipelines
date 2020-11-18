@@ -8,7 +8,7 @@ from cleo import Application
 from pollyxt_pipelines.radiosondes.commands import WRFProfileToCSVs
 from pollyxt_pipelines.polly_to_scc.commands import CreateSCCBatch, CreateSCC
 from pollyxt_pipelines.config import ConfigCommand
-from pollyxt_pipelines.scc_access.commands import DownloadFiles, ProcessFile, UploadFiles
+from pollyxt_pipelines.scc_access.commands import DownloadFiles, ProcessFile, SearchSCC, UploadFiles
 
 
 def prepare_cli_application() -> Application:
@@ -24,6 +24,7 @@ def prepare_cli_application() -> Application:
     application.add(ProcessFile())
     application.add(UploadFiles())
     application.add(DownloadFiles())
+    application.add(SearchSCC())
 
     return application
 
