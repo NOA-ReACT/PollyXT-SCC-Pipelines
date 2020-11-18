@@ -9,8 +9,7 @@ from pathlib import Path
 from cleo import Command
 
 from pollyxt_pipelines.polly_to_scc import pollyxt, scc_netcdf
-from pollyxt_pipelines.radiosondes import wrf, scc as rs_scc  # TODO fix this crap naming
-from pollyxt_pipelines import locations
+from pollyxt_pipelines import locations, radiosondes
 from pollyxt_pipelines.config import Config
 
 
@@ -65,7 +64,7 @@ class CreateSCC(Command):
         if not self.option('no-radiosonde'):
             day = pollyxt.get_measurement_period(input_path)[0].date()
             try:
-                profiles = wrf.read_wrf_daily_profile(config, location, day)
+                profiles = radiosondes.wrf.read_wrf_daily_profile(config, location, day)
             except FileNotFoundError as ex:
                 self.line_error(
                     f'<error>No radiosonde file found for </error>{location.name}<error> at </error>{day.isoformat()}')
@@ -85,7 +84,7 @@ class CreateSCC(Command):
                 p = profiles[profiles['timestamp'] == timestamp.replace(minute=0, second=0)]
                 if len(p) > 0:
                     path = output_path / f'rs_{id[:-2]}.nc'
-                    rs_scc.create_radiosonde_netcdf(p, location, path)
+                    radiosondes.create_radiosonde_netcdf(p, location, path)
                     self.line(f'<info>Created radiosonde file at</info> {path}')
                 else:
                     self.line_error(f'<error>No radiosonde profile found for </error>{id}')
@@ -156,7 +155,7 @@ class CreateSCCBatch(Command):
             if not self.option('no-radiosonde'):
                 day = pollyxt.get_measurement_period(file)[0].date()
                 try:
-                    profiles = wrf.read_wrf_daily_profile(config, location, day)
+                    profiles = radiosondes.wrf.read_wrf_daily_profile(config, location, day)
                 except FileNotFoundError as ex:
                     self.line_error(
                         f'<error>No radiosonde file found for </error>{location.name}<error> at </error>{day.isoformat()}')
@@ -175,7 +174,7 @@ class CreateSCCBatch(Command):
                     p = profiles[profiles['timestamp'] == timestamp.replace(minute=0, second=0)]
                     if len(p) > 0:
                         path = output_path / f'rs_{id[:-2]}.nc'
-                        rs_scc.create_radiosonde_netcdf(p, location, path)
+                        radiosondes.create_radiosonde_netcdf(p, location, path)
                         self.line(f'<info>Created radiosonde file at</info> {path}')
                     else:
                         self.line_error(f'<error>No radiosonde profile found for </error>{id}')

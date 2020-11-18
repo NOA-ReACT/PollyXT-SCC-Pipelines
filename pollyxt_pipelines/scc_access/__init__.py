@@ -3,14 +3,16 @@ Based on SCC-Access by Ioannis Binietoglou licensed under MIT
 https://repositories.imaa.cnr.it/public/scc_access/file
 '''
 
+from datetime import date
 import logging
 from pathlib import Path
+from pollyxt_pipelines.locations import Location
 from pollyxt_pipelines.scc_access.api import Measurement
-from typing import List
+from typing import List, Union
 
 from netCDF4 import Dataset
 
-from pollyxt_pipelines.scc_access import api
+from pollyxt_pipelines.scc_access import api, new_api
 
 BASE_URL = 'https://scc.imaa.cnr.it/'
 logger = logging.getLogger(__name__)
@@ -139,6 +141,7 @@ def process_file(
     scc.login()
 
     # Determine day/night
+    # TODO
 
     # Process file
     print(configuration_id)
@@ -149,6 +152,35 @@ def process_file(
                               ov_filename=None)
     scc.logout()
     return measurement
+
+
+def search_measurements(date_start: date, date_end: date,
+                        location: Union[Location, None],
+                        credentials: api.SCC_Credentials) -> List[Measurement]:
+    '''
+    Searches SCC for measurement files
+
+    Parameters
+    ---
+    date_start (date): First day of files to return
+    date_end (date): Last day of files to return
+    location (Location): Optionally, search files only from this station
+
+    Returns
+    ---
+    A list of measurements
+    '''
+
+    # Login to the API
+    with new_api.scc_session(credentials) as scc:
+        # Search for files
+        if location is not None:
+            station = location.scc_code
+        else:
+            station = None
+        measurements = scc.query_measurements(date_start, date_end, location)
+
+        return measurements
 
 
 def delete_measurements(measurement_ids, settings):
