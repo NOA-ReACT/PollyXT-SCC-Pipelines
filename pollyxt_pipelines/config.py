@@ -9,7 +9,9 @@ from pathlib import Path
 from typing import List
 import platform
 
-from pollyxt_pipelines.LoggerCommand import LoggerCommand
+from cleo import Command
+
+from pollyxt_pipelines.console import console
 
 
 def config_paths() -> List[str]:
@@ -63,7 +65,7 @@ class Config():
             self.parser.write(file)
 
 
-class ConfigCommand(LoggerCommand):
+class ConfigCommand(Command):
     '''
     Sets or reads a config value.
 
@@ -73,10 +75,13 @@ class ConfigCommand(LoggerCommand):
     '''
 
     def handle(self):
-        super().handle()
-
         # Parse arguments
-        group, name = self.argument('name').split('.')
+        try:
+            group, name = self.argument('name').split('.')
+        except ValueError:
+            console.print(
+                '[error]Variable names should be in the[/error] GROUP.NAME [error]format. For example,[/error] `auth.username`')
+            return 1
         value = self.argument('value')
 
         config = Config()
@@ -84,10 +89,10 @@ class ConfigCommand(LoggerCommand):
             # Read variable
             try:
                 value = config[group][name]
-                logging.info(value)
+                console.print(value)
             except KeyError:
-                logging.error(f'No config value with name {group}.{name}')
-                logging.error('Did you forget to define it?')
+                console.print(f'[error]No config value with name[/error] {group}.{name}')
+                console.print('Did you forget to define it?')
                 return 1
         else:
             config[group][name] = value
