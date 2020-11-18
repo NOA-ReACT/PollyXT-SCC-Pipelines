@@ -3,14 +3,13 @@ Helper functions and command for the app's config
 Import the `Config` function to use it.
 '''
 
+import logging
 from configparser import ConfigParser
 from pathlib import Path
 from typing import List
 import platform
 
-from cleo import Command
-
-from pathlib import Path
+from pollyxt_pipelines.LoggerCommand import LoggerCommand
 
 
 def config_paths() -> List[str]:
@@ -64,7 +63,7 @@ class Config():
             self.parser.write(file)
 
 
-class ConfigCommand(Command):
+class ConfigCommand(LoggerCommand):
     '''
     Sets or reads a config value.
 
@@ -74,6 +73,8 @@ class ConfigCommand(Command):
     '''
 
     def handle(self):
+        super().handle()
+
         # Parse arguments
         group, name = self.argument('name').split('.')
         value = self.argument('value')
@@ -83,10 +84,10 @@ class ConfigCommand(Command):
             # Read variable
             try:
                 value = config[group][name]
-                self.line(value)
+                logging.info(value)
             except KeyError:
-                self.line(f'<error>No config value with name</error> {group}.{name}')
-                self.line('<error>Did you forget to define it?</error>')
+                logging.error(f'No config value with name {group}.{name}')
+                logging.error('Did you forget to define it?')
                 return 1
         else:
             config[group][name] = value
