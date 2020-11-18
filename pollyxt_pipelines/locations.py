@@ -57,10 +57,20 @@ LOCATIONS = [LOCATION_ANTIKYTHERA, LOCATION_FINOKALIA]
 
 def get_location_by_name(name: str) -> Union[Location, None]:
     '''
-    Returns a location by it's friendly name or `None` if it doesn't exist.
+    Returns a location by its friendly name or `None` if it doesn't exist.
     '''
 
     for loc in LOCATIONS:
         if loc.name == name:
+            return loc
+    return None
+
+def get_location_by_scc_code(code: str) -> Union[Location,None]:
+    '''
+    Returns a location by its SCC code or `None` if it doesn't exist.
+    '''
+
+    for loc in LOCATIONS:
+        if loc.scc_code == code:
             return loc
     return None
