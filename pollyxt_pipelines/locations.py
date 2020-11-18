@@ -4,6 +4,8 @@ Contains information about common locations
 
 from typing import NamedTuple, Union
 
+from pollyxt_pipelines.console import console
+
 
 class Location(NamedTuple):
     '''
@@ -65,7 +67,8 @@ def get_location_by_name(name: str) -> Union[Location, None]:
             return loc
     return None
 
-def get_location_by_scc_code(code: str) -> Union[Location,None]:
+
+def get_location_by_scc_code(code: str) -> Union[Location, None]:
     '''
     Returns a location by its SCC code or `None` if it doesn't exist.
     '''
@@ -74,3 +77,14 @@ def get_location_by_scc_code(code: str) -> Union[Location,None]:
         if loc.scc_code == code:
             return loc
     return None
+
+
+def unknown_location_error(name: str):
+    '''
+    Prints an error message that the given location is not found, along with a
+    list of known locations
+    '''
+    console.print(f'[error]Could not find location [/error]{name}[error].')
+    console.print('Known locations:')
+    for l in LOCATIONS:
+        console.print(f'- {l.name}')

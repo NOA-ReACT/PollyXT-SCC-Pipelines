@@ -8,6 +8,7 @@ from pathlib import Path
 
 from cleo import Command
 
+from pollyxt_pipelines.console import console
 from pollyxt_pipelines.polly_to_scc import pollyxt, scc_netcdf
 from pollyxt_pipelines import locations, radiosondes
 from pollyxt_pipelines.config import Config
@@ -52,10 +53,7 @@ class CreateSCC(Command):
         location_name = self.argument('location')
         location = locations.get_location_by_name(location_name)
         if location is None:
-            self.line_error(
-                f'<error>Could not find location </error>{location_name}<error>. Known locations:</error>')
-            for l in locations.LOCATIONS:
-                self.line(f'- {l.name}')
+            locations.unknown_location_error(location_name)
             return 1
 
         # Check for radiosonde files
@@ -121,10 +119,7 @@ class CreateSCCBatch(Command):
         location_name = self.argument('location')
         location = locations.get_location_by_name(location_name)
         if location is None:
-            self.line_error(
-                f'<error>Could not find location </error>{location_name}<error>. Known locations:</error>')
-            for l in locations.LOCATIONS:
-                self.line(f'- {l.name}')
+            locations.unknown_location_error(location_name)
             return 1
 
         # Get list of input files

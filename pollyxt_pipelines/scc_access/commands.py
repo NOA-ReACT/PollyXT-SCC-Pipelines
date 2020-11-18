@@ -173,11 +173,12 @@ class SearchSCC(Command):
 
     def handle(self):
         # Parse arguments
-        location = self.argument('location')
-        if location is not None:
-            location = locations.get_location_by_name(location)
+        location_name = self.argument('location')
+        location = None
+        if location_name is not None:
+            location = locations.get_location_by_name(location_name)
             if location is None:
-                logging.error(f'Location {location} not found!')
+                locations.unknown_location_error(location_name)
                 return 1
 
         try:
