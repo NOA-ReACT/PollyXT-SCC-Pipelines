@@ -9,6 +9,7 @@ from datetime import date
 import contextlib
 from typing import Union, List, Tuple
 from pathlib import Path
+import shutil
 
 import requests
 from bs4 import BeautifulSoup
@@ -71,6 +72,20 @@ class SCC:
         '''Logout of SCC'''
         self.session.get(constants.login_url)
 
+    def download_file(self, url: str, path: Path):
+        '''
+        Downloads a single file from SCC to the given path
+
+        Parameters
+        ---
+        - url (str): Which URL to download the file from
+        - path (Path): Where to store the downloaded file
+        '''
+
+        with requests.get(url, stream=True) as r:
+            with open(path, 'wb') as file:
+                shutil.copyfileobj(r.raw, file)
+
     def query_measurements(self, date_start: date, date_end: date,
                            location: Union[Location, None], page=0) -> Tuple[int, List[Measurement]]:
         '''
@@ -113,6 +128,71 @@ class SCC:
                         for tr in body.findAll('tr', {'class': 'grp-row'})]
 
         return pages, measurements
+
+    def download_products(self, measurement_id: str, download_path: Path,
+                          hirelpp=True,
+                          cloudmask=True,
+                          elpp=True,
+                          optical=True,
+                          elic=True):
+        '''
+        Downloads products for a given measurement (ID) to the given path.
+        This function is a generator, yielding the filename of each downloaded file.
+
+        Parameters
+        ---
+        - measurement_id (str): Which measurement to download products for
+        - download_path (Path): Where to store the downloaded products
+        - hirelpp (bool, default=True): Whether to download HiRELPP files
+        - cloudmask (bool, default=True): Whether to download Cloudmask files
+        - elpp (bool, default=True): Whether to download ELPP files
+        - optical (bool, default=True): Whether to download optical (ELDA or ELDEC) files
+        - elic (bool, default=True): Whether to download ELIC files
+        '''
+
+        # Determine URLs to download
+        to_download = []
+        if hirelpp:
+            to_download.append({
+                'url': constants.download_hirelpp_pattern.format(measurement_id),
+                'path': download_path / f'hirelpp_{measurement_id}.zip'
+            })
+        if cloudmask:
+            to_download.append({
+                'url': constants.download_cloudmask_pattern.format(measurement_id),
+                'path': download_path / f'cloudmask_{measurement_id}.zip'
+            })
+        if elpp:
+            to_download.append({
+                'url': constants.download_preprocessed_pattern.format(measurement_id),
+                'path': download_path / f'preprocessed_{measurement_id}.zip'
+            })
+        if optical:
+            to_download.append({
+                'url': constants.download_optical_pattern.format(measurement_id),
+                'path': download_path / f'optical_{measurement_id}.zip'
+            })
+        if elic:
+            to_download.append({
+                'url': constants.download_elic_pattern.format(measurement_id),
+                'path': download_path / f'elic_{measurement_id}.zip'
+            })
+
+        if len(to_download) == 0:
+            raise ValueError('At least one product must be downloaded!')
+
+        # Download each file
+        for download in to_download:
+            try:
+                self.download_file(**download)
+                yield download['path']
+            except Exception as ex:
+                console.print('[error]Error while downloading file from SCC[/error]')
+                console.print(f'[error]URL:[/error] {download["url"]}')
+                console.print(f'[error]Path:[/error] {download["path"]}')
+                console.print('[error]Exception:[/error]')
+                console.print_exception()
+                continue
 
 
 @contextlib.contextmanager

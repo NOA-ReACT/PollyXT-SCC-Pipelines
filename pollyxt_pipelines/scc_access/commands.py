@@ -11,7 +11,7 @@ from pollyxt_pipelines.console import console
 from pollyxt_pipelines import scc_access, locations
 from pollyxt_pipelines.scc_access import new_api
 from pollyxt_pipelines.config import Config
-from pollyxt_pipelines.utils import bool_to_emoji
+from pollyxt_pipelines.utils import bool_to_emoji, option_to_bool
 
 
 class UploadFiles(Command):
@@ -167,13 +167,13 @@ class SearchSCC(Command):
     scc-search
         {date-start : First day to return (YYYY-MM-DD)}
         {date-end : Last day to return (YYYY-MM-DD)}
-        {location? : Search for measurement from this station}
+        {--location=? : Search for measurement from this station}
         {--to-csv= : Optionally, write file list into a CSV file}
     '''
 
     def handle(self):
         # Parse arguments
-        location_name = self.argument('location')
+        location_name = self.option('location')
         location = None
         if location_name is not None:
             location = locations.get_location_by_name(location_name)
@@ -271,3 +271,121 @@ class SearchSCC(Command):
                     f.write(m.to_csv() + '\n')
 
             console.print(f'[info]Wrote .csv file[/info] {csv_path}')
+
+
+class SearchDownloadSCC(Command):
+    '''
+    Search SCC for products and downloads them into the given path
+
+    scc-search-download
+        {date-start : First day to return (YYYY-MM-DD)}
+        {date-end : Last day to return (YYYY-MM-DD)}
+        {download-path : Where to store the downloaded files}
+        {--location=? : Search for measurement from this station}
+        {--to-csv= : Optionally, write file list into a CSV file}
+        {--no-hirelpp : Do not download HiRELPP products}
+        {--no-cloudmask : Do not download cloudmask products}
+        {--no-elpp : Do not download ELPP files}
+        {--no-optical : Do not download optical (ELDA or ELDEC) files}
+        {--no-elic : Do not download ELIC files}
+    '''
+
+    def handle(self):
+        # Parse arguments
+        location_name = self.option('location')
+        location = None
+        if location_name is not None:
+            location = locations.get_location_by_name(location_name)
+            if location is None:
+                locations.unknown_location_error(location_name)
+                return 1
+
+        try:
+            date_start = self.argument('date-start')
+            date_start = datetime.date.fromisoformat(date_start)
+        except ValueError:
+            logging.error('Could not parse date-start! Please use the ISO format (YYYY-MM-DD)')
+            return 1
+
+        try:
+            date_end = self.argument('date-end')
+            date_end = datetime.date.fromisoformat(date_end)
+        except ValueError:
+            logging.error('Could not parse date-start! Please use the ISO format (YYYY-MM-DD)')
+            return 1
+
+        hirelpp = option_to_bool(self.option('no-hirelpp'), True)
+        cloudmask = option_to_bool(self.option('no-cloudmask'), True)
+        elpp = option_to_bool(self.option('no-elpp'), True)
+        optical = option_to_bool(self.option('no-optical'), True)
+        elic = option_to_bool(self.option('no-elic'), True)
+
+        download_path = Path(self.argument('download-path'))
+        download_path.mkdir(exist_ok=True, parents=True)
+
+        # Read application config
+        config = Config()
+        try:
+            credentials = scc_access.api.SCC_Credentials(config)
+        except KeyError:
+            self.line('<error>Credentials not found in config</error>')
+            self.line('Use `pollyxt_pipelines config` to set the following variables:')
+            self.line('- http.username')
+            self.line('- http.password')
+            self.line('- auth.username')
+            self.line('- auth.password')
+            self.line('For example, `pollyxt_pipelines config http.username scc_user')
+            return 1
+
+        # Login to SCC
+        with new_api.scc_session(credentials) as scc:
+            # Look up products
+            with Progress(console=console) as progress:
+                task = progress.add_task('Fetching results...', start=False, total=1)
+
+                # Query SCC for measurements
+                pages, measurements = scc.query_measurements(
+                    date_start, date_end, location, credentials)
+                if len(measurements) == 0:
+                    progress.stop()
+                    console.print('[warning]No measurements found![/warning]')
+                    return 0
+
+                if pages > 1:
+                    progress.start_task(task)
+                    progress.update(task, total=pages, completed=1, start=True)
+
+                    current_page = 2
+                    while current_page <= pages:
+                        _, more_measurements = scc.query_measurements(
+                            date_start, date_end, location, page=current_page)
+                        measurements += more_measurements
+
+                        current_page += 1
+                        progress.advance(task)
+
+            console.log(f'[info]Found[/info] {len(measurements)} [info]measurements.[/info]')
+
+            # Download files
+            measurement_count = len(measurements)
+            file_count = 0
+            i = 0
+            with Progress(console=console) as progress:
+                task = progress.add_task(
+                    f'Downloading products (1/{measurement_count})...', total=measurement_count)
+
+                for m in measurements:
+                    progress.update(
+                        task, description=f'Downloading products ({i}/{measurement_count})...')
+                    for file in scc.download_products(m.id, download_path,
+                                                      hirelpp and m.has_hirelpp,
+                                                      cloudmask and m.has_cloudmask,
+                                                      elpp and m.has_elpp,
+                                                      optical and (m.has_elda or m.has_eldec),
+                                                      elic and m.has_elic):
+                        file_count += 1
+                        console.log(f'[info]Downloaded[/info] {file}')
+                    progress.advance(task)
+                    i += 1
+
+        console.log(f'[info]Downloaded[/info] {file_count} [info]files![/info]')
