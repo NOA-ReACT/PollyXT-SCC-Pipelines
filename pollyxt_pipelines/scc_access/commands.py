@@ -10,7 +10,7 @@ from netCDF4 import Dataset
 
 from pollyxt_pipelines.console import console
 from pollyxt_pipelines import locations
-from pollyxt_pipelines.scc_access import new_api, SCC_Credentials, exceptions
+from pollyxt_pipelines.scc_access import scc_session, SCC_Credentials, exceptions
 from pollyxt_pipelines.config import Config
 from pollyxt_pipelines.utils import bool_to_emoji, option_to_bool
 
@@ -57,7 +57,7 @@ class UploadFiles(Command):
         # Upload files
         successful_files = []
         successful_ids = []
-        with new_api.scc_session(credentials) as scc:
+        with scc_session(credentials) as scc:
             for file in track(files, description='Uploading files...', console=console):
                 # Read file to find radiosondes
                 nc = Dataset(file, 'r')
@@ -147,7 +147,7 @@ class DownloadFiles(Command):
             return 1
 
         # Download files for each ID
-        with new_api.scc_session(credentials) as scc:
+        with scc_session(credentials) as scc:
             for id in track(ids, description='Downloading products', console=console):
                 # Check if processing is done
                 measurement = scc.get_measurement(id)
@@ -198,7 +198,7 @@ class SearchSCC(Command):
         # Read application config
         config = Config()
         try:
-            credentials = api.SCC_Credentials(config)
+            credentials = SCC_Credentials(config)
         except KeyError:
             self.line('<error>Credentials not found in config</error>')
             self.line('Use `pollyxt_pipelines config` to set the following variables:')
@@ -210,7 +210,7 @@ class SearchSCC(Command):
             return 1
 
         # Login to SCC to make queries
-        with new_api.scc_session(credentials) as scc:
+        with scc_session(credentials) as scc:
             with Progress(console=console) as progress:
                 task = progress.add_task('Fetching results...', start=False, total=1)
 
@@ -340,7 +340,7 @@ class SearchDownloadSCC(Command):
             return 1
 
         # Login to SCC
-        with new_api.scc_session(credentials) as scc:
+        with scc_session(credentials) as scc:
             # Look up products
             with Progress(console=console) as progress:
                 task = progress.add_task('Fetching results...', start=False, total=1)
