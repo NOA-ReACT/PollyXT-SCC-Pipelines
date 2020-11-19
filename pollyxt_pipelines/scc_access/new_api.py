@@ -16,8 +16,7 @@ from bs4 import BeautifulSoup
 
 from pollyxt_pipelines.console import console
 from pollyxt_pipelines.locations import Location
-from pollyxt_pipelines.scc_access.api import SCC_Credentials
-from pollyxt_pipelines.scc_access import constants, exceptions
+from pollyxt_pipelines.scc_access import SCC_Credentials, constants, exceptions
 from pollyxt_pipelines.scc_access.types import APIObject, Measurement
 
 

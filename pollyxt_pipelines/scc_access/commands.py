@@ -9,8 +9,8 @@ from rich.progress import Progress, track
 from netCDF4 import Dataset
 
 from pollyxt_pipelines.console import console
-from pollyxt_pipelines import scc_access, locations
-from pollyxt_pipelines.scc_access import new_api
+from pollyxt_pipelines import locations
+from pollyxt_pipelines.scc_access import new_api, SCC_Credentials, exceptions
 from pollyxt_pipelines.config import Config
 from pollyxt_pipelines.utils import bool_to_emoji, option_to_bool
 
@@ -43,7 +43,7 @@ class UploadFiles(Command):
         # Read application config
         config = Config()
         try:
-            credentials = scc_access.api.SCC_Credentials(config)
+            credentials = SCC_Credentials(config)
         except KeyError:
             self.line('<error>Credentials not found in config</error>')
             self.line('Use `pollyxt_pipelines config` to set the following variables:')
@@ -76,7 +76,7 @@ class UploadFiles(Command):
                     scc.upload_file(file, configuration_id, rs_filename=radiosonde_path)
                     successful_files.append(file)
                     successful_ids.append(dataset_id)
-                except scc_access.exceptions.SCCError as ex:
+                except exceptions.SCCError as ex:
                     console.print(
                         f'[error]Error while uploading[/error] {file}[error]:[/error] {str(ex)}')
                 except Exception:
@@ -135,7 +135,7 @@ class DownloadFiles(Command):
         # Read application config
         config = Config()
         try:
-            credentials = scc_access.api.SCC_Credentials(config)
+            credentials = SCC_Credentials(config)
         except KeyError:
             self.line('<error>Credentials not found in config</error>')
             self.line('Use `pollyxt_pipelines config` to set the following variables:')
@@ -198,7 +198,7 @@ class SearchSCC(Command):
         # Read application config
         config = Config()
         try:
-            credentials = scc_access.api.SCC_Credentials(config)
+            credentials = api.SCC_Credentials(config)
         except KeyError:
             self.line('<error>Credentials not found in config</error>')
             self.line('Use `pollyxt_pipelines config` to set the following variables:')
@@ -328,7 +328,7 @@ class SearchDownloadSCC(Command):
         # Read application config
         config = Config()
         try:
-            credentials = scc_access.api.SCC_Credentials(config)
+            credentials = SCC_Credentials(config)
         except KeyError:
             self.line('<error>Credentials not found in config</error>')
             self.line('Use `pollyxt_pipelines config` to set the following variables:')
