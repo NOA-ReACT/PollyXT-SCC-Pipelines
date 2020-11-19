@@ -98,7 +98,7 @@ class UploadFiles(Command):
 
             df = pd.DataFrame()
             df['Filename'] = successful_files
-            df['Measurement_ID'] = successful_ids
+            df['id'] = successful_ids
             df['Products_Downloaded'] = False
 
             df.to_csv(list_file, index=False)
@@ -129,7 +129,7 @@ class DownloadFiles(Command):
                 self.line_error('Either a list file or some measurement IDs must be provided!')
                 return 1
         else:
-            id_frame = pd.read_csv(id_list_file, index_col='Measurement_ID')
+            id_frame = pd.read_csv(id_list_file, index_col='id')
             ids = id_frame.index
 
         # Read application config
