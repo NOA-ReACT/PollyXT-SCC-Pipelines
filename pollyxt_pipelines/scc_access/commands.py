@@ -219,7 +219,7 @@ class SearchSCC(Command):
                     date_start, date_end, location, credentials)
                 if len(measurements) == 0:
                     progress.stop()
-                    console.print('[warning]No measurements found![/warning]')
+                    console.print('[warn]No measurements found![/warn]')
                     return 0
 
                 progress.start_task(task)
@@ -350,7 +350,7 @@ class SearchDownloadSCC(Command):
                     date_start, date_end, location, credentials)
                 if len(measurements) == 0:
                     progress.stop()
-                    console.print('[warning]No measurements found![/warning]')
+                    console.print('[warn]No measurements found![/warn]')
                     return 0
 
                 if pages > 1:
