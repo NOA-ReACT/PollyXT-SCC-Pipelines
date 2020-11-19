@@ -19,6 +19,16 @@ class WrongCredentialsException(Exception):
     pass
 
 
+class SCCError(Exception):
+    '''Raised when an error message from SCC is parsed from the page body'''
+
+    def __init__(self, errors: str) -> None:
+        self.errors = errors
+
+    def __str__(self) -> str:
+        return self.errors
+
+
 class UnexpectedResponse(Exception):
     '''Raised when the response is not OK and we don't have a concrete reason for it'''
     pass

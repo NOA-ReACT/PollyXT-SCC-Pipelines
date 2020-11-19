@@ -18,7 +18,7 @@ from pollyxt_pipelines.console import console
 from pollyxt_pipelines.locations import Location
 from pollyxt_pipelines.scc_access.api import SCC_Credentials
 from pollyxt_pipelines.scc_access import constants, exceptions
-from pollyxt_pipelines.scc_access.types import Measurement
+from pollyxt_pipelines.scc_access.types import APIObject, Measurement
 
 
 class SCC:
@@ -193,6 +193,115 @@ class SCC:
                 console.print('[error]Exception:[/error]')
                 console.print_exception()
                 continue
+
+    def get_anchillary(self, file_id: str, file_type: str) -> Union[APIObject, None]:
+        '''
+        Uses the SCC API to fetch information about anchillary files.
+
+        Parameters
+        ---
+        - file_id (str): File ID to lookup
+        - file_type (str): What kind of file to lookup ('sounding', 'overlap' or 'lidarratio')
+
+        Returns
+        ---
+        The API response about the file
+        '''
+
+        # Determine correct endpoint
+        if file_type == 'sounding':
+            url = constants.api_sounding_search_pattern.format(file_id)
+        elif file_type == 'overlap':
+            url = constants.api_overlap_search_pattern.format(file_id)
+        elif file_type == 'lidarratio':
+            url = constants.api_lidarratio_search_pattern.format(file_id)
+        else:
+            raise ValueError(
+                f'File type should be one of: sounding, overlap, lidarratio')
+
+        # Make request
+        response = self.session.get(url)
+        if not response.ok:
+            raise exceptions.UnexpectedResponse('Could not get anchillary file info')
+
+        # Parse body
+        # It should have an 'objects' dictionary containing one entry, if it is found
+        response_body = response.json()
+        objects = response_body['objects']
+
+        if objects:
+            return APIObject(objects[0])
+        else:
+            return None
+
+    def upload_file(self, filename: Path, system_id: str,
+                    rs_filename: Union[Path, None] = None,
+                    ov_filename: Union[Path, None] = None,
+                    lr_filename: Union[Path, None] = None):
+        '''
+        Uploads a file to SCC, together with the auxilary files. There is no return value, but it will
+        throw for potential errors.
+
+        Parameters
+        ---
+        - filename (Path): Path to the SCC netCDF file
+        - system_id (string): SCC Lidar System ID for the system that made the measurement
+        - rs_filename (Path): Path to the radiosonde netCDF file
+        - ov_filename (Path): Path to the overlap netCDF file
+        - lr_filename (Path): Path to the lidar ratio netCDF file
+        '''
+
+        # Check if the given anchillary files already exist before adding them to the request body
+        files = {}
+        if rs_filename is not None:
+            info = self.get_anchillary(rs_filename.name, 'sounding')
+            if info is not None and info.exists:
+                console.print(
+                    f'[warn]Radiosonde file[/warn] {rs_filename.name} [warn]already exists on SCC.[/warn]')
+            else:
+                files['sounding_file'] = open(rs_filename, 'rb')
+
+        if ov_filename is not None:
+            info = self.get_anchillary(ov_filename.name, 'overlap')
+            if info is not None and info.exists:
+                console.print(
+                    f'[warn]Overlap file[/warn] {ov_filename.name} [warn]already exists on SCC.[/warn]')
+            else:
+                files['overlap_file'] = open(ov_filename, 'rb')
+
+        if lr_filename is not None:
+            info = self.get_anchillary(lr_filename.name, 'lidarratio')
+            if info is not None and info.exists:
+                console.print(
+                    f'[warn]Lidar ratio file[/warn] {lr_filename.name} [warn]already exists on SCC.[/warn]')
+            else:
+                files['lidar_ratio_file'] = open(lr_filename, 'rb')
+
+        files['data'] = open(filename, 'rb')
+
+        # Get the form and submit it
+        upload_page = self.session.get(constants.upload_url)
+
+        body = {
+            'system': system_id
+        }
+        headers = {
+            'X-CSRFToken': upload_page.cookies['csrftoken'],
+            'referer': constants.upload_url
+        }
+        upload_submit = self.session.post(
+            constants.upload_url, data=body, files=files, headers=headers)
+
+        # Check response
+        response_body = BeautifulSoup(upload_submit.text, 'html.parser')
+        alerts = response_body.find_all('div', class_='alert-box')
+        if len(alerts) > 0:
+            errors = ', '.join([alert.p.text.strip() for alert in alerts])
+            raise exceptions.SCCError(errors)
+
+        # console.print(upload_submit.text)
+        if upload_submit.status_code != 200 or upload_submit.url == constants.upload_url:
+            raise exceptions.UnexpectedResponse('Upload to SCC failed')
 
 
 @contextlib.contextmanager

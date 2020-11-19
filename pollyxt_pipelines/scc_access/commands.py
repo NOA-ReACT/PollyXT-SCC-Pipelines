@@ -5,7 +5,8 @@ from pathlib import Path
 from cleo import Command
 import pandas as pd
 from rich.table import Table
-from rich.progress import Progress
+from rich.progress import Progress, track
+from netCDF4 import Dataset
 
 from pollyxt_pipelines.console import console
 from pollyxt_pipelines import scc_access, locations
@@ -56,10 +57,39 @@ class UploadFiles(Command):
         # Upload files
         successful_files = []
         successful_ids = []
-        for file, id in scc_access.upload_files(files, credentials):
-            self.line(f'<info>Uploaded</info> {file} <info>, got ID = </info>{id}')
-            successful_files.append(successful_files)
-            successful_ids.append(id)
+        with new_api.scc_session(credentials) as scc:
+            for file in track(files, description='Uploading files...', console=console):
+                # Read file to find radiosondes
+                nc = Dataset(file, 'r')
+                radiosonde_path = file.parent / nc.Sounding_File_Name
+                dataset_id = nc.Measurement_ID
+                configuration_id = nc.NOAReACT_Configuration_ID
+                nc.close()
+
+                if not radiosonde_path.exists():
+                    console.print(
+                        f'[error]Cannot find radiosonde file[/error] {radiosonde_path} [error] for measurement [/error] {file} [error]. Skipping file.[/error]')
+                    continue
+
+                # Upload file to SCC
+                try:
+                    scc.upload_file(file, configuration_id, rs_filename=radiosonde_path)
+                    successful_files.append(file)
+                    successful_ids.append(dataset_id)
+                except scc_access.exceptions.SCCError as ex:
+                    console.print(
+                        f'[error]Error while uploading[/error] {file}[error]:[/error] {str(ex)}')
+                except Exception:
+                    console.print(f'[error]Unknown error while uploading[/error] {file}')
+                    console.print_exception()
+
+        successful_count = len(successful_ids)
+        if successful_count == 0:
+            console.print('[warn]No files were uploaded successfully![/warn]')
+            return 0
+        else:
+            console.print(
+                f'[info]Successfully uploaded[/info] {successful_count} [info]files.[/info]')
 
         # Write list file if requested
         list_file = self.argument('list')

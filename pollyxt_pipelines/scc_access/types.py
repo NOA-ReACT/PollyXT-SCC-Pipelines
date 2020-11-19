@@ -2,11 +2,13 @@
 Various container classes and utility functions for handling SCC responses
 '''
 
+from typing import Dict, Any, Union
+
 from datetime import datetime
 from dataclasses import dataclass, field
-from pollyxt_pipelines.locations import Location, get_location_by_scc_code
-
 from bs4.element import Tag
+
+from pollyxt_pipelines.locations import Location, get_location_by_scc_code
 
 
 # ## Utility function for HTML parsing
@@ -79,3 +81,23 @@ class Measurement():
             has_elquick=scc_bool(tr.find('td', class_='field-elquick_ok')),
             is_processing=scc_bool(tr.find('td', class_='field-is_being_processed'))
         )
+
+
+class APIObject():
+    '''
+    SCC generic API response object
+
+    The only objects fetched from the API are Anchillary files, so this
+    class doesn't do much.
+    '''
+
+    '''True if the object exists on SCC'''
+    exists: bool
+
+    def __init__(self, response_body: Union[Dict[str, Any], None]):
+        if response_body is not None:
+            for key, value in response_body.items():
+                setattr(self, key, value)
+            self.exists = self.status != 'missing'
+        else:
+            self.exists = False
