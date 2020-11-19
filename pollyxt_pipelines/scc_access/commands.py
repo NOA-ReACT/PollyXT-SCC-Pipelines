@@ -34,6 +34,11 @@ class UploadFiles(Command):
         else:
             files = [path]
 
+        files = list(files)
+        if len(files) == 0:
+            console.print('[error]No files found in given directory[/error]')
+            return 1
+
         # Read application config
         config = Config()
         try:
