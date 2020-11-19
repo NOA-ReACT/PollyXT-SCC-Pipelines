@@ -56,50 +56,6 @@ def download_files(ids: List[str], output_path: Path, credentials: api.SCC_Crede
         yield id, True
 
 
-def process_file(
-        filename: Path, download_path: Path,
-        credentials: api.SCC_Credentials):
-    '''
-    Upload a file to SCC, wait for processing and download the results.
-    Only auxilary radiosonde files are supported currently.
-
-    Parameters
-    - filename (Path): Which file to upload. It will check the attributes inside this file to upload
-                       auxilary files (e.g. radiosondes).
-    - download_path (Path): Where to store the results
-    - credentials (SCC_Credentials): The authentication credentials to use
-    '''
-    # Determine radiosonde filename and check if it exists
-    with Dataset(filename, 'r') as nc:
-        rs_name: str = nc.Sounding_File_Name
-        configuration_id: int = nc.NOAReACT_Configuration_ID
-    rs_filename = filename.parent / rs_name
-
-    if not rs_filename.is_file():
-        raise FileNotFoundError(
-            f'Dataset {filename} required radiosonde {rs_name} but it is not found at {rs_filename}')
-
-    # Create output directory if required
-    download_path.mkdir(parents=True, exist_ok=True)
-
-    # Login to the API
-    scc = api.SCC(credentials, output_dir=download_path)
-    scc.login()
-
-    # Determine day/night
-    # TODO
-
-    # Process file
-    print(configuration_id)
-    measurement = scc.process(filename, configuration_id,
-                              monitor=True,
-                              rs_filename=rs_filename,
-                              lr_filename=None,
-                              ov_filename=None)
-    scc.logout()
-    return measurement
-
-
 def search_measurements(date_start: date, date_end: date,
                         location: Union[Location, None],
                         credentials: api.SCC_Credentials) -> List[Measurement]:
