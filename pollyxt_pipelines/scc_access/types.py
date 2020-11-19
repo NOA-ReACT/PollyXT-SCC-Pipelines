@@ -82,6 +82,26 @@ class Measurement():
             is_processing=scc_bool(tr.find('td', class_='field-is_being_processed'))
         )
 
+    @staticmethod
+    def from_json(json: Dict[str, any]):
+        return Measurement(
+            id=json['id'],
+            station_code=None,
+            date_start=datetime.fromisoformat(json['start']),
+            date_end=datetime.fromisoformat(json['stop']),
+            date_creation=None,
+            date_updated=None,
+            is_uploaded=json['upload'] == 127,
+            has_hirelpp=json['hirelpp'] == 127,
+            has_cloudmask=json['cloudmask'] == 127,
+            has_elpp=json['elpp'] == 127,
+            has_elda=None,
+            has_eldec=None,
+            has_elic=json['elic'] == 127,
+            has_elquick=None,
+            is_processing=json['is_running']
+        )
+
 
 class APIObject():
     '''

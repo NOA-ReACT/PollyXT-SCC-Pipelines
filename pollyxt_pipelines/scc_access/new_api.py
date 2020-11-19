@@ -303,6 +303,34 @@ class SCC:
         if upload_submit.status_code != 200 or upload_submit.url == constants.upload_url:
             raise exceptions.UnexpectedResponse('Upload to SCC failed')
 
+    def get_measurement(self, measurement_id: str) -> Union[Measurement, None]:
+        '''
+        Fetches information about one measurement from SCC.
+
+        Parameters
+        ---
+        - measurement_id (str): Which measurement to lookup
+
+        Returns
+        ---
+        The measurement if it exists, None otherwise
+        '''
+
+        url = constants.api_measurement_pattern.format(measurement_id)
+
+        response = self.session.get(url)
+
+        if response.status_code == 404:
+            return None
+        elif not response.ok:
+            raise exceptions.UnexpectedResponse()
+
+        response_body = response.json()
+        if response_body:
+            return Measurement.from_json(response_body)
+        else:
+            raise exceptions.UnexpectedResponse()
+
 
 @contextlib.contextmanager
 def scc_session(credentials: SCC_Credentials):

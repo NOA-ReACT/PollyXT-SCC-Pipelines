@@ -147,14 +147,17 @@ class DownloadFiles(Command):
             return 1
 
         # Download files for each ID
-        for id, success in scc_access.download_files(ids, output_directory, credentials):
-            if success:
-                self.line(f'<info>Downloaded products for </info>{id}')
-            else:
-                self.line(f'<comment>Processing not finished for </comment>{id}')
+        with new_api.scc_session(credentials) as scc:
+            for id in track(ids, description='Downloading products', console=console):
+                # Check if processing is done
+                measurement = scc.get_measurement(id)
+                if measurement.is_processing:
+                    console.print(f'[warn]File[/warn] {id} [warn]is still processing.[/warn]')
+                    continue
 
-            if id_frame is not None:
-                id_frame.loc[id, 'Products_Downloaded'] = success
+                for file in scc.download_products(id, output_directory):
+                    console.print(f'[info]Downloaded[/info] {file}')
+                id_frame.loc[id, 'Products_Downloaded'] = True
 
 
 class SearchSCC(Command):
