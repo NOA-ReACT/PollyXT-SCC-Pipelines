@@ -222,8 +222,8 @@ class SearchSCC(Command):
                     console.print('[warning]No measurements found![/warning]')
                     return 0
 
+                progress.start_task(task)
                 if pages > 1:
-                    progress.start_task(task)
                     progress.update(task, total=pages, completed=1, start=True)
 
                     current_page = 2
@@ -234,6 +234,8 @@ class SearchSCC(Command):
 
                         current_page += 1
                         progress.advance(task)
+                else:
+                    progress.advance(task)
 
         # Render table
         table = Table(show_header=True, header_style="bold")
