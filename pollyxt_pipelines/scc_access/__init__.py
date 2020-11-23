@@ -2,6 +2,7 @@
 Tools for communicating with the SCC backend
 
 Author: Thanasis Georgiou <ageorgiou@noa.gr>
+
 Based on `scc-access` by Iannis Binietoglou <i.binietoglou@impworks.gr>: https://repositories.imaa.cnr.it/public/scc_access
 '''
 
@@ -92,10 +93,9 @@ class SCC:
         '''
         Downloads a single file from SCC to the given path
 
-        Parameters
-        ---
-        - url (str): Which URL to download the file from
-        - path (Path): Where to store the downloaded file
+        Parameters:
+            url: Which URL to download the file from
+            path: Where to store the downloaded file
         '''
 
         with requests.get(url, stream=True) as r:
@@ -107,16 +107,14 @@ class SCC:
         '''
         Searches SCC for uploaded measurements
 
-        Parameters
-        ---
-        date_start (date): First day of results
-        date_end (date): Last day of results
-        location (Location): Optionally, filter results by a location
-        page (int): Which page to return (starts from 1, default value is 1)
+        Parameters:
+            date_start: First day of results
+            date_end: Last day of results
+            location: Optionally, filter results by a location
+            page: Which page to return (starts from 1, default value is 1)
 
-        Returns
-        ---
-        The number of pages and the list of measurements
+        Returns:
+            The number of pages and the list of measurements
         '''
 
         params = {
@@ -155,15 +153,14 @@ class SCC:
         Downloads products for a given measurement (ID) to the given path.
         This function is a generator, yielding the filename of each downloaded file.
 
-        Parameters
-        ---
-        - measurement_id (str): Which measurement to download products for
-        - download_path (Path): Where to store the downloaded products
-        - hirelpp (bool, default=True): Whether to download HiRELPP files
-        - cloudmask (bool, default=True): Whether to download Cloudmask files
-        - elpp (bool, default=True): Whether to download ELPP files
-        - optical (bool, default=True): Whether to download optical (ELDA or ELDEC) files
-        - elic (bool, default=True): Whether to download ELIC files
+        Parameters:
+            measurement_id: Which measurement to download products for
+            download_path: Where to store the downloaded products
+            hirelpp: Whether to download HiRELPP files
+            cloudmask: Whether to download Cloudmask files
+            elpp: Whether to download ELPP files
+            optical: Whether to download optical (ELDA or ELDEC) files
+            elic: Whether to download ELIC files
         '''
 
         # Determine URLs to download
@@ -214,14 +211,12 @@ class SCC:
         '''
         Uses the SCC API to fetch information about anchillary files.
 
-        Parameters
-        ---
-        - file_id (str): File ID to lookup
-        - file_type (str): What kind of file to lookup ('sounding', 'overlap' or 'lidarratio')
+        Parameters:
+            file_id: File ID to lookup
+            file_type: What kind of file to lookup ('sounding', 'overlap' or 'lidarratio')
 
-        Returns
-        ---
-        The API response about the file
+        Returns:
+            The API response about the file
         '''
 
         # Determine correct endpoint
@@ -258,13 +253,12 @@ class SCC:
         Uploads a file to SCC, together with the auxilary files. There is no return value, but it will
         throw for potential errors.
 
-        Parameters
-        ---
-        - filename (Path): Path to the SCC netCDF file
-        - system_id (string): SCC Lidar System ID for the system that made the measurement
-        - rs_filename (Path): Path to the radiosonde netCDF file
-        - ov_filename (Path): Path to the overlap netCDF file
-        - lr_filename (Path): Path to the lidar ratio netCDF file
+        Parameters:
+            filename: Path to the SCC netCDF file
+            system_id: SCC Lidar System ID for the system that made the measurement
+            rs_filename: Path to the radiosonde netCDF file
+            ov_filename: Path to the overlap netCDF file
+            lr_filename: Path to the lidar ratio netCDF file
         '''
 
         # Check if the given anchillary files already exist before adding them to the request body
@@ -323,13 +317,11 @@ class SCC:
         '''
         Fetches information about one measurement from SCC.
 
-        Parameters
-        ---
-        - measurement_id (str): Which measurement to lookup
+        Parameters:
+            measurement_id: Which measurement to lookup
 
-        Returns
-        ---
-        The measurement if it exists, None otherwise
+        Returns:
+            The measurement if it exists, None otherwise
         '''
 
         url = constants.api_measurement_pattern.format(measurement_id)
@@ -353,13 +345,11 @@ def scc_session(credentials: SCC_Credentials):
     '''
     An SCC session as a context, to use with `with:`
 
-    Example
-    ---
-    ```python
-    with scc_access(credentials) as scc:
-        # Use scc
-        # ...
-    ```
+    Example::
+
+        with scc_access(credentials) as scc:
+            # Use scc
+            # ...
     '''
     try:
         scc = SCC(credentials)

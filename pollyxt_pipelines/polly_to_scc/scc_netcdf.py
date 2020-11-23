@@ -1,8 +1,5 @@
 '''
-Routine for converting PollyXT files to SCC files
-Authors:
-- Anna Gialitaki <togialitaki@noa.gr>: Initial implementation
-- Thanasis Georgiou <ageorgiou@noa.gr>: Polish
+Routines for converting PollyXT files to SCC files
 '''
 
 from datetime import date, datetime, timedelta
@@ -52,15 +49,13 @@ def create_scc_netcdf(
     '''
     Convert a PollyXT netCDF file to a SCC file.
 
-    Parameters
-    ---
-    - pf (PollyXTFile): An opened PollyXT file. When you create this, you can specify the time period of interest.
-    - output_path (Path): Where to store the produced netCDF file
-    - location (Location): Where did this measurement take place
+    Parameters:
+        pf: An opened PollyXT file. When you create this, you can specify the time period of interest.
+        output_path: Where to store the produced netCDF file
+        location: Where did this measurement take place
 
-    Returns
-    ---
-    A tuple containing the measurement ID and the output path
+    Returns:
+        A tuple containing  the measurement ID and the output path
     '''
 
     # Calculate measurement ID
@@ -162,20 +157,18 @@ def create_scc_calibration_netcdf(
     - 02:31 to 02:41
     - 17:31 to 17:41
     - 21:31 to 21:41
-    Take care to create the PollyXTFile with these intervals.
+    Take care to create the `PollyXTFile` with these intervals.
 
-    Parameters
-    ---
-    - pf (PollyXTFile): An opened PollyXT file
-    - output_path (Path): Where to store the produced netCDF file
-    - location (Location): Where did this measurement take place
-    - wavelength (Wavelength): Calibration for 355nm or 532nm
-    - pol_calib_range_min (int): Calibration contant calculation, minimum height
-    - pol_calib_range_max (int): Calibration contant calculation, maximum height
+    Parameters:
+        pf: An opened PollyXT file
+        output_path: Where to store the produced netCDF file
+        location: Where did this measurement take place
+        wavelength: Calibration for 355nm or 532nm
+        pol_calib_range_min: Calibration contant calculation, minimum height
+        pol_calib_range_max: Calibration contant calculation, maximum height
 
-    Returns
-    ---
-    A tuple containing the measurement ID and the output path
+    Returns:
+        A tuple containing the measurement ID and the output path
     '''
 
     # Calculate measurement ID
@@ -302,19 +295,18 @@ def convert_pollyxt_file(
     Converts a PollyXT file into a bunch of SCC files. The input file will be split into intervals before being converted
     to the new format.
 
-    This function is a generator, so you can use it in a for loop to monitor progress:
-    ```
-    for measurement_id, path in convert_pollyxt_file(...):
-        # Do something with id/path, maybe print a message?
-    ```
+    This function is a generator, so you can use it in a for loop to monitor progress::
 
-    Parameters
-    ---
-    - input_path (Path): PollyXT file to convert
-    - output_path (Path): Directory to write the SCC files
-    - location (Location): Geographical information, where the measurement took place
-    - interval (timedelta): What interval to use when splitting the PollyXT file (e.g. 1 hour)
-    - shoudld_round (bool): If true, the interval starts will be rounded down. For example, from 01:02 to 01:00.
+        for measurement_id, path in convert_pollyxt_file(...):
+            # Do something with id/path, maybe print a message?
+
+
+    Parameters:
+        input_path: PollyXT file to convert
+        output_path: Directory to write the SCC files
+        location: Geographical information, where the measurement took place
+        interval: What interval to use when splitting the PollyXT file (e.g. 1 hour)
+        shoudld_round: If true, the interval starts will be rounded down. For example, from 01:02 to 01:00.
     '''
 
     # Open input netCDF

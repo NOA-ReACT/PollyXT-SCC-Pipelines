@@ -14,14 +14,12 @@ def get_measurement_period(input: Union[Path, Dataset, np.ndarray]) -> Tuple[dat
     '''
     Return the measurement time (i.e. start and end times) from a PollyXT file.
 
-    Parameters
-    ---
-    - input (Path or Dataset): Either a path to a PollyXT netCDF file, an opened netCDF dataset or the
-                               `measurement_time` variable.
+    Parameters:
+        input: Either a path to a PollyXT netCDF file, an opened netCDF dataset or the
+            `measurement_time` variable.
 
-    Returns
-    ---
-    A tuple containing the start and end dates.
+    Returns:
+        A tuple containing the start and end dates.
     '''
 
     # Read `measurement_time` variable, a bit different for each source
@@ -108,11 +106,10 @@ class PollyXTFile():
         Read a PollyXT netcdf file
 
         Parameters
-        ---
-        input_path (str): Which file to read
-        start (str): Trim file from this time and onwards (HH:MM)
-        end (str): Trim file until this time (HH:MM)
-        nan_calibration (bool): If true, at calibration times the raw signal will be set to `np.nan`
+            input_path: Which file to read
+            start: Trim file from this time and onwards (HH:MM)
+            end: Trim file until this time (HH:MM)
+            nan_calibration: If true, at calibration times the raw signal will be set to `np.nan`
         '''
         self.path = input_path
 

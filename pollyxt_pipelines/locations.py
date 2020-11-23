@@ -12,25 +12,31 @@ class Location(NamedTuple):
     Represents a physical location of PollyXT installation.
     '''
 
-    '''Location friendly name'''
     name: str
-    '''How are the WRF profile names prefixed'''
+    '''Location friendly name'''
+
     profile_name: str
-    '''SCC Station code'''
+    '''How are the WRF profile names prefixed'''
+
     scc_code: str
-    '''Latitude of station'''
+    '''SCC Station code'''
+
     lat: float
-    '''Longitude of station'''
+    '''Latitude of station'''
+
     lon: float
-    '''Altitude of station'''
+    '''Longitude of station'''
+
     altitude: float
-    '''SCC Lidar Configuration ID - Daytime'''
+    '''Altitude of station'''
+
     system_id_day: int
-    '''SCC Lidar Configuration ID - Nightime'''
+    '''SCC Lidar Configuration ID - Daytime'''
+
     system_id_night: int
+    '''SCC Lidar Configuration ID - Nightime'''
 
 
-'''Location at PANGEA observatory - Antikythera'''
 LOCATION_ANTIKYTHERA = Location(
     name="Antikythera",
     profile_name="ANTIKYTHERA",
@@ -41,8 +47,8 @@ LOCATION_ANTIKYTHERA = Location(
     system_id_day=437,
     system_id_night=438
 )
+'''Location at PANGEA observatory - Antikythera'''
 
-'''Location at Finokalia (UoC)'''
 LOCATION_FINOKALIA = Location(
     name="Finokalia",
     profile_name="FINOKALIA",
@@ -53,8 +59,10 @@ LOCATION_FINOKALIA = Location(
     system_id_day=186,
     system_id_night=302
 )
+'''Location at Finokalia (UoC)'''
 
 LOCATIONS = [LOCATION_ANTIKYTHERA, LOCATION_FINOKALIA]
+'''List of all known locations'''
 
 
 def get_location_by_name(name: str) -> Union[Location, None]:

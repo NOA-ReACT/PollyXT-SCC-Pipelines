@@ -1,6 +1,5 @@
 '''
 Commands for creating SCC files
-Author: Thanasis Georgiou <ageorgiou@noa.gr>
 '''
 
 from datetime import timedelta
