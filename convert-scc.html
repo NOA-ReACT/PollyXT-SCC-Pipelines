@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Converting to SCC Format &mdash; PollyXT-Pipelines  documentation</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono"><link rel="stylesheet" href="_static/typlog.css?v=0.7.3" type="text/css" />
+  <link rel="stylesheet" href="_static/theme.css?v=0.7.3" type="text/css" />
+      <link rel="index" title="Index" href="genindex.html"/>
+      <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="PollyXT-Pipelines  documentation" href="index.html"/>
+      <link rel="next" title="Authentication" href="auth.html"/>
+      <link rel="prev" title="Locations" href="locations.html"/>
+  <script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');ga('create', '');ga('send', 'pageview');</script>
+  <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="PollyXT-Pipelines">
+  <meta property="og:title" content="Converting to SCC Format">
+    <meta property="og:description" content="PollyXT and SCC intergration">
+  <meta name="twitter:card" content="summary">
+</head>
+<body role="document" data-page="convert-scc">
+  <header class="t-head">
+    <div class="t-head_menu"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M64 384h384v-42.666H64V384zm0-106.666h384v-42.667H64v42.667zM64 128v42.665h384V128H64z"/></svg></div>
+    <a class="t-head_logo" href="index.html">PollyXT-Pipelines
+    </a>
+  </header>
+  <aside class="t-sidebar">
+    <div class="t-sidebar_close">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M405 136.798L375.202 107 256 226.202 136.798 107 107 136.798 226.202 256 107 375.202 136.798 405 256 285.798 375.202 405 405 375.202 285.798 256z"/></svg>
+    </div>
+    <div class="inner">
+<a class="logo" href="index.html">
+    PollyXT-Pipelines
+</a><div class="logo_desc">PollyXT and SCC intergration</div>
+<div class="github_wrap">
+  <a class="github" href="https://github.com/NOA-ReACT/PollyXT-SCC-Pipelines" target="_blank">
+    <span class="github_icon"></span>
+    <span class="github_stars">
+      <strong>-</strong>stars
+    </span>
+    <span class="github_forks">
+      <strong>-</strong>forks
+    </span>
+  </a>
+</div><div class="globaltoc">
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="locations.html">Locations</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Converting to SCC Format</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sounding">Sounding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#calibration">Calibration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#api">API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-pollyxt_pipelines.polly_to_scc.pollyxt">PollyXT file related routines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pollyxt_pipelines.polly_to_scc.scc_netcdf">SCC file related routines</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="auth.html">Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scc-upload-download.html">Uploading to SCC and downloading products</a></li>
+<li class="toctree-l1"><a class="reference internal" href="search-scc.html">Searching and downloading historic data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="network-api.html">Network API</a></li>
+</ul>
+
+</div>
+<div id="searchbox">
+  <form class="search" action="search.html" method="get">
+    <div class="input-group">
+      <input type="text" name="q" placeholder="Search" />
+      <button type="submit">Go</button>
+    </div>
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+  </aside>
+  <div class="t-content">
+    <div class="t-body yue">
+      
+  <div class="section" id="converting-to-scc-format">
+<h1>Converting to SCC Format<a class="headerlink" href="#converting-to-scc-format" title="Permalink to this headline">¶</a></h1>
+<p>PollyXT netCDF files can be converted to SCC netCDF files using the <code class="code docutils literal notranslate"><span class="pre">create-scc</span></code>
+command. It’s sibling command, <code class="code docutils literal notranslate"><span class="pre">create-scc-batch</span></code>, has all the same functionality
+but can work with whole directories of files.</p>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines create-scc <span class="o">[</span>--interval &lt;...&gt;<span class="o">]</span> <span class="o">[</span>--round<span class="o">]</span> <span class="o">[</span>--no-radiosonde<span class="o">]</span> <span class="o">[</span>--no-calibration<span class="o">]</span> &lt;input&gt; &lt;location&gt; &lt;output-path&gt;
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">input</span></code> <span class="badge badge-blue">required</span>: Which PollyXT file to convert into SCC format. Must be in netCDF format.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">location</span></code> <span class="badge badge-blue">required</span>: Where did the Polly measurement take place (i.e. station name)</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">output-path</span></code> <span class="badge badge-blue">required</span>: Directory to write the output files. It will be created if it does not exist</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">--interval=</span></code>: Set the interval (in minutes), in which to split PollyXT files.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">--no-radiosonde</span></code>: Do not create sounding files</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">--no-calibration</span></code>: Do not create calibration files</p></li>
+</ul>
+<p>The files are by default split in 1 hour files when they are converted to SCC files.
+This interval can be changed with the <code class="code docutils literal notranslate"><span class="pre">--interval=</span></code> option.</p>
+<p>The location is required to determine the measurement ID, as well as the SCC system ID.</p>
+</div>
+<div class="section" id="sounding">
+<h2>Sounding<a class="headerlink" href="#sounding" title="Permalink to this headline">¶</a></h2>
+<p>By default, when a file is being converted to SCC format, the application will
+also create the corresponding Sounding file by reading WRF profiles. You can set
+the directory where the WRF files are:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines config wrf.path /path/to/wrf/data
+</pre></div>
+</div>
+<p>The WRF files should be named <code class="code docutils literal notranslate"><span class="pre">LOCATION_DDMMYYYY</span></code>, for example,
+<code class="code docutils literal notranslate"><span class="pre">ANTIKYTHERA_02102020</span></code>.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>If you do not set the path to the WRF files using <code class="code docutils literal notranslate"><span class="pre">pollyxt_pipelines</span> <span class="pre">config</span></code>
+the command will fail! If you do not have access to profile files and want to skip
+the creation of sounding files, use the <code class="code docutils literal notranslate"><span class="pre">--no-radiosonde</span></code> option.</p>
+</div>
+<p>One sounding file will be created for each SCC file. For example, with
+<code class="code docutils literal notranslate"><span class="pre">20201001aky01.nc</span></code>, a corresponding <code class="code docutils literal notranslate"><span class="pre">rs_20201001aky01.nc</span></code> will
+be created.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>When an output file is longer than one hour (when using <code class="code docutils literal notranslate"><span class="pre">--interval=</span></code>), the
+corresponding sounding file will be created using data from the <em>first</em> hour of
+the output file. For example, a file start starts in 00:00 and ends in 03:00, will
+have a sounding file with data from 00:00.</p>
+<p><span class="badge badge-todo">todo</span>: Make this behaviour customizable</p>
+</div>
+</div>
+<div class="section" id="calibration">
+<h2>Calibration<a class="headerlink" href="#calibration" title="Permalink to this headline">¶</a></h2>
+<p>If the PollyXT file contains data in one of the following periods, a calibration file
+will be created:</p>
+<ul class="simple">
+<li><p>02:31 to 02:41</p></li>
+<li><p>17:31 to 17:41</p></li>
+<li><p>21:31 to 21:41</p></li>
+</ul>
+<p>During these time periods, the corresponding points in the output SCC file will
+be set to <code class="code docutils literal notranslate"><span class="pre">NaN</span></code>. To disable the generation of calibration files (and <code class="code docutils literal notranslate"><span class="pre">NaN</span></code>),
+use the <code class="code docutils literal notranslate"><span class="pre">--no-calibration</span></code> option.</p>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>Convert one file from Antikythera to SCC format, hourly, and store the output inside
+the <code class="code docutils literal notranslate"><span class="pre">scc_data</span></code> directory.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines create-scc 2019_06_02_Sun_NOA_06_00_01.nc Antikythera ./scc_data
+</pre></div>
+</div>
+<p>Convert a whole directory of files from Finokalia to SCC format and store output inside
+the <code class="code docutils literal notranslate"><span class="pre">scc_data</span></code> directory.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines create-scc-batch ./polly_data Finokalia ./scc_data
+</pre></div>
+</div>
+<p>Convert one file from Antikythera to SCC format, 30-minute interval, no calibration and
+no radiosonde files:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines create-scc 2019_06_02_Sun_NOA_06_00_01.nc Antikythera ./scc_data --no-calibration --no-radiosonde
+</pre></div>
+</div>
+</div>
+<div class="section" id="api">
+<h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
+<p>PollyXT files are read using the <code class="code docutils literal notranslate"><span class="pre">PollyXTFile</span></code> class from the
+<code class="code docutils literal notranslate"><span class="pre">pollyxt_pipelines.polly_to_scc.pollyxt</span></code> module, which opens the netCDF files,
+loads all the required variables into members and closes the file. Processing methods
+are inside <code class="code docutils literal notranslate"><span class="pre">pollyxt_pipelines.polly_to_scc.scc_netcdf</span></code>, they mostly accept
+<code class="code docutils literal notranslate"><span class="pre">PollyXTFile</span></code>.</p>
+<div class="section" id="module-pollyxt_pipelines.polly_to_scc.pollyxt">
+<span id="pollyxt-file-related-routines"></span><h3>PollyXT file related routines<a class="headerlink" href="#module-pollyxt_pipelines.polly_to_scc.pollyxt" title="Permalink to this headline">¶</a></h3>
+<p>Routines related to PollyXT files</p>
+<dl class="py class">
+<dt id="pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile">
+<em class="property">class </em><code class="sig-prename descclassname">pollyxt_pipelines.polly_to_scc.pollyxt.</code><code class="sig-name descname">PollyXTFile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_path</span></em>, <em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em>, <em class="sig-param"><span class="n">nan_calibration</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#PollyXTFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Reads the variables of interest from a PollyXT netCDF file.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pollyxt_pipelines.polly_to_scc.pollyxt.find_time_indices">
+<code class="sig-prename descclassname">pollyxt_pipelines.polly_to_scc.pollyxt.</code><code class="sig-name descname">find_time_indices</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">measurement_time</span></em>, <em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#find_time_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.find_time_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given the <code class="xref py py-obj docutils literal notranslate"><span class="pre">measurement_time</span></code> array from a PollyXT netCDF file and a time period (<code class="xref py py-obj docutils literal notranslate"><span class="pre">start</span></code> and
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">end</span></code> in HH:MM format), this function returns the indices of the time period in the array.</p>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">measurement_time</span></code> array has two columns, the first contains the date in YYYYMMDD format
+and the second column contains each measurement’s delta from the date, in seconds (!).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pollyxt_pipelines.polly_to_scc.pollyxt.get_measurement_period">
+<code class="sig-prename descclassname">pollyxt_pipelines.polly_to_scc.pollyxt.</code><code class="sig-name descname">get_measurement_period</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#get_measurement_period"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.get_measurement_period" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the measurement time (i.e. start and end times) from a PollyXT file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – Either a path to a PollyXT netCDF file, an opened netCDF dataset or the
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">measurement_time</span></code> variable.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A tuple containing the start and end dates.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pollyxt_pipelines.polly_to_scc.scc_netcdf">
+<span id="scc-file-related-routines"></span><h3>SCC file related routines<a class="headerlink" href="#module-pollyxt_pipelines.polly_to_scc.scc_netcdf" title="Permalink to this headline">¶</a></h3>
+<p>Routines for converting PollyXT files to SCC files</p>
+<dl class="py class">
+<dt id="pollyxt_pipelines.polly_to_scc.scc_netcdf.Wavelength">
+<em class="property">class </em><code class="sig-prename descclassname">pollyxt_pipelines.polly_to_scc.scc_netcdf.</code><code class="sig-name descname">Wavelength</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/scc_netcdf.html#Wavelength"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.scc_netcdf.Wavelength" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Laser wavelength</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pollyxt_pipelines.polly_to_scc.scc_netcdf.calibration_to_datetime">
+<code class="sig-prename descclassname">pollyxt_pipelines.polly_to_scc.scc_netcdf.</code><code class="sig-name descname">calibration_to_datetime</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">base</span></em>, <em class="sig-param"><span class="n">period</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/scc_netcdf.html#calibration_to_datetime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.scc_netcdf.calibration_to_datetime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a calibrarion period in HH:MM-HH:MM format (start-end), it converts it to a pair of <code class="xref py py-obj docutils literal notranslate"><span class="pre">datetime</span></code>, the same day
+as the given <code class="xref py py-obj docutils literal notranslate"><span class="pre">base</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pollyxt_pipelines.polly_to_scc.scc_netcdf.convert_pollyxt_file">
+<code class="sig-prename descclassname">pollyxt_pipelines.polly_to_scc.scc_netcdf.</code><code class="sig-name descname">convert_pollyxt_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_path</span></em>, <em class="sig-param"><span class="n">output_path</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">interval</span></em>, <em class="sig-param"><span class="n">should_round</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">calibration</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/scc_netcdf.html#convert_pollyxt_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.scc_netcdf.convert_pollyxt_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a PollyXT file into a bunch of SCC files. The input file will be split into intervals before being converted
+to the new format.</p>
+<p>This function is a generator, so you can use it in a for loop to monitor progress:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">measurement_id</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">convert_pollyxt_file</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="c1"># Do something with id/path, maybe print a message?</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – PollyXT file to convert</p></li>
+<li><p><strong>output_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Directory to write the SCC files</p></li>
+<li><p><strong>location</strong> (<a class="reference internal" href="locations.html#pollyxt_pipelines.locations.Location" title="pollyxt_pipelines.locations.Location"><code class="xref py py-class docutils literal notranslate"><span class="pre">Location</span></code></a>) – Geographical information, where the measurement took place</p></li>
+<li><p><strong>interval</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code>) – What interval to use when splitting the PollyXT file (e.g. 1 hour)</p></li>
+<li><p><strong>shoudld_round</strong> – If true, the interval starts will be rounded down. For example, from 01:02 to 01:00.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pollyxt_pipelines.polly_to_scc.scc_netcdf.create_scc_calibration_netcdf">
+<code class="sig-prename descclassname">pollyxt_pipelines.polly_to_scc.scc_netcdf.</code><code class="sig-name descname">create_scc_calibration_netcdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pf</span></em>, <em class="sig-param"><span class="n">output_path</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">wavelength</span></em>, <em class="sig-param"><span class="n">pol_calib_range_min</span><span class="o">=</span><span class="default_value">1200</span></em>, <em class="sig-param"><span class="n">pol_calib_range_max</span><span class="o">=</span><span class="default_value">2500</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/scc_netcdf.html#create_scc_calibration_netcdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.scc_netcdf.create_scc_calibration_netcdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>From a PollyXT netCDF file, create the corresponding calibration SCC file.
+Calibration times are:
+- 02:31 to 02:41
+- 17:31 to 17:41
+- 21:31 to 21:41
+Take care to create the <code class="xref py py-obj docutils literal notranslate"><span class="pre">PollyXTFile</span></code> with these intervals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pf</strong> (<a class="reference internal" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile" title="pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">PollyXTFile</span></code></a>) – An opened PollyXT file</p></li>
+<li><p><strong>output_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Where to store the produced netCDF file</p></li>
+<li><p><strong>location</strong> (<a class="reference internal" href="locations.html#pollyxt_pipelines.locations.Location" title="pollyxt_pipelines.locations.Location"><code class="xref py py-class docutils literal notranslate"><span class="pre">Location</span></code></a>) – Where did this measurement take place</p></li>
+<li><p><strong>wavelength</strong> (<a class="reference internal" href="#pollyxt_pipelines.polly_to_scc.scc_netcdf.Wavelength" title="pollyxt_pipelines.polly_to_scc.scc_netcdf.Wavelength"><code class="xref py py-class docutils literal notranslate"><span class="pre">Wavelength</span></code></a>) – Calibration for 355nm or 532nm</p></li>
+<li><p><strong>pol_calib_range_min</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Calibration contant calculation, minimum height</p></li>
+<li><p><strong>pol_calib_range_max</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Calibration contant calculation, maximum height</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A tuple containing the measurement ID and the output path</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pollyxt_pipelines.polly_to_scc.scc_netcdf.create_scc_netcdf">
+<code class="sig-prename descclassname">pollyxt_pipelines.polly_to_scc.scc_netcdf.</code><code class="sig-name descname">create_scc_netcdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pf</span></em>, <em class="sig-param"><span class="n">output_path</span></em>, <em class="sig-param"><span class="n">location</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/scc_netcdf.html#create_scc_netcdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.scc_netcdf.create_scc_netcdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a PollyXT netCDF file to a SCC file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pf</strong> (<a class="reference internal" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile" title="pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">PollyXTFile</span></code></a>) – An opened PollyXT file. When you create this, you can specify the time period of interest.</p></li>
+<li><p><strong>output_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Where to store the produced netCDF file</p></li>
+<li><p><strong>location</strong> (<a class="reference internal" href="locations.html#pollyxt_pipelines.locations.Location" title="pollyxt_pipelines.locations.Location"><code class="xref py py-class docutils literal notranslate"><span class="pre">Location</span></code></a>) – Where did this measurement take place</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A tuple containing  the measurement ID and the output path</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+  <div class="t-pagination clearfix">
+    <span>
+      ← <a href="locations.html" title="Locations">Locations</a>
+    </span>
+    <span style="float:right">
+      <a href="auth.html" title="Authentication">Authentication</a> →
+    </span>
+  </div>
+
+    </div><footer class="t-foot">
+    &copy; Copyright 2020, NOA - ReACT.
+    <br>
+    A <a href="https://typlog.com/">typlog</a> <a href="https://github.com/typlog/sphinx-typlog-theme">sphinx theme</a>,
+    designed by <a href="https://lepture.com/">Hsiaoming Yang</a>.
+</footer>
+  </div>
+  <script>$(function(){$(".t-head_menu").on("click",function(){$("body").addClass("_expand")});$(".t-body").on("click",function(){$("body").removeClass("_expand")});$(".t-sidebar_close").on("click",function(){$("body").removeClass("_expand")});$("a.footnote-reference").on("click",function(e){e.preventDefault();var id=$(this).attr("href");var html=$(id).find("td.label + td").html();var w=Math.max(document.documentElement.clientWidth,window.innerWidth||0);var style="top:"+e.pageY+"px;";if(w>560){style+="width:480px;";if(e.pageX>240&&e.pageX+240<w){style+="left:"+(e.pageX-240)+"px;"}else if(e.pageX<=240){style+="left:20px;"}else{style+="right:20px;"}}showFootnote(html,style)});function showFootnote(html,style){var CONTENT_ID="typlog-footnote-content";var content=document.getElementById(CONTENT_ID);if(!content){content=document.createElement("div");content.id=CONTENT_ID;$(".t-body").append(content)}var MASK_ID="typlog-footnote-mask";var mask=document.getElementById(MASK_ID);if(!mask){mask=document.createElement("div");mask.id=MASK_ID;document.body.appendChild(mask);mask.addEventListener("click",function(){content.className="";mask.className=""})}content.innerHTML=html;content.setAttribute("style",style);content.className="_active";mask.className="_active"}function fetchGitHubRepo(repo){var url="https://api.github.com/repos/"+repo;$.getJSON(url,function(data){var counts=[+new Date,data.stargazers_count,data.forks_count];localStorage.setItem("gh:"+repo,JSON.stringify(counts));updateGitHubStats(counts[1],counts[2])})}function updateGitHubStats(stars,forks){$(".github_stars strong").text(stars);$(".github_forks strong").text(forks)}function initGitHub(url){if(!url){return}var repo=url.replace("https://github.com/","");var cache=localStorage.getItem("gh:"+repo);if(cache){try{var counts=JSON.parse(cache);updateGitHubStats(counts[1],counts[2]);var delta=new Date-counts[0];if(delta<0||delta>9e5){fetchGitHubRepo(repo)}}catch(error){fetchGitHubRepo(repo)}}else{fetchGitHubRepo(repo)}}initGitHub($(".github").attr("href"))});</script>
+</body>
+</html>

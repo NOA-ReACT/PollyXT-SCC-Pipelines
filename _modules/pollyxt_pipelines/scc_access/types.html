@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>pollyxt_pipelines.scc_access.types &mdash; PollyXT-Pipelines  documentation</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono"><link rel="stylesheet" href="../../../_static/typlog.css?v=0.7.3" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/theme.css?v=0.7.3" type="text/css" />
+      <link rel="index" title="Index" href="../../../genindex.html"/>
+      <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="PollyXT-Pipelines  documentation" href="../../../index.html"/>
+      <link rel="up" title="pollyxt_pipelines.scc_access" href="../scc_access.html"/>
+  <script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');ga('create', '');ga('send', 'pageview');</script>
+  <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="PollyXT-Pipelines">
+  <meta property="og:title" content="pollyxt_pipelines.scc_access.types">
+    <meta property="og:description" content="PollyXT and SCC intergration">
+  <meta name="twitter:card" content="summary">
+</head>
+<body role="document" data-page="_modules/pollyxt_pipelines/scc_access/types">
+  <header class="t-head">
+    <div class="t-head_menu"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M64 384h384v-42.666H64V384zm0-106.666h384v-42.667H64v42.667zM64 128v42.665h384V128H64z"/></svg></div>
+    <a class="t-head_logo" href="../../../index.html">PollyXT-Pipelines
+    </a>
+  </header>
+  <aside class="t-sidebar">
+    <div class="t-sidebar_close">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M405 136.798L375.202 107 256 226.202 136.798 107 107 136.798 226.202 256 107 375.202 136.798 405 256 285.798 375.202 405 405 375.202 285.798 256z"/></svg>
+    </div>
+    <div class="inner">
+<a class="logo" href="../../../index.html">
+    PollyXT-Pipelines
+</a><div class="logo_desc">PollyXT and SCC intergration</div>
+<div class="github_wrap">
+  <a class="github" href="https://github.com/NOA-ReACT/PollyXT-SCC-Pipelines" target="_blank">
+    <span class="github_icon"></span>
+    <span class="github_stars">
+      <strong>-</strong>stars
+    </span>
+    <span class="github_forks">
+      <strong>-</strong>forks
+    </span>
+  </a>
+</div><div class="globaltoc">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../locations.html">Locations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../convert-scc.html">Converting to SCC Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../auth.html">Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../scc-upload-download.html">Uploading to SCC and downloading products</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../search-scc.html">Searching and downloading historic data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../network-api.html">Network API</a></li>
+</ul>
+
+</div>
+<div id="searchbox">
+  <form class="search" action="../../../search.html" method="get">
+    <div class="input-group">
+      <input type="text" name="q" placeholder="Search" />
+      <button type="submit">Go</button>
+    </div>
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+  </aside>
+  <div class="t-content">
+    <div class="t-body yue">
+      
+  <h1>Source code for pollyxt_pipelines.scc_access.types</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Various container classes and utility functions for handling SCC responses</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span> <span class="nn">bs4.element</span> <span class="kn">import</span> <span class="n">Tag</span>
+
+<span class="kn">from</span> <span class="nn">pollyxt_pipelines.locations</span> <span class="kn">import</span> <span class="n">Location</span><span class="p">,</span> <span class="n">get_location_by_scc_code</span>
+
+
+<span class="c1"># ## Utility function for HTML parsing</span>
+
+
+<div class="viewcode-block" id="scc_date"><a class="viewcode-back" href="../../../network-api.html#pollyxt_pipelines.scc_access.types.scc_date">[docs]</a><span class="k">def</span> <span class="nf">scc_date</span><span class="p">(</span><span class="n">tag</span><span class="p">:</span> <span class="n">Tag</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;Convert a table cell to a date&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">tag</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="scc_bool"><a class="viewcode-back" href="../../../network-api.html#pollyxt_pipelines.scc_access.types.scc_bool">[docs]</a><span class="k">def</span> <span class="nf">scc_bool</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">Tag</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;Convert a table cell to a bool&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">node</span><span class="o">.</span><span class="n">img</span><span class="p">[</span><span class="s1">&#39;alt&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;True&#39;</span></div>
+
+
+<span class="c1"># ## Container classes</span>
+
+
+<div class="viewcode-block" id="Measurement"><a class="viewcode-back" href="../../../network-api.html#pollyxt_pipelines.scc_access.types.Measurement">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Measurement</span><span class="p">():</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">station_code</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">location</span><span class="p">:</span> <span class="n">Location</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">date_start</span><span class="p">:</span> <span class="n">datetime</span>
+    <span class="n">date_end</span><span class="p">:</span> <span class="n">datetime</span>
+    <span class="n">date_creation</span><span class="p">:</span> <span class="n">datetime</span>
+    <span class="n">date_updated</span><span class="p">:</span> <span class="n">datetime</span>
+
+    <span class="n">is_uploaded</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">has_hirelpp</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">has_cloudmask</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">has_elpp</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">has_elda</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">has_eldec</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">has_elic</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">has_elquick</span><span class="p">:</span> <span class="nb">bool</span>
+
+    <span class="n">is_processing</span><span class="p">:</span> <span class="nb">bool</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="s1">&#39;location&#39;</span><span class="p">,</span> <span class="n">get_location_by_scc_code</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">station_code</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">station_code</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">date_start</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">date_end</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">date_creation</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">date_updated</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">is_uploaded</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">has_hirelpp</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">has_cloudmask</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">has_elpp</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">has_elda</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">has_eldec</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">has_elic</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">has_elquick</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<div class="viewcode-block" id="Measurement.from_table_row"><a class="viewcode-back" href="../../../network-api.html#pollyxt_pipelines.scc_access.types.Measurement.from_table_row">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_table_row</span><span class="p">(</span><span class="n">tr</span><span class="p">:</span> <span class="n">Tag</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Create a measurement object from a table row.</span>
+<span class="sd">        Table rows are formatted like in https://scc.imaa.cnr.it/admin/database/measurements/</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># print(tr.prettify())</span>
+
+        <span class="k">return</span> <span class="n">Measurement</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;td&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s1">&#39;field-id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">,</span>
+            <span class="n">station_code</span><span class="o">=</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;th&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s1">&#39;field-station_id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">text</span><span class="p">,</span>
+            <span class="n">date_start</span><span class="o">=</span><span class="n">scc_date</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;td&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s1">&#39;field-start&#39;</span><span class="p">)),</span>
+            <span class="n">date_end</span><span class="o">=</span><span class="n">scc_date</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;td&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s1">&#39;field-stop&#39;</span><span class="p">)),</span>
+            <span class="n">date_creation</span><span class="o">=</span><span class="n">scc_date</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;td&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s1">&#39;field-creation_date&#39;</span><span class="p">)),</span>
+            <span class="n">date_updated</span><span class="o">=</span><span class="n">scc_date</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;td&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s1">&#39;field-updated_date&#39;</span><span class="p">)),</span>
+            <span class="n">is_uploaded</span><span class="o">=</span><span class="n">scc_bool</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;td&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s1">&#39;field-upload_ok&#39;</span><span class="p">)),</span>
+            <span class="n">has_hirelpp</span><span class="o">=</span><span class="n">scc_bool</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;td&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s1">&#39;field-hirelpp_ok&#39;</span><span class="p">)),</span>
+            <span class="n">has_cloudmask</span><span class="o">=</span><span class="n">scc_bool</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;td&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s1">&#39;field-cloudmask_ok&#39;</span><span class="p">)),</span>
+            <span class="n">has_elpp</span><span class="o">=</span><span class="n">scc_bool</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;td&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s1">&#39;field-elpp_ok&#39;</span><span class="p">)),</span>
+            <span class="n">has_elda</span><span class="o">=</span><span class="n">scc_bool</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;td&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s1">&#39;field-eldec_ok&#39;</span><span class="p">)),</span>
+            <span class="n">has_eldec</span><span class="o">=</span><span class="n">scc_bool</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;td&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s1">&#39;field-eldec_ok&#39;</span><span class="p">)),</span>
+            <span class="n">has_elic</span><span class="o">=</span><span class="n">scc_bool</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;td&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s1">&#39;field-elic_ok&#39;</span><span class="p">)),</span>
+            <span class="n">has_elquick</span><span class="o">=</span><span class="n">scc_bool</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;td&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s1">&#39;field-elquick_ok&#39;</span><span class="p">)),</span>
+            <span class="n">is_processing</span><span class="o">=</span><span class="n">scc_bool</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;td&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s1">&#39;field-is_being_processed&#39;</span><span class="p">))</span>
+        <span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_json</span><span class="p">(</span><span class="n">json</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">]):</span>
+        <span class="k">return</span> <span class="n">Measurement</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span>
+            <span class="n">station_code</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">date_start</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]),</span>
+            <span class="n">date_end</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="s1">&#39;stop&#39;</span><span class="p">]),</span>
+            <span class="n">date_creation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">date_updated</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">is_uploaded</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s1">&#39;upload&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">127</span><span class="p">,</span>
+            <span class="n">has_hirelpp</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s1">&#39;hirelpp&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">127</span><span class="p">,</span>
+            <span class="n">has_cloudmask</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s1">&#39;cloudmask&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">127</span><span class="p">,</span>
+            <span class="n">has_elpp</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s1">&#39;elpp&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">127</span><span class="p">,</span>
+            <span class="n">has_elda</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">has_eldec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">has_elic</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s1">&#39;elic&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">127</span><span class="p">,</span>
+            <span class="n">has_elquick</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">is_processing</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s1">&#39;is_running&#39;</span><span class="p">]</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="APIObject"><a class="viewcode-back" href="../../../network-api.html#pollyxt_pipelines.scc_access.types.APIObject">[docs]</a><span class="k">class</span> <span class="nc">APIObject</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    SCC generic API response object</span>
+
+<span class="sd">    The only objects fetched from the API are Anchillary files, so this</span>
+<span class="sd">    class doesn&#39;t do much.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="sd">&#39;&#39;&#39;True if the object exists on SCC&#39;&#39;&#39;</span>
+    <span class="n">exists</span><span class="p">:</span> <span class="nb">bool</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response_body</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="kc">None</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="n">response_body</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">response_body</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exists</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="s1">&#39;missing&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exists</span> <span class="o">=</span> <span class="kc">False</span></div>
+</pre></div>
+  <div class="t-pagination clearfix">
+  </div>
+
+    </div><footer class="t-foot">
+    &copy; Copyright 2020, NOA - ReACT.
+    <br>
+    A <a href="https://typlog.com/">typlog</a> <a href="https://github.com/typlog/sphinx-typlog-theme">sphinx theme</a>,
+    designed by <a href="https://lepture.com/">Hsiaoming Yang</a>.
+</footer>
+  </div>
+  <script>$(function(){$(".t-head_menu").on("click",function(){$("body").addClass("_expand")});$(".t-body").on("click",function(){$("body").removeClass("_expand")});$(".t-sidebar_close").on("click",function(){$("body").removeClass("_expand")});$("a.footnote-reference").on("click",function(e){e.preventDefault();var id=$(this).attr("href");var html=$(id).find("td.label + td").html();var w=Math.max(document.documentElement.clientWidth,window.innerWidth||0);var style="top:"+e.pageY+"px;";if(w>560){style+="width:480px;";if(e.pageX>240&&e.pageX+240<w){style+="left:"+(e.pageX-240)+"px;"}else if(e.pageX<=240){style+="left:20px;"}else{style+="right:20px;"}}showFootnote(html,style)});function showFootnote(html,style){var CONTENT_ID="typlog-footnote-content";var content=document.getElementById(CONTENT_ID);if(!content){content=document.createElement("div");content.id=CONTENT_ID;$(".t-body").append(content)}var MASK_ID="typlog-footnote-mask";var mask=document.getElementById(MASK_ID);if(!mask){mask=document.createElement("div");mask.id=MASK_ID;document.body.appendChild(mask);mask.addEventListener("click",function(){content.className="";mask.className=""})}content.innerHTML=html;content.setAttribute("style",style);content.className="_active";mask.className="_active"}function fetchGitHubRepo(repo){var url="https://api.github.com/repos/"+repo;$.getJSON(url,function(data){var counts=[+new Date,data.stargazers_count,data.forks_count];localStorage.setItem("gh:"+repo,JSON.stringify(counts));updateGitHubStats(counts[1],counts[2])})}function updateGitHubStats(stars,forks){$(".github_stars strong").text(stars);$(".github_forks strong").text(forks)}function initGitHub(url){if(!url){return}var repo=url.replace("https://github.com/","");var cache=localStorage.getItem("gh:"+repo);if(cache){try{var counts=JSON.parse(cache);updateGitHubStats(counts[1],counts[2]);var delta=new Date-counts[0];if(delta<0||delta>9e5){fetchGitHubRepo(repo)}}catch(error){fetchGitHubRepo(repo)}}else{fetchGitHubRepo(repo)}}initGitHub($(".github").attr("href"))});</script>
+</body>
+</html>

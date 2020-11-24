@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Network API &mdash; PollyXT-Pipelines  documentation</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono"><link rel="stylesheet" href="_static/typlog.css?v=0.7.3" type="text/css" />
+  <link rel="stylesheet" href="_static/theme.css?v=0.7.3" type="text/css" />
+      <link rel="index" title="Index" href="genindex.html"/>
+      <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="PollyXT-Pipelines  documentation" href="index.html"/>
+      <link rel="prev" title="Searching and downloading historic data" href="search-scc.html"/>
+  <script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');ga('create', '');ga('send', 'pageview');</script>
+  <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="PollyXT-Pipelines">
+  <meta property="og:title" content="Network API">
+    <meta property="og:description" content="PollyXT and SCC intergration">
+  <meta name="twitter:card" content="summary">
+</head>
+<body role="document" data-page="network-api">
+  <header class="t-head">
+    <div class="t-head_menu"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M64 384h384v-42.666H64V384zm0-106.666h384v-42.667H64v42.667zM64 128v42.665h384V128H64z"/></svg></div>
+    <a class="t-head_logo" href="index.html">PollyXT-Pipelines
+    </a>
+  </header>
+  <aside class="t-sidebar">
+    <div class="t-sidebar_close">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M405 136.798L375.202 107 256 226.202 136.798 107 107 136.798 226.202 256 107 375.202 136.798 405 256 285.798 375.202 405 405 375.202 285.798 256z"/></svg>
+    </div>
+    <div class="inner">
+<a class="logo" href="index.html">
+    PollyXT-Pipelines
+</a><div class="logo_desc">PollyXT and SCC intergration</div>
+<div class="github_wrap">
+  <a class="github" href="https://github.com/NOA-ReACT/PollyXT-SCC-Pipelines" target="_blank">
+    <span class="github_icon"></span>
+    <span class="github_stars">
+      <strong>-</strong>stars
+    </span>
+    <span class="github_forks">
+      <strong>-</strong>forks
+    </span>
+  </a>
+</div><div class="globaltoc">
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="locations.html">Locations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convert-scc.html">Converting to SCC Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auth.html">Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scc-upload-download.html">Uploading to SCC and downloading products</a></li>
+<li class="toctree-l1"><a class="reference internal" href="search-scc.html">Searching and downloading historic data</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Network API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-pollyxt_pipelines.scc_access">API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-pollyxt_pipelines.scc_access.exceptions">Exceptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pollyxt_pipelines.scc_access.types">Container types</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+<div id="searchbox">
+  <form class="search" action="search.html" method="get">
+    <div class="input-group">
+      <input type="text" name="q" placeholder="Search" />
+      <button type="submit">Go</button>
+    </div>
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    </div>
+  </aside>
+  <div class="t-content">
+    <div class="t-body yue">
+      
+  <div class="section" id="network-api">
+<h1>Network API<a class="headerlink" href="#network-api" title="Permalink to this headline">¶</a></h1>
+<p>All network operations are handled by the <code class="code docutils literal notranslate"><span class="pre">pollyxt_pipelines.scc_access</span></code> module and specifically,
+the <code class="code docutils literal notranslate"><span class="pre">SCC</span></code> class. The code is based the work of Ioannis Binietoglou on
+<a class="reference external" href="https://repositories.imaa.cnr.it/public/scc_access">SCC Access</a>.</p>
+<p>To programmatically access SCC, begin by importing <code class="code docutils literal notranslate"><span class="pre">pollyxt_pipelines.scc_access</span></code> and creating
+a <code class="code docutils literal notranslate"><span class="pre">SCC_Credentials</span></code> object.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pollyxt_pipelines.config</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">import</span> <span class="nn">pollyxt_pipelines.scc_access</span>
+
+<span class="c1"># TODO remove dependency on Config</span>
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">SCC_Credentials</span><span class="p">(</span><span class="n">Config</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>Afterwards, you can access SCC as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># As a context</span>
+<span class="k">with</span> <span class="n">scc_access</span><span class="o">.</span><span class="n">scc_session</span><span class="p">(</span><span class="n">credentials</span><span class="p">)</span> <span class="k">as</span> <span class="n">scc</span><span class="p">:</span>
+  <span class="c1"># Do stuff with scc</span>
+  <span class="c1"># ...</span>
+  <span class="n">scc</span><span class="o">.</span><span class="n">upload_file</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+<span class="c1"># As a class</span>
+<span class="n">scc</span> <span class="o">=</span> <span class="n">scc_access</span><span class="o">.</span><span class="n">SCC</span><span class="p">(</span><span class="n">credentials</span><span class="p">)</span>
+<span class="n">scc</span><span class="o">.</span><span class="n">login</span><span class="p">()</span>
+<span class="c1"># ...</span>
+</pre></div>
+</div>
+<p>The context manager handles login/logout automatically. If you use the class yourself,
+you should call <code class="code docutils literal notranslate"><span class="pre">login()</span></code> before attempting to call any other method.</p>
+<div class="section" id="module-pollyxt_pipelines.scc_access">
+<span id="api"></span><h2>API<a class="headerlink" href="#module-pollyxt_pipelines.scc_access" title="Permalink to this headline">¶</a></h2>
+<p>Tools for communicating with the SCC backend</p>
+<p>Author: Thanasis Georgiou &lt;<a class="reference external" href="mailto:ageorgiou&#37;&#52;&#48;noa&#46;gr">ageorgiou<span>&#64;</span>noa<span>&#46;</span>gr</a>&gt;</p>
+<p>Based on <code class="xref py py-obj docutils literal notranslate"><span class="pre">scc-access</span></code> by Iannis Binietoglou &lt;<a class="reference external" href="mailto:i&#46;binietoglou&#37;&#52;&#48;impworks&#46;gr">i<span>&#46;</span>binietoglou<span>&#64;</span>impworks<span>&#46;</span>gr</a>&gt;: <a class="reference external" href="https://repositories.imaa.cnr.it/public/scc_access">https://repositories.imaa.cnr.it/public/scc_access</a></p>
+<dl class="py class">
+<dt id="pollyxt_pipelines.scc_access.SCC">
+<em class="property">class </em><code class="sig-prename descclassname">pollyxt_pipelines.scc_access.</code><code class="sig-name descname">SCC</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">credentials</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access.html#SCC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.SCC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents a session with SCC.
+Before making any calls, the user should login using <a class="reference internal" href="#pollyxt_pipelines.scc_access.SCC.login" title="pollyxt_pipelines.scc_access.SCC.login"><code class="xref py py-obj docutils literal notranslate"><span class="pre">login()</span></code></a>!</p>
+<p>It’s recommended to use the <a class="reference internal" href="#pollyxt_pipelines.scc_access.scc_session" title="pollyxt_pipelines.scc_access.scc_session"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scc_session()</span></code></a> context manager, which handles logging in and out.</p>
+<dl class="py method">
+<dt id="pollyxt_pipelines.scc_access.SCC.delete_measurement">
+<code class="sig-name descname">delete_measurement</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">measurement_id</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access.html#SCC.delete_measurement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.SCC.delete_measurement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes a measurement from SCC</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>measurement_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Which measurement to delete</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pollyxt_pipelines.scc_access.SCC.download_file">
+<code class="sig-name descname">download_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">url</span></em>, <em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access.html#SCC.download_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.SCC.download_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Downloads a single file from SCC to the given path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>url</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Which URL to download the file from</p></li>
+<li><p><strong>path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Where to store the downloaded file</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pollyxt_pipelines.scc_access.SCC.download_products">
+<code class="sig-name descname">download_products</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">measurement_id</span></em>, <em class="sig-param"><span class="n">download_path</span></em>, <em class="sig-param"><span class="n">hirelpp</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">cloudmask</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">elpp</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">optical</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">elic</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access.html#SCC.download_products"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.SCC.download_products" title="Permalink to this definition">¶</a></dt>
+<dd><p>Downloads products for a given measurement (ID) to the given path.
+This function is a generator, yielding the filename of each downloaded file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>measurement_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Which measurement to download products for</p></li>
+<li><p><strong>download_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Where to store the downloaded products</p></li>
+<li><p><strong>hirelpp</strong> – Whether to download HiRELPP files</p></li>
+<li><p><strong>cloudmask</strong> – Whether to download Cloudmask files</p></li>
+<li><p><strong>elpp</strong> – Whether to download ELPP files</p></li>
+<li><p><strong>optical</strong> – Whether to download optical (ELDA or ELDEC) files</p></li>
+<li><p><strong>elic</strong> – Whether to download ELIC files</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pollyxt_pipelines.scc_access.SCC.get_anchillary">
+<code class="sig-name descname">get_anchillary</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_id</span></em>, <em class="sig-param"><span class="n">file_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access.html#SCC.get_anchillary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.SCC.get_anchillary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses the SCC API to fetch information about anchillary files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – File ID to lookup</p></li>
+<li><p><strong>file_type</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – What kind of file to lookup (‘sounding’, ‘overlap’ or ‘lidarratio’)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#pollyxt_pipelines.scc_access.types.APIObject" title="pollyxt_pipelines.scc_access.types.APIObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">APIObject</span></code></a>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The API response about the file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pollyxt_pipelines.scc_access.SCC.get_measurement">
+<code class="sig-name descname">get_measurement</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">measurement_id</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access.html#SCC.get_measurement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.SCC.get_measurement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetches information about one measurement from SCC.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>measurement_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Which measurement to lookup</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#pollyxt_pipelines.scc_access.types.Measurement" title="pollyxt_pipelines.scc_access.types.Measurement"><code class="xref py py-class docutils literal notranslate"><span class="pre">Measurement</span></code></a>]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The measurement if it exists, None otherwise</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pollyxt_pipelines.scc_access.SCC.login">
+<code class="sig-name descname">login</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access.html#SCC.login"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.SCC.login" title="Permalink to this definition">¶</a></dt>
+<dd><p>Login to SCC</p>
+<p>This function starts a session with the SCC backend, storing the authentication
+cookies so they can be used by the rest of the methods. Remember to call <a class="reference internal" href="#pollyxt_pipelines.scc_access.SCC.logout" title="pollyxt_pipelines.scc_access.SCC.logout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logout()</span></code></a>!</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pollyxt_pipelines.scc_access.SCC.logout">
+<code class="sig-name descname">logout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access.html#SCC.logout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.SCC.logout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logout of SCC</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pollyxt_pipelines.scc_access.SCC.query_measurements">
+<code class="sig-name descname">query_measurements</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">date_start</span></em>, <em class="sig-param"><span class="n">date_end</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">page</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access.html#SCC.query_measurements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.SCC.query_measurements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Searches SCC for uploaded measurements</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>date_start</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">date</span></code>) – First day of results</p></li>
+<li><p><strong>date_end</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">date</span></code>) – Last day of results</p></li>
+<li><p><strong>location</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="locations.html#pollyxt_pipelines.locations.Location" title="pollyxt_pipelines.locations.Location"><code class="xref py py-class docutils literal notranslate"><span class="pre">Location</span></code></a>]) – Optionally, filter results by a location</p></li>
+<li><p><strong>page</strong> – Which page to return (starts from 1, default value is 1)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="#pollyxt_pipelines.scc_access.types.Measurement" title="pollyxt_pipelines.scc_access.types.Measurement"><code class="xref py py-class docutils literal notranslate"><span class="pre">Measurement</span></code></a>]]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The number of pages and the list of measurements</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pollyxt_pipelines.scc_access.SCC.upload_file">
+<code class="sig-name descname">upload_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">system_id</span></em>, <em class="sig-param"><span class="n">rs_filename</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ov_filename</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">lr_filename</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access.html#SCC.upload_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.SCC.upload_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uploads a file to SCC, together with the auxilary files. There is no return value, but it will
+throw for potential errors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Path to the SCC netCDF file</p></li>
+<li><p><strong>system_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – SCC Lidar System ID for the system that made the measurement</p></li>
+<li><p><strong>rs_filename</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>]) – Path to the radiosonde netCDF file</p></li>
+<li><p><strong>ov_filename</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>]) – Path to the overlap netCDF file</p></li>
+<li><p><strong>lr_filename</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>]) – Path to the lidar ratio netCDF file</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pollyxt_pipelines.scc_access.SCC_Credentials">
+<em class="property">class </em><code class="sig-prename descclassname">pollyxt_pipelines.scc_access.</code><code class="sig-name descname">SCC_Credentials</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access.html#SCC_Credentials"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.SCC_Credentials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Contains all required credentials to authenticate with SCC</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pollyxt_pipelines.scc_access.scc_session">
+<code class="sig-prename descclassname">pollyxt_pipelines.scc_access.</code><code class="sig-name descname">scc_session</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">credentials</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access.html#scc_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.scc_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>An SCC session as a context, to use with <code class="xref py py-obj docutils literal notranslate"><span class="pre">with:</span></code></p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">scc_access</span><span class="p">(</span><span class="n">credentials</span><span class="p">)</span> <span class="k">as</span> <span class="n">scc</span><span class="p">:</span>
+    <span class="c1"># Use scc</span>
+    <span class="c1"># ...</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<div class="section" id="module-pollyxt_pipelines.scc_access.exceptions">
+<span id="exceptions"></span><h3>Exceptions<a class="headerlink" href="#module-pollyxt_pipelines.scc_access.exceptions" title="Permalink to this headline">¶</a></h3>
+<p>Exceptions that might occur while working with SCC</p>
+<dl class="py exception">
+<dt id="pollyxt_pipelines.scc_access.exceptions.PageNotAccessible">
+<em class="property">exception </em><code class="sig-prename descclassname">pollyxt_pipelines.scc_access.exceptions.</code><code class="sig-name descname">PageNotAccessible</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">page_url</span></em>, <em class="sig-param"><span class="n">status_code</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access/exceptions.html#PageNotAccessible"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.exceptions.PageNotAccessible" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Raised when a page cannot be accessed</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt id="pollyxt_pipelines.scc_access.exceptions.SCCError">
+<em class="property">exception </em><code class="sig-prename descclassname">pollyxt_pipelines.scc_access.exceptions.</code><code class="sig-name descname">SCCError</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">errors</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access/exceptions.html#SCCError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.exceptions.SCCError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Raised when an error message from SCC is parsed from the page body</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt id="pollyxt_pipelines.scc_access.exceptions.UnexpectedResponse">
+<em class="property">exception </em><code class="sig-prename descclassname">pollyxt_pipelines.scc_access.exceptions.</code><code class="sig-name descname">UnexpectedResponse</code><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access/exceptions.html#UnexpectedResponse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.exceptions.UnexpectedResponse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Raised when the response is not OK and we don’t have a concrete reason for it</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt id="pollyxt_pipelines.scc_access.exceptions.WrongCredentialsException">
+<em class="property">exception </em><code class="sig-prename descclassname">pollyxt_pipelines.scc_access.exceptions.</code><code class="sig-name descname">WrongCredentialsException</code><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access/exceptions.html#WrongCredentialsException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.exceptions.WrongCredentialsException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Raised when login() fails due to wrong credentials</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pollyxt_pipelines.scc_access.types">
+<span id="container-types"></span><h3>Container types<a class="headerlink" href="#module-pollyxt_pipelines.scc_access.types" title="Permalink to this headline">¶</a></h3>
+<p>Various container classes and utility functions for handling SCC responses</p>
+<dl class="py class">
+<dt id="pollyxt_pipelines.scc_access.types.APIObject">
+<em class="property">class </em><code class="sig-prename descclassname">pollyxt_pipelines.scc_access.types.</code><code class="sig-name descname">APIObject</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">response_body</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access/types.html#APIObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.types.APIObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>SCC generic API response object</p>
+<p>The only objects fetched from the API are Anchillary files, so this
+class doesn’t do much.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pollyxt_pipelines.scc_access.types.Measurement">
+<em class="property">class </em><code class="sig-prename descclassname">pollyxt_pipelines.scc_access.types.</code><code class="sig-name descname">Measurement</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span></em>, <em class="sig-param"><span class="n">station_code</span></em>, <em class="sig-param"><span class="n">date_start</span></em>, <em class="sig-param"><span class="n">date_end</span></em>, <em class="sig-param"><span class="n">date_creation</span></em>, <em class="sig-param"><span class="n">date_updated</span></em>, <em class="sig-param"><span class="n">is_uploaded</span></em>, <em class="sig-param"><span class="n">has_hirelpp</span></em>, <em class="sig-param"><span class="n">has_cloudmask</span></em>, <em class="sig-param"><span class="n">has_elpp</span></em>, <em class="sig-param"><span class="n">has_elda</span></em>, <em class="sig-param"><span class="n">has_eldec</span></em>, <em class="sig-param"><span class="n">has_elic</span></em>, <em class="sig-param"><span class="n">has_elquick</span></em>, <em class="sig-param"><span class="n">is_processing</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access/types.html#Measurement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.types.Measurement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="pollyxt_pipelines.scc_access.types.Measurement.from_table_row">
+<em class="property">static </em><code class="sig-name descname">from_table_row</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tr</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access/types.html#Measurement.from_table_row"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.types.Measurement.from_table_row" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a measurement object from a table row.
+Table rows are formatted like in <a class="reference external" href="https://scc.imaa.cnr.it/admin/database/measurements/">https://scc.imaa.cnr.it/admin/database/measurements/</a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="pollyxt_pipelines.scc_access.types.scc_bool">
+<code class="sig-prename descclassname">pollyxt_pipelines.scc_access.types.</code><code class="sig-name descname">scc_bool</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access/types.html#scc_bool"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.types.scc_bool" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a table cell to a bool</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pollyxt_pipelines.scc_access.types.scc_date">
+<code class="sig-prename descclassname">pollyxt_pipelines.scc_access.types.</code><code class="sig-name descname">scc_date</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tag</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access/types.html#scc_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.types.scc_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a table cell to a date</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+  <div class="t-pagination clearfix">
+    <span>
+      ← <a href="search-scc.html" title="Searching and downloading historic data">Searching and downloading...</a>
+    </span>
+  </div>
+
+    </div><footer class="t-foot">
+    &copy; Copyright 2020, NOA - ReACT.
+    <br>
+    A <a href="https://typlog.com/">typlog</a> <a href="https://github.com/typlog/sphinx-typlog-theme">sphinx theme</a>,
+    designed by <a href="https://lepture.com/">Hsiaoming Yang</a>.
+</footer>
+  </div>
+  <script>$(function(){$(".t-head_menu").on("click",function(){$("body").addClass("_expand")});$(".t-body").on("click",function(){$("body").removeClass("_expand")});$(".t-sidebar_close").on("click",function(){$("body").removeClass("_expand")});$("a.footnote-reference").on("click",function(e){e.preventDefault();var id=$(this).attr("href");var html=$(id).find("td.label + td").html();var w=Math.max(document.documentElement.clientWidth,window.innerWidth||0);var style="top:"+e.pageY+"px;";if(w>560){style+="width:480px;";if(e.pageX>240&&e.pageX+240<w){style+="left:"+(e.pageX-240)+"px;"}else if(e.pageX<=240){style+="left:20px;"}else{style+="right:20px;"}}showFootnote(html,style)});function showFootnote(html,style){var CONTENT_ID="typlog-footnote-content";var content=document.getElementById(CONTENT_ID);if(!content){content=document.createElement("div");content.id=CONTENT_ID;$(".t-body").append(content)}var MASK_ID="typlog-footnote-mask";var mask=document.getElementById(MASK_ID);if(!mask){mask=document.createElement("div");mask.id=MASK_ID;document.body.appendChild(mask);mask.addEventListener("click",function(){content.className="";mask.className=""})}content.innerHTML=html;content.setAttribute("style",style);content.className="_active";mask.className="_active"}function fetchGitHubRepo(repo){var url="https://api.github.com/repos/"+repo;$.getJSON(url,function(data){var counts=[+new Date,data.stargazers_count,data.forks_count];localStorage.setItem("gh:"+repo,JSON.stringify(counts));updateGitHubStats(counts[1],counts[2])})}function updateGitHubStats(stars,forks){$(".github_stars strong").text(stars);$(".github_forks strong").text(forks)}function initGitHub(url){if(!url){return}var repo=url.replace("https://github.com/","");var cache=localStorage.getItem("gh:"+repo);if(cache){try{var counts=JSON.parse(cache);updateGitHubStats(counts[1],counts[2]);var delta=new Date-counts[0];if(delta<0||delta>9e5){fetchGitHubRepo(repo)}}catch(error){fetchGitHubRepo(repo)}}else{fetchGitHubRepo(repo)}}initGitHub($(".github").attr("href"))});</script>
+</body>
+</html>
