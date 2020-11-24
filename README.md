@@ -110,8 +110,15 @@ required dependencies using:
 poetry install
 ```
 
+## License
+
+The project is available under the GNU Lesser General Public License v3.0. Please publish any changes you make,
+or better yet, contribute them to this repository so everyone can benefit. However, you can use this project
+as a library without publishing your source code.
+
+The license is available in the `COPYING` and `COPYING.LESSER` files.
 
 ## Authors & Contributors
 - Anna Gialitaki <togialitaki@noa.gr>: Original PollyXT to SCC code
 - Thanasis Georgiou <ageorgiou@noa.gr>: Command line tool
-- Iannis Binietoglou <i.binietoglou@impworks.gr>: [scc-access](https://repositories.imaa.cnr.it/public/scc_access) tool, which was the basis for the upload/download features
+- Iannis Binietoglou <i.binietoglou@impworks.gr>: [scc-access](https://repositories.imaa.cnr.it/public/scc_access) tool, which was the basis for the upload/download features. `scc-access` is available under the MIT license.
