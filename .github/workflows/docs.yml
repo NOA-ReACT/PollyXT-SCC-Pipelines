@@ -26,7 +26,7 @@ jobs:
       - name: Build documentation
         run: |
           cd docs
-          make html
+          poetry run make html
           cd ..
       - name: Publish documentation
         uses: JamesIves/github-pages-deploy-action@3.7.1
