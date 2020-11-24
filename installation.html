@@ -52,6 +52,7 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#install-with-pip">Install with pip</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#anaconda">Anaconda</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Overview</a></li>
@@ -83,13 +84,34 @@
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="install-with-pip">
 <h2>Install with pip<a class="headerlink" href="#install-with-pip" title="Permalink to this headline">¶</a></h2>
-<p>Official (wheel) packages for the project are available at the Github repository. Download the latest
-and install it using <code class="code docutils literal notranslate"><span class="pre">pip</span></code>:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip install ./pollyxt_pipelines_..._.whl
+<p>The project is available on PyPI so it can easily be installed using <code class="code docutils literal notranslate"><span class="pre">pip</span></code>:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip install pollyxt_pipelines
 </pre></div>
 </div>
 <p>Afterwards, the <code class="code docutils literal notranslate"><span class="pre">pollyxt_pipelines</span></code> command should be available to use.</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines --help
+</pre></div>
+</div>
+</div>
+<div class="section" id="anaconda">
+<h2>Anaconda<a class="headerlink" href="#anaconda" title="Permalink to this headline">¶</a></h2>
+<p>If you are using Anaconda to manage your Python packages, it is recommended to create
+a new environment just for <code class="code docutils literal notranslate"><span class="pre">pollyxt_pipelines</span></code>. To create such an environment, run the following
+commands in a terminal (or Anaconda Prompt):</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda create -n pollyenv <span class="nv">python</span><span class="o">=</span><span class="m">3</span>.8
+conda activate pollyenv
+pip install pollyxt_pipelines
+</pre></div>
+</div>
+<p>You can replace <code class="code docutils literal notranslate"><span class="pre">pollyenv</span></code> with a name of your choice.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>If you do not create a new environment, <code class="code docutils literal notranslate"><span class="pre">pip</span></code> could mess up the installed packages and ruin your setup. It’s always
+better to utilize environments, as shown above.</p>
+</div>
+<p>If the installation succeeds, you should be able to use the application anytime by running:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda activate pollyenv
+pollyxt_pipelines <span class="c1"># ...</span>
 </pre></div>
 </div>
 </div>
