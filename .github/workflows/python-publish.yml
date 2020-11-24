@@ -41,4 +41,5 @@ jobs:
       - name: Build and publish
         run: |
           poetry build
-          poetry publish -u __token__ -p ${{ secrets.PYPI_TOKEN }}
+          echo "Token: ${{ secrets.PYPI_TOKEN }}"
+          poetry publish --username __token__ --password ${{ secrets.PYPI_TOKEN }}
