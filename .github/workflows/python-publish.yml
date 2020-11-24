@@ -1,13 +1,9 @@
 # Upload package to pypi everytime a release is created
 name: Upload release to PyPI
 
-# on:
-#   release:
-#     types: [created]
 on:
-  push:
-    branches:
-      - master
+  release:
+    types: [created]
 
 jobs:
   deploy:
