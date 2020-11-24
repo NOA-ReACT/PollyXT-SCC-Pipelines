@@ -339,6 +339,39 @@ class SCC:
         else:
             raise exceptions.UnexpectedResponse()
 
+    def delete_measurement(self, measurement_id: str):
+        '''
+        Deletes a measurement from SCC
+
+        Parameters:
+            measurement_id: Which measurement to delete
+        '''
+
+        # Get post form blabla
+
+        # Submit form
+        url = constants.delete_measurement_pattern.format(measurement_id)
+        body = {
+            'csrfmiddlewaretoken': 'LbR8TIoYmrILP1VW8wdy4JAOL9D7T0d6DyIKa4cMFgN1J2TsELWm7uBZ3tSztPQ5',
+            'select_delete_related_measurements': 'not_delete_related',
+            'post': 'yes'
+        }
+        headers = {}
+        response = self.session.post(url, data=body, headers=headers)
+
+        # Look for success banner
+        if response.status_code != 302:
+            raise exceptions.UnexpectedResponse('Response code is not 302')
+
+        body = BeautifulSoup(response.text(), 'html.parser')
+        banner = body.find('li', class_='grp-success')
+
+        if banner is None:
+            raise exceptions.UnexpectedResponse('Could not find success banner in response')
+
+        if 'deleted successfully' not in banner.text:
+            raise exceptions.UnexpectedResponse('Banner found but wrong content inside')
+
 
 @contextlib.contextmanager
 def scc_session(credentials: SCC_Credentials):
