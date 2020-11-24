@@ -25,9 +25,20 @@ jobs:
           pip install poetry
       - name: Install dependencies
         run: poetry install
+      - name: Build documentation
+        run: |
+          cd docs
+          poetry run make html
+          touch _build/html/.nojekyll
+          cd ..
+      - name: Publish documentation
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: docs/_build/html
+          CLEAN: true
       - name: Build and publish
-        env:
-          TOKEN: ${{ secrets.PYPI_TOKEN }}
         run: |
           poetry build
-          poetry publish -u __token__ -p $TOKEN
+          poetry publish -u __token__ -p ${{ secrets.PYPI_TOKEN }}
