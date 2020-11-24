@@ -1,7 +1,7 @@
 # PollyXT Pipelines
 
 PollyXT-Pipelines is a tool and a library for processing PollyXT files, mainly related to the integration
-with `Single Calculus Chain (SCC) <https://www.earlinet.org/index.php?id=281>`_. It currently supports
+with [Single Calculus Chain (SCC)](https://www.earlinet.org/index.php?id=281). It currently supports
 the following features:
 
 * Conversion of PollyXT files to SCC format
