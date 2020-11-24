@@ -1,9 +1,13 @@
 # Upload package to pypi everytime a release is created
 name: Upload release to PyPI
 
+# on:
+#   release:
+#     types: [created]
 on:
-  release:
-    types: [created]
+  push:
+    branches:
+      - master
 
 jobs:
   deploy:
@@ -23,8 +27,7 @@ jobs:
         run: poetry install
       - name: Build and publish
         env:
-          USERNAME: ${{ secrets.PYPI_USERNAME }}
-          PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+          TOKEN: ${{ secrets.PYPI_TOKEN }}
         run: |
           poetry build
-          poetry publish -u $USERNAME -p $PASSWORD
+          poetry publish -u __token__ -p $TOKEN
