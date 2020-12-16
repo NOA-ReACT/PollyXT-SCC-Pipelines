@@ -4,6 +4,7 @@ from pathlib import Path
 
 from cleo import Command
 import pandas as pd
+from rich.markdown import Markdown
 from rich.table import Table
 from rich.progress import Progress, track
 from netCDF4 import Dataset
@@ -158,6 +159,72 @@ class DownloadFiles(Command):
                 for file in scc.download_products(id, output_directory):
                     console.print(f'[info]Downloaded[/info] {file}')
                 id_frame.loc[id, 'Products_Downloaded'] = True
+
+
+class DeleteSCC(Command):
+    '''
+    Delete measurements from SCC
+
+    scc-delete
+        {id* : The measurement IDs to delete from SCC}
+    '''
+
+    help = '''
+    This command will *DELETE* measurements from SCC WITHOUT CONFIRMATION! Please be extra
+    careful when using it.
+
+    Example usage:
+        pollyxt_pipelines scc-delete 20201124aky0001 20201124aky0102
+    '''
+
+    def handle(self):
+        ids = self.argument("id")
+
+        # Read application config
+        config = Config()
+        try:
+            credentials = SCC_Credentials(config)
+        except KeyError:
+            self.line('<error>Credentials not found in config</error>')
+            self.line('Use `pollyxt_pipelines config` to set the following variables:')
+            self.line('- http.username')
+            self.line('- http.password')
+            self.line('- auth.username')
+            self.line('- auth.password')
+            self.line('For example, `pollyxt_pipelines config http.username scc_user')
+            return 1
+
+        # Login to SCC
+        successes = []
+        failures = []
+        with scc_session(credentials) as scc:
+            with Progress(console=console) as progress:
+                task = progress.add_task("Deleting measurements...", total=len(ids))
+
+                for id in ids:
+                    try:
+                        scc.delete_measurement(id)
+                        console.print(f"[info]Deleted[/info] {id}")
+                        successes.append(id)
+                    except Exception as ex:
+                        console.print(f"-> [error]Could not delete:[/error] {id}", style="bold")
+                        console.print(f'[error]{type(ex).__name__}:[/error] {str(ex)}')
+                        failures.append(id)
+
+                    progress.advance(task)
+
+        # Print a summary
+        summary = "---\n"
+        if len(successes) > 0:
+            summary += "**Successfully deleted:**\n"
+            for id in successes:
+                summary += f"* {id}\n"
+        if len(failures) > 0:
+            summary += "\n**Not deleted due to failure:**\n"
+            for id in failures:
+                summary += f"* {id}\n"
+
+        console.print(Markdown(summary))
 
 
 class SearchSCC(Command):
