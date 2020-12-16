@@ -373,6 +373,35 @@ class SCC:
             measurement_id: Which measurement to re-run
         '''
 
+        # Submit form
+        url = constants.rerun_measurement_url
+        body = {
+            '_selected_action': measurement_id,
+            'action': 'rerun_all',
+            "selected_across": "0",
+            "index": 0
+        }
+        headers = {
+            'referer': url,
+            'X-CSRFToken': self.session.cookies['csrftoken'],
+        }
+        response = self.session.post(url, data=body, headers=headers,
+                                     allow_redirects=False)
+
+        # Look for success banner
+        if response.status_code == 404:
+            raise exceptions.MeasurementNotFound(measurement_id)
+        if response.status_code != 302:
+            raise exceptions.UnexpectedResponse('Response code is not 302')
+
+        # Check for message in cookie
+        messages_cookie = response.cookies["messages"]
+        if messages_cookie is None:
+            raise exceptions.UnexpectedResponse("`Messages` cookie not found")
+
+        if 'The processing chain was restarted' not in messages_cookie:
+            raise exceptions.UnexpectedResponse("Could not found restart message in cookie")
+
 
 @contextlib.contextmanager
 def scc_session(credentials: SCC_Credentials):

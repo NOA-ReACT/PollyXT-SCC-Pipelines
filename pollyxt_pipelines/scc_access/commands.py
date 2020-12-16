@@ -228,6 +228,65 @@ class DeleteSCC(Command):
         console.print(Markdown(summary))
 
 
+class RerunSCC(Command):
+    '''
+    Asks SCC to re-run processing for a set of measurements
+
+    scc-rerun
+        {id* : The measurement IDs to re-run on SCC}
+    '''
+
+    def handle(self):
+        ids = self.argument("id")
+
+        # Read application config
+        config = Config()
+        try:
+            credentials = SCC_Credentials(config)
+        except KeyError:
+            self.line('<error>Credentials not found in config</error>')
+            self.line('Use `pollyxt_pipelines config` to set the following variables:')
+            self.line('- http.username')
+            self.line('- http.password')
+            self.line('- auth.username')
+            self.line('- auth.password')
+            self.line('For example, `pollyxt_pipelines config http.username scc_user')
+            return 1
+
+        # Login to SCC
+        successes = []
+        failures = []
+        with scc_session(credentials) as scc:
+            with Progress(console=console) as progress:
+                task = progress.add_task("Asking for re-runs...", total=len(ids))
+
+                for id in ids:
+                    try:
+                        scc.rerun_processing(id)
+                        console.print(f"[info]Re-running[/info] {id}")
+                        successes.append(id)
+                    except Exception as ex:
+                        console.print(
+                            f"-> [error]Could not make request:[/error] {id}", style="bold")
+                        console.print(f'[error]{type(ex).__name__}:[/error] {str(ex)}')
+                        failures.append(id)
+
+                    progress.advance(task)
+
+        # Print a summary
+        summary = "---\n"
+        if len(successes) > 0:
+            summary += "**Re-running:**\n"
+            for id in successes:
+                summary += f"* {id}\n"
+        if len(failures) > 0:
+            summary += "\n**Failed to rerun:**\n"
+            for id in failures:
+                summary += f"* {id}\n"
+
+        console.print(Markdown(summary))
+
+
 class SearchSCC(Command):
     '''
     Queries SCC for measurements
