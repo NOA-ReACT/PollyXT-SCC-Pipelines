@@ -1,3 +1,8 @@
+# v1.2.0
+- ✨ Add `scc-delete` command for deleting measurements from the SCC database
+- ✨ Add `scc-rerun` command for requesting re-processing of measurements
+- 🐜 Fix crash when using `scc-download` with `--id` option
+
 # v1.1.0
 - Add `scc-search` and `scc-search-download` commands
 - Create documentation page using sphinx
