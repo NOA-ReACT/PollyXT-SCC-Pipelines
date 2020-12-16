@@ -158,7 +158,8 @@ class DownloadFiles(Command):
 
                 for file in scc.download_products(id, output_directory):
                     console.print(f'[info]Downloaded[/info] {file}')
-                id_frame.loc[id, 'Products_Downloaded'] = True
+                if id_frame is not None:
+                    id_frame.loc[id, 'Products_Downloaded'] = True
 
 
 class DeleteSCC(Command):
