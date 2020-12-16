@@ -10,7 +10,7 @@ The project is available on PyPI so it can easily be installed using :code:`pip`
 
 .. code-block:: sh
 
-  pip install pollyxt_pipelines
+  pip install pollyxt-pipelines
 
 
 Afterwards, the :code:`pollyxt_pipelines` command should be available to use.
@@ -33,7 +33,7 @@ commands in a terminal (or Anaconda Prompt):
 
   conda create -n pollyenv python=3.8
   conda activate pollyenv
-  pip install pollyxt_pipelines
+  pip install pollyxt-pipelines
 
 You can replace :code:`pollyenv` with a name of your choice.
 

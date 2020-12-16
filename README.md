@@ -17,7 +17,7 @@ This project requires Python 3.8 or newer. It works on both Windows and Linux. I
 
 ```sh
 # Replace with the filename you downloaded
-pip install pollyxt_pipelines
+pip install pollyxt-pipelines
 ```
 
 If you are using Anaconda on Windows, run the above command in Anaconda Prompt **in a fresh environment**.
