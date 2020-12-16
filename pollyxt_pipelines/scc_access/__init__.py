@@ -347,8 +347,6 @@ class SCC:
             measurement_id: Which measurement to delete
         '''
 
-        # Get post form blabla
-
         # Submit form
         url = constants.delete_measurement_pattern.format(measurement_id)
         body = {
@@ -366,6 +364,14 @@ class SCC:
             raise exceptions.MeasurementNotFound(measurement_id)
         if response.status_code != 200:
             raise exceptions.UnexpectedResponse('Response code is not 200')
+
+    def rerun_processing(self, measurement_id: str):
+        '''
+        Asks SCC to re-run processing routines for a given measurement ID
+
+        Parameters:
+            measurement_id: Which measurement to re-run
+        '''
 
 
 @contextlib.contextmanager
