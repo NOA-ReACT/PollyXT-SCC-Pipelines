@@ -56,6 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../auth.html">Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../scc-upload-download.html">Uploading to SCC and downloading products</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../search-scc.html">Searching and downloading historic data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../manage-scc.html">Manage SCC Measurements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../network-api.html">Network API</a></li>
 </ul>
 
@@ -107,9 +108,29 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">errors</span></div>
 
 
+<div class="viewcode-block" id="MeasurementNotFound"><a class="viewcode-back" href="../../../network-api.html#pollyxt_pipelines.scc_access.exceptions.MeasurementNotFound">[docs]</a><span class="k">class</span> <span class="nc">MeasurementNotFound</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Raised when the requested measurement does not exist in the SCC database&#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">measurement_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">measurement_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">measurement_id</span> <span class="o">=</span> <span class="n">measurement_id</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;Measurement with ID </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">measurement_id</span><span class="si">}</span><span class="s1"> does not exist in the SCC database&#39;</span></div>
+
+
 <div class="viewcode-block" id="UnexpectedResponse"><a class="viewcode-back" href="../../../network-api.html#pollyxt_pipelines.scc_access.exceptions.UnexpectedResponse">[docs]</a><span class="k">class</span> <span class="nc">UnexpectedResponse</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Raised when the response is not OK and we don&#39;t have a concrete reason for it&#39;&#39;&#39;</span>
-    <span class="k">pass</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;SCC responded in an unknown way: &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;SCC responded in an unknown way&#39;</span></div>
 </pre></div>
   <div class="t-pagination clearfix">
   </div>

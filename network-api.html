@@ -10,7 +10,7 @@
       <link rel="index" title="Index" href="genindex.html"/>
       <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="PollyXT-Pipelines  documentation" href="index.html"/>
-      <link rel="prev" title="Searching and downloading historic data" href="search-scc.html"/>
+      <link rel="prev" title="Manage SCC Measurements" href="manage-scc.html"/>
   <script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');ga('create', '');ga('send', 'pageview');</script>
   <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
@@ -56,6 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="auth.html">Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scc-upload-download.html">Uploading to SCC and downloading products</a></li>
 <li class="toctree-l1"><a class="reference internal" href="search-scc.html">Searching and downloading historic data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-scc.html">Manage SCC Measurements</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Network API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-pollyxt_pipelines.scc_access">API</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#module-pollyxt_pipelines.scc_access.exceptions">Exceptions</a></li>
@@ -242,6 +243,17 @@ cookies so they can be used by the rest of the methods. Remember to call <a clas
 </dd></dl>
 
 <dl class="py method">
+<dt id="pollyxt_pipelines.scc_access.SCC.rerun_processing">
+<code class="sig-name descname">rerun_processing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">measurement_id</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access.html#SCC.rerun_processing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.SCC.rerun_processing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asks SCC to re-run processing routines for a given measurement ID</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>measurement_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Which measurement to re-run</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="pollyxt_pipelines.scc_access.SCC.upload_file">
 <code class="sig-name descname">upload_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">system_id</span></em>, <em class="sig-param"><span class="n">rs_filename</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ov_filename</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">lr_filename</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access.html#SCC.upload_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.SCC.upload_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uploads a file to SCC, together with the auxilary files. There is no return value, but it will
@@ -284,6 +296,13 @@ throw for potential errors.</p>
 <span id="exceptions"></span><h3>Exceptions<a class="headerlink" href="#module-pollyxt_pipelines.scc_access.exceptions" title="Permalink to this headline">¶</a></h3>
 <p>Exceptions that might occur while working with SCC</p>
 <dl class="py exception">
+<dt id="pollyxt_pipelines.scc_access.exceptions.MeasurementNotFound">
+<em class="property">exception </em><code class="sig-prename descclassname">pollyxt_pipelines.scc_access.exceptions.</code><code class="sig-name descname">MeasurementNotFound</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">measurement_id</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access/exceptions.html#MeasurementNotFound"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.exceptions.MeasurementNotFound" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Raised when the requested measurement does not exist in the SCC database</p>
+</dd></dl>
+
+<dl class="py exception">
 <dt id="pollyxt_pipelines.scc_access.exceptions.PageNotAccessible">
 <em class="property">exception </em><code class="sig-prename descclassname">pollyxt_pipelines.scc_access.exceptions.</code><code class="sig-name descname">PageNotAccessible</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">page_url</span></em>, <em class="sig-param"><span class="n">status_code</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access/exceptions.html#PageNotAccessible"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.exceptions.PageNotAccessible" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
@@ -299,7 +318,7 @@ throw for potential errors.</p>
 
 <dl class="py exception">
 <dt id="pollyxt_pipelines.scc_access.exceptions.UnexpectedResponse">
-<em class="property">exception </em><code class="sig-prename descclassname">pollyxt_pipelines.scc_access.exceptions.</code><code class="sig-name descname">UnexpectedResponse</code><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access/exceptions.html#UnexpectedResponse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.exceptions.UnexpectedResponse" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="sig-prename descclassname">pollyxt_pipelines.scc_access.exceptions.</code><code class="sig-name descname">UnexpectedResponse</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access/exceptions.html#UnexpectedResponse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.exceptions.UnexpectedResponse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Raised when the response is not OK and we don’t have a concrete reason for it</p>
 </dd></dl>
@@ -365,7 +384,7 @@ Table rows are formatted like in <a class="reference external" href="https://scc
 
   <div class="t-pagination clearfix">
     <span>
-      ← <a href="search-scc.html" title="Searching and downloading historic data">Searching and downloading...</a>
+      ← <a href="manage-scc.html" title="Manage SCC Measurements">Manage SCC Measurements</a>
     </span>
   </div>
 

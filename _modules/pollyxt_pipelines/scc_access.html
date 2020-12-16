@@ -56,6 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../auth.html">Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../scc-upload-download.html">Uploading to SCC and downloading products</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../search-scc.html">Searching and downloading historic data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../manage-scc.html">Manage SCC Measurements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../network-api.html">Network API</a></li>
 </ul>
 
@@ -425,30 +426,60 @@
 <span class="sd">            measurement_id: Which measurement to delete</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
-        <span class="c1"># Get post form blabla</span>
-
         <span class="c1"># Submit form</span>
         <span class="n">url</span> <span class="o">=</span> <span class="n">constants</span><span class="o">.</span><span class="n">delete_measurement_pattern</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">measurement_id</span><span class="p">)</span>
         <span class="n">body</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;csrfmiddlewaretoken&#39;</span><span class="p">:</span> <span class="s1">&#39;LbR8TIoYmrILP1VW8wdy4JAOL9D7T0d6DyIKa4cMFgN1J2TsELWm7uBZ3tSztPQ5&#39;</span><span class="p">,</span>
             <span class="s1">&#39;select_delete_related_measurements&#39;</span><span class="p">:</span> <span class="s1">&#39;not_delete_related&#39;</span><span class="p">,</span>
             <span class="s1">&#39;post&#39;</span><span class="p">:</span> <span class="s1">&#39;yes&#39;</span>
         <span class="p">}</span>
-        <span class="n">headers</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;referer&#39;</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span>
+            <span class="s1">&#39;X-CSRFToken&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">cookies</span><span class="p">[</span><span class="s1">&#39;csrftoken&#39;</span><span class="p">],</span>
+        <span class="p">}</span>
         <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">body</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
 
         <span class="c1"># Look for success banner</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">MeasurementNotFound</span><span class="p">(</span><span class="n">measurement_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">UnexpectedResponse</span><span class="p">(</span><span class="s1">&#39;Response code is not 200&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SCC.rerun_processing"><a class="viewcode-back" href="../../network-api.html#pollyxt_pipelines.scc_access.SCC.rerun_processing">[docs]</a>    <span class="k">def</span> <span class="nf">rerun_processing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">measurement_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Asks SCC to re-run processing routines for a given measurement ID</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            measurement_id: Which measurement to re-run</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># Submit form</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">constants</span><span class="o">.</span><span class="n">rerun_measurement_url</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;_selected_action&#39;</span><span class="p">:</span> <span class="n">measurement_id</span><span class="p">,</span>
+            <span class="s1">&#39;action&#39;</span><span class="p">:</span> <span class="s1">&#39;rerun_all&#39;</span><span class="p">,</span>
+            <span class="s2">&quot;selected_across&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="mi">0</span>
+        <span class="p">}</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;referer&#39;</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span>
+            <span class="s1">&#39;X-CSRFToken&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">cookies</span><span class="p">[</span><span class="s1">&#39;csrftoken&#39;</span><span class="p">],</span>
+        <span class="p">}</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">body</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+                                     <span class="n">allow_redirects</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Look for success banner</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">MeasurementNotFound</span><span class="p">(</span><span class="n">measurement_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">302</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">UnexpectedResponse</span><span class="p">(</span><span class="s1">&#39;Response code is not 302&#39;</span><span class="p">)</span>
 
-        <span class="n">body</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span> <span class="s1">&#39;html.parser&#39;</span><span class="p">)</span>
-        <span class="n">banner</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;li&#39;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s1">&#39;grp-success&#39;</span><span class="p">)</span>
+        <span class="c1"># Check for message in cookie</span>
+        <span class="n">messages_cookie</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">cookies</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">messages_cookie</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">UnexpectedResponse</span><span class="p">(</span><span class="s2">&quot;`Messages` cookie not found&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">banner</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">UnexpectedResponse</span><span class="p">(</span><span class="s1">&#39;Could not find success banner in response&#39;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="s1">&#39;deleted successfully&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">banner</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">UnexpectedResponse</span><span class="p">(</span><span class="s1">&#39;Banner found but wrong content inside&#39;</span><span class="p">)</span></div></div>
+        <span class="k">if</span> <span class="s1">&#39;The processing chain was restarted&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">messages_cookie</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">UnexpectedResponse</span><span class="p">(</span><span class="s2">&quot;Could not found restart message in cookie&quot;</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="scc_session"><a class="viewcode-back" href="../../network-api.html#pollyxt_pipelines.scc_access.scc_session">[docs]</a><span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>

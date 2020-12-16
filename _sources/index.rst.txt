@@ -31,4 +31,5 @@ User Guide
    auth
    scc-upload-download
    search-scc
+   manage-scc
    network-api
