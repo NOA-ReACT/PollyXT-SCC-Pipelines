@@ -361,7 +361,7 @@ class SearchSCC(Command):
         location_name = self.option('location')
         location = None
         if location_name is not None:
-            location = locations.get_location_by_name(location_name)
+            location = locations.LOCATIONS[location_name]
             if location is None:
                 locations.unknown_location_error(location_name)
                 return 1
@@ -482,7 +482,7 @@ class SearchDownloadSCC(Command):
         location_name = self.option('location')
         location = None
         if location_name is not None:
-            location = locations.get_location_by_name(location_name)
+            location = locations.LOCATIONS[location_name]
             if location is None:
                 locations.unknown_location_error(location_name)
                 return 1

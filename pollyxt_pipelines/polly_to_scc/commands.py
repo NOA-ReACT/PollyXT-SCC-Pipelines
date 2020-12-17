@@ -50,7 +50,7 @@ class CreateSCC(Command):
 
         # Try to get location
         location_name = self.argument('location')
-        location = locations.get_location_by_name(location_name)
+        location = locations.LOCATIONS[location_name]
         if location is None:
             locations.unknown_location_error(location_name)
             return 1
@@ -116,7 +116,7 @@ class CreateSCCBatch(Command):
 
         # Try to get location
         location_name = self.argument('location')
-        location = locations.get_location_by_name(location_name)
+        location = locations.LOCATIONS[location_name]
         if location is None:
             locations.unknown_location_error(location_name)
             return 1
