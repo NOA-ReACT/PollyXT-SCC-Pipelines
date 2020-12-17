@@ -10,7 +10,7 @@ from cleo import Application
 from pollyxt_pipelines.radiosondes.commands import WRFProfileToCSVs
 from pollyxt_pipelines.polly_to_scc.commands import CreateSCCBatch, CreateSCC
 from pollyxt_pipelines.config import ConfigCommand
-from pollyxt_pipelines.scc_access.commands import DeleteSCC, DownloadFiles, RerunSCC, SearchDownloadSCC, SearchSCC, UploadFiles
+from pollyxt_pipelines.scc_access.commands import DeleteSCC, DownloadFiles, Login, RerunSCC, SearchDownloadSCC, SearchSCC, UploadFiles
 
 
 def get_package_version():
@@ -35,6 +35,7 @@ def prepare_cli_application() -> Application:
     application.add(CreateSCC())
     application.add(CreateSCCBatch())
     application.add(ConfigCommand())
+    application.add(Login())
     application.add(UploadFiles())
     application.add(DownloadFiles())
     application.add(DeleteSCC())

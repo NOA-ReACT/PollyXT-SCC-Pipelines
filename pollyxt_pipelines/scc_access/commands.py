@@ -1,9 +1,11 @@
 import logging
 import datetime
+import getpass
 from pathlib import Path
 
 from cleo import Command
 import pandas as pd
+from rich.panel import Panel
 from rich.markdown import Markdown
 from rich.table import Table
 from rich.progress import Progress, track
@@ -11,9 +13,65 @@ from netCDF4 import Dataset
 
 from pollyxt_pipelines.console import console
 from pollyxt_pipelines import locations
-from pollyxt_pipelines.scc_access import scc_session, SCC_Credentials, exceptions
-from pollyxt_pipelines.config import Config
+from pollyxt_pipelines.scc_access import scc_session, SCC, SCC_Credentials, exceptions
+from pollyxt_pipelines.config import Config, config_paths
 from pollyxt_pipelines.utils import bool_to_emoji, option_to_bool
+
+
+class Login(Command):
+    '''
+    Provide the necessary credentials for authenticating with SCC
+
+    login
+    '''
+
+    def handle(self):
+        # Print warning!
+        path = config_paths()[-1]
+        warning_md = "Your credentials will be stored as **PLAIN-TEXT** in the following file:\n"
+        warning_md += f"\n* {path}\n"
+        warning_md += "\nPlease make sure you understand the security implications of this and keep the config files safe!"
+        warning_md = Markdown(warning_md)
+
+        console.print(Panel(warning_md))
+
+        # Ask for the credentials
+        console.print(
+            "Please enter the HTTP authentication credentials (this is the first login popup when you access the website):")
+        console.print("[warn]The password won't be visible while you are typing![/warn]")
+        http_username = input("Username: ")
+        http_password = getpass.getpass("Password: ")
+
+        console.print("Please enter your account login:")
+        auth_username = input("Username: ")
+        auth_password = getpass.getpass("Password: ")
+
+        # Store in config
+        config = Config()
+        config["http"]["username"] = http_username
+        config["http"]["password"] = http_password
+        config["auth"]["username"] = auth_username
+        config["auth"]["password"] = auth_password
+        credentials = SCC_Credentials(config)
+
+        # Attempt to login
+        try:
+            scc = SCC(credentials)
+            scc.login()
+            scc.logout()
+        except exceptions.WrongCredentialsException:
+            console.print('[error]Could not login: Wrong credentials![/error]')
+            return 1
+        except exceptions.PageNotAccessible:
+            console.print('[error]Could not login: Page not accessible[/error]')
+            console.print('This is probably caused by wrong HTTP credentials!')
+            return 1
+        except:
+            console.print('[error]Could not login (unknown reason!)[/error]')
+            return 1
+
+        console.print('[info]Logged in successfully! Credentials saved![/info]')
+        config.write()
 
 
 class UploadFiles(Command):
