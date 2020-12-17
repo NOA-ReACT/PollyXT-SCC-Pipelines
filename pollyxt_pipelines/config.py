@@ -28,8 +28,8 @@ def config_paths() -> List[str]:
         ]
     elif os_name == 'Linux':
         paths = [
-            Path('/etc/pollyxt_pipelines.ini'),
-            Path('~/.config/pollyxt_pipelines.ini').expanduser()
+            Path('/etc/pollyxt_pipelines/pollyxt_pipelines.ini'),
+            Path('~/.config/pollyxt_pipelines/pollyxt_pipelines.ini').expanduser()
         ]
     else:
         print('Unknown operating system! Using `./pollyxt_pipelines.ini` as config!')
@@ -61,6 +61,7 @@ class Config():
 
     def write(self):
         '''Write config to disk, persisting any changes'''
+        Path(self.paths[-1]).parent.mkdir(exist_ok=True, parents=True)
         with open(self.paths[-1], 'w') as file:
             self.parser.write(file)
 
