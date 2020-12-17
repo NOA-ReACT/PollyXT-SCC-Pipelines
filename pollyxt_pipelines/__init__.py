@@ -3,6 +3,7 @@ Entry point for the application, mainly contains cleo setup
 Author: Thanasis Georgiou <ageorgiou@noa.gr>
 '''
 
+from pollyxt_pipelines.locations.commands import ShowLocations
 import pkg_resources
 
 from cleo import Application
@@ -42,6 +43,7 @@ def prepare_cli_application() -> Application:
     application.add(RerunSCC())
     application.add(SearchSCC())
     application.add(SearchDownloadSCC())
+    application.add(ShowLocations())
 
     return application
 
