@@ -8,19 +8,10 @@ your SCC credentials. There are two pairs of credentials:
 * HTTP Login: The credentials for the first login when you access https://scc.imaa.cnr.it/
 * Account Login: The credentials for the login menu, top right of the homepage
 
-You need to provide both for the application to work. You can set them using the :code:`config` command:
+You need to provide both for the application to work. You can set them using the :code:`login` command:
 
 .. code-block:: sh
-
-  # Replace $username and $password with your credentials
-
-  # HTTP Login
-  pollyxt_pipelines config http.username $username
-  pollyxt_pipelines config http.password $password
-
-  # Account login
-  pollyxt_pipelines config auth.username $username
-  pollyxt_pipelines config auth.password $password
+  pollyxt_pipelines login
 
 
 .. danger::
