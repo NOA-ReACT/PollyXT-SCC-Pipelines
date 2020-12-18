@@ -12,9 +12,53 @@ contains the station's coordinates and the related IDs for SCC. Specifically, fo
 * **Altitude**: The station's altitude
 * **System ID**: The SCC Lidar configuration ID for daytime and nightime
 
-Currently, the application knows about *Antikythera* and *Finokalia*.
+Currently, the application has a built-in registry containing information about two stations, *Antikythera* and *Finokalia*.
 
 
+Printing known locations
+------------------------
+
+To print all locations the application knows about, you can use the :code:`locations-show` command. Adding the
+:code:`--details` option will print all variables for each location, instead of just the names.
+
+.. code-block:: sh
+
+  pollyxt_pipelines locations-show
+  pollyxt_pipelines locations-show --detail
+
+
+
+Adding new locations
+--------------------
+
+A config file is used to add new locations to the application. It is stored in different locations, depending on the
+operating system you are on:
+
+* **Linux**: :code:`/etc/pollyxt_pipelines/locations.ini` (system-wide) and :code:`~/.config/pollyxt_pipelines/locations.ini` (user)
+* **Windows**: :code:`%APPDATA%/PollyXT_Pipelines/pollyxt_pipelines.ini`
+
+To print the path for your system, use the :code:`locations-path` command:
+
+.. code-block:: sh
+
+  pollyxt_pipelines locations-path
+  pollyxt_pipelines locations-path --user # Print only the user's path
+
+The file is ini-formatted, where each section is a station name. For example:
+
+.. code-block:: ini
+
+   [Antikythera]
+   profile_name = ANTIKYTHERA
+   scc_code = aky
+   lat = 23.3100
+   lon = 35.8600
+   altitude = 0.1
+   system_id_day=437
+   system_id_night=438
+
+You can add more than one location in the same file. Verify that it worked by running :code:`pollyxt_pipelines locations-show --detail`
+when you are done.
 
 API
 ---
