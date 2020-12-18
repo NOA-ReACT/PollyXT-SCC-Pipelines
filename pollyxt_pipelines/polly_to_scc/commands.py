@@ -45,6 +45,7 @@ class CreateSCC(Command):
         # Parse other arguments
         should_round = self.option('round')
         interval = self.option('interval')
+        use_sounding = not self.option('no-radiosonde')
         if interval is None:
             interval = 60  # Default duration is 1 hour/60 minutes
         interval = timedelta(minutes=interval)
@@ -81,7 +82,7 @@ class CreateSCC(Command):
 
             # Try to find radiosonde profiles
             profiles = None
-            if not self.option('no-radiosonde'):
+            if use_sounding:
                 day = pollyxt.get_measurement_period(file)[0].date()
                 try:
                     profiles = radiosondes.wrf.read_wrf_daily_profile(config, location, day)
@@ -92,7 +93,7 @@ class CreateSCC(Command):
                     return 1
 
             converter = scc_netcdf.convert_pollyxt_file(
-                file, output_path, location, interval, should_round, calibration=(not skip_calibration))
+                file, output_path, location, interval, should_round=should_round, calibration=(not skip_calibration), use_sounding=use_sounding)
             for id, path, timestamp in converter:
                 console.print(
                     f'[info]Created file with measurement ID[/info] {id} [info]at[/info] {str(path)}')

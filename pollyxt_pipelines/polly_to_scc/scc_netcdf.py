@@ -44,7 +44,8 @@ def calibration_to_datetime(base: datetime, period: str) -> Tuple[datetime, date
 def create_scc_netcdf(
     pf: pollyxt.PollyXTFile,
     output_path: Path,
-    location: Location
+    location: Location,
+    use_sounding: bool = True
 ) -> Tuple[str, Path]:
     '''
     Convert a PollyXT netCDF file to a SCC file.
@@ -53,6 +54,9 @@ def create_scc_netcdf(
         pf: An opened PollyXT file. When you create this, you can specify the time period of interest.
         output_path: Where to store the produced netCDF file
         location: Where did this measurement take place
+        use_sounding: Whether this file will be accompanied by a radiosonde file or not. If this is set to True, the
+                      `Sounding_File_Name` attribute will be set to the generated filename (`rs_{MEASUREMENT_ID}.rs`)
+                      and the `Molecular_Calc` variable will be set to 1, otherwise 0.
 
     Returns:
         A tuple containing  the measurement ID and the output path
@@ -84,7 +88,8 @@ def create_scc_netcdf(
     nc.RawBck_Start_Date = nc.RawData_Start_Date
     nc.RawBck_Start_Time_UT = nc.RawData_Start_Time_UT
     nc.RawBck_Stop_Time_UT = nc.RawData_Stop_Time_UT
-    nc.Sounding_File_Name = f'rs_{measurement_id[:-2]}.nc'
+    if use_sounding:
+        nc.Sounding_File_Name = f'rs_{measurement_id[:-2]}.nc'
     # nc.Overlap_File_Name = 'ov_' + selected_start.strftime('%Y%m%daky%H') + '.nc'
 
     # Custom attribute for configuration ID
@@ -132,7 +137,10 @@ def create_scc_netcdf(
     laser_shots[:] = pf.measurement_shots[:]
     background_low[:] = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     background_high[:] = np.array([249, 249, 249, 249, 249, 249, 249, 249, 249, 249, 249, 249])
-    molecular_calc[:] = 1
+    if use_sounding:
+        molecular_calc[:] = 1
+    else:
+        molecular_calc[:] = 0
     pressure_at_lidar_station[:] = 1008
     temperature_at_lidar_station[:] = 20
     lr_input[:] = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
@@ -289,6 +297,7 @@ def convert_pollyxt_file(
         output_path: Path,
         location: Location,
         interval: timedelta,
+        use_sounding=True,
         should_round=False,
         calibration=True):
     '''
@@ -306,7 +315,9 @@ def convert_pollyxt_file(
         output_path: Directory to write the SCC files
         location: Geographical information, where the measurement took place
         interval: What interval to use when splitting the PollyXT file (e.g. 1 hour)
-        shoudld_round: If true, the interval starts will be rounded down. For example, from 01:02 to 01:00.
+        use_rounding: Whether the generated files will use radiosondes or not.
+        should_round: If true, the interval starts will be rounded down. For example, from 01:02 to 01:00.
+        calibration: Set to False to disable generation of calibration files.
     '''
 
     # Open input netCDF
@@ -324,7 +335,7 @@ def convert_pollyxt_file(
 
         # Open netCDF file and convert to SCC
         pf = pollyxt.PollyXTFile(input_path, interval_start, interval_end)
-        id, path = create_scc_netcdf(pf, output_path, location)
+        id, path = create_scc_netcdf(pf, output_path, location, use_sounding)
         yield id, path, interval_start
 
         # Set start of next interval to the end of this one
