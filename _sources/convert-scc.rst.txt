@@ -3,8 +3,7 @@ Converting to SCC Format
 ************************
 
 PollyXT netCDF files can be converted to SCC netCDF files using the :code:`create-scc`
-command. It's sibling command, :code:`create-scc-batch`, has all the same functionality
-but can work with whole directories of files.
+command. It can operate on single files or whole directories.
 
 
 Usage
@@ -14,9 +13,10 @@ Usage
 
   pollyxt_pipelines create-scc [--interval <...>] [--round] [--no-radiosonde] [--no-calibration] <input> <location> <output-path>
 
-* :code:`input` :badge-blue:`required`: Which PollyXT file to convert into SCC format. Must be in netCDF format.
+* :code:`input` :badge-blue:`required`: Path to PollyXT NetCDF files. Can either be a single file or a directory
+* :code:`--recursive`: If :code:`input` is a directory and this option is set, it will be searched recursively.
 * :code:`location` :badge-blue:`required`: Where did the Polly measurement take place (i.e. station name)
-* :code:`output-path` :badge-blue:`required`: Directory to write the output files. It will be created if it does not exist
+* :code:`output-path` :badge-blue:`required`: **Directory** to write the output files. It will be created if it does not exist
 * :code:`--interval=`: Set the interval (in minutes), in which to split PollyXT files.
 * :code:`--no-radiosonde`: Do not create sounding files
 * :code:`--no-calibration`: Do not create calibration files

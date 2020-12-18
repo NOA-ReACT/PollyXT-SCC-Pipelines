@@ -53,6 +53,8 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Overview</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Locations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#printing-known-locations">Printing known locations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#adding-new-locations">Adding new locations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#api">API</a></li>
 </ul>
 </li>
@@ -92,30 +94,56 @@ contains the station’s coordinates and the related IDs for SCC. Specifically, 
 <li><p><strong>Altitude</strong>: The station’s altitude</p></li>
 <li><p><strong>System ID</strong>: The SCC Lidar configuration ID for daytime and nightime</p></li>
 </ul>
-<p>Currently, the application knows about <em>Antikythera</em> and <em>Finokalia</em>.</p>
+<p>Currently, the application has a built-in registry containing information about two stations, <em>Antikythera</em> and <em>Finokalia</em>.</p>
+<div class="section" id="printing-known-locations">
+<h2>Printing known locations<a class="headerlink" href="#printing-known-locations" title="Permalink to this headline">¶</a></h2>
+<p>To print all locations the application knows about, you can use the <code class="code docutils literal notranslate"><span class="pre">locations-show</span></code> command. Adding the
+<code class="code docutils literal notranslate"><span class="pre">--details</span></code> option will print all variables for each location, instead of just the names.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines locations-show
+pollyxt_pipelines locations-show --detail
+</pre></div>
+</div>
+</div>
+<div class="section" id="adding-new-locations">
+<h2>Adding new locations<a class="headerlink" href="#adding-new-locations" title="Permalink to this headline">¶</a></h2>
+<p>A config file is used to add new locations to the application. It is stored in different locations, depending on the
+operating system you are on:</p>
+<ul class="simple">
+<li><p><strong>Linux</strong>: <code class="code docutils literal notranslate"><span class="pre">/etc/pollyxt_pipelines/locations.ini</span></code> (system-wide) and <code class="code docutils literal notranslate"><span class="pre">~/.config/pollyxt_pipelines/locations.ini</span></code> (user)</p></li>
+<li><p><strong>Windows</strong>: <code class="code docutils literal notranslate"><span class="pre">%APPDATA%/PollyXT_Pipelines/pollyxt_pipelines.ini</span></code></p></li>
+</ul>
+<p>To print the path for your system, use the <code class="code docutils literal notranslate"><span class="pre">locations-path</span></code> command:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines locations-path
+pollyxt_pipelines locations-path --user <span class="c1"># Print only the user&#39;s path</span>
+</pre></div>
+</div>
+<p>The file is ini-formatted, where each section is a station name. For example:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[Antikythera]</span>
+<span class="na">profile_name</span> <span class="o">=</span> <span class="s">ANTIKYTHERA</span>
+<span class="na">scc_code</span> <span class="o">=</span> <span class="s">aky</span>
+<span class="na">lat</span> <span class="o">=</span> <span class="s">23.3100</span>
+<span class="na">lon</span> <span class="o">=</span> <span class="s">35.8600</span>
+<span class="na">altitude</span> <span class="o">=</span> <span class="s">0.1</span>
+<span class="na">system_id_day</span><span class="o">=</span><span class="s">437</span>
+<span class="na">system_id_night</span><span class="o">=</span><span class="s">438</span>
+</pre></div>
+</div>
+<p>You can add more than one location in the same file. Verify that it worked by running <code class="code docutils literal notranslate"><span class="pre">pollyxt_pipelines</span> <span class="pre">locations-show</span> <span class="pre">--detail</span></code>
+when you are done.</p>
+</div>
 <div class="section" id="api">
 <h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
 <p>Locations are represented using <code class="code docutils literal notranslate"><span class="pre">NamedTuple</span></code> objects, you can add more in
 <code class="code docutils literal notranslate"><span class="pre">pollyxt_pipelines.locations</span></code>. All known locations should be added in
 the <code class="code docutils literal notranslate"><span class="pre">LOCATIONS</span></code> tuple. Some helper functions are also defined
 to search stations by their name/IDs.</p>
-<span class="target" id="module-pollyxt_pipelines.locations"></span><p>Contains information about common locations</p>
+<span class="target" id="module-pollyxt_pipelines.locations"></span><p>Contains information about locations</p>
+<p>Each location (i.e. SCC station) is defined in an .ini file. For some stations,
+the .ini files are included with the software but custom locations can be defined.</p>
 <dl class="py data">
 <dt id="pollyxt_pipelines.locations.LOCATIONS">
-<code class="sig-prename descclassname">pollyxt_pipelines.locations.</code><code class="sig-name descname">LOCATIONS</code><em class="property"> = [Location(name='Antikythera', profile_name='ANTIKYTHERA', scc_code='aky', lat=23.31, lon=35.86, altitude=0.1, system_id_day=437, system_id_night=438), Location(name='Finokalia', profile_name='FINOKALIA', scc_code='fik', lat=25.6698, lon=35.3377, altitude=0.1, system_id_day=186, system_id_night=302)]</em><a class="headerlink" href="#pollyxt_pipelines.locations.LOCATIONS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pollyxt_pipelines.locations.</code><code class="sig-name descname">LOCATIONS</code><em class="property"> = {'Antikythera': Location(name='Antikythera', profile_name='ANTIKYTHERA', scc_code='aky', lat=23.31, lon=35.86, altitude=0.1, system_id_day=437, system_id_night=438), 'Finokalia': Location(name='Finokalia', profile_name='FINOKALIA', scc_code='fik', lat=25.6698, lon=35.3377, altitude=0.1, system_id_day=186, system_id_night=302)}</em><a class="headerlink" href="#pollyxt_pipelines.locations.LOCATIONS" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of all known locations</p>
-</dd></dl>
-
-<dl class="py data">
-<dt id="pollyxt_pipelines.locations.LOCATION_ANTIKYTHERA">
-<code class="sig-prename descclassname">pollyxt_pipelines.locations.</code><code class="sig-name descname">LOCATION_ANTIKYTHERA</code><em class="property"> = Location(name='Antikythera', profile_name='ANTIKYTHERA', scc_code='aky', lat=23.31, lon=35.86, altitude=0.1, system_id_day=437, system_id_night=438)</em><a class="headerlink" href="#pollyxt_pipelines.locations.LOCATION_ANTIKYTHERA" title="Permalink to this definition">¶</a></dt>
-<dd><p>Location at PANGEA observatory - Antikythera</p>
-</dd></dl>
-
-<dl class="py data">
-<dt id="pollyxt_pipelines.locations.LOCATION_FINOKALIA">
-<code class="sig-prename descclassname">pollyxt_pipelines.locations.</code><code class="sig-name descname">LOCATION_FINOKALIA</code><em class="property"> = Location(name='Finokalia', profile_name='FINOKALIA', scc_code='fik', lat=25.6698, lon=35.3377, altitude=0.1, system_id_day=186, system_id_night=302)</em><a class="headerlink" href="#pollyxt_pipelines.locations.LOCATION_FINOKALIA" title="Permalink to this definition">¶</a></dt>
-<dd><p>Location at Finokalia (UoC)</p>
 </dd></dl>
 
 <dl class="py class">
@@ -147,6 +175,12 @@ to search stations by their name/IDs.</p>
 <dd><p>Location friendly name</p>
 </dd></dl>
 
+<dl class="py method">
+<dt id="pollyxt_pipelines.locations.Location.print">
+<code class="sig-name descname">print</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/locations.html#Location.print"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.locations.Location.print" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints this location as a Table in the terminal</p>
+</dd></dl>
+
 <dl class="py attribute">
 <dt id="pollyxt_pipelines.locations.Location.profile_name">
 <code class="sig-name descname">profile_name</code><em class="property">: str</em><a class="headerlink" href="#pollyxt_pipelines.locations.Location.profile_name" title="Permalink to this definition">¶</a></dt>
@@ -174,9 +208,9 @@ to search stations by their name/IDs.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pollyxt_pipelines.locations.get_location_by_name">
-<code class="sig-prename descclassname">pollyxt_pipelines.locations.</code><code class="sig-name descname">get_location_by_name</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/locations.html#get_location_by_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.locations.get_location_by_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a location by its friendly name or <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code> if it doesn’t exist.</p>
+<dt id="pollyxt_pipelines.locations.get_location_by_scc_code">
+<code class="sig-prename descclassname">pollyxt_pipelines.locations.</code><code class="sig-name descname">get_location_by_scc_code</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">code</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/locations.html#get_location_by_scc_code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.locations.get_location_by_scc_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a location by its SCC code or <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code> if it doesn’t exist.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#pollyxt_pipelines.locations.Location" title="pollyxt_pipelines.locations.Location"><code class="xref py py-class docutils literal notranslate"><span class="pre">Location</span></code></a>]</p>
@@ -185,12 +219,23 @@ to search stations by their name/IDs.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pollyxt_pipelines.locations.get_location_by_scc_code">
-<code class="sig-prename descclassname">pollyxt_pipelines.locations.</code><code class="sig-name descname">get_location_by_scc_code</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">code</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/locations.html#get_location_by_scc_code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.locations.get_location_by_scc_code" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a location by its SCC code or <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code> if it doesn’t exist.</p>
+<dt id="pollyxt_pipelines.locations.location_from_section">
+<code class="sig-prename descclassname">pollyxt_pipelines.locations.</code><code class="sig-name descname">location_from_section</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">section</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/locations.html#location_from_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.locations.location_from_section" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a Location from a ConfigParser Section (SectionProxy)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="#pollyxt_pipelines.locations.Location" title="pollyxt_pipelines.locations.Location"><code class="xref py py-class docutils literal notranslate"><span class="pre">Location</span></code></a>]</p>
+<dd class="field-odd"><p><a class="reference internal" href="#pollyxt_pipelines.locations.Location" title="pollyxt_pipelines.locations.Location"><code class="xref py py-class docutils literal notranslate"><span class="pre">Location</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pollyxt_pipelines.locations.read_locations">
+<code class="sig-prename descclassname">pollyxt_pipelines.locations.</code><code class="sig-name descname">read_locations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/locations.html#read_locations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.locations.read_locations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads all built-in and custom locations into a dictionary: name -&gt; Location</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <a class="reference internal" href="#pollyxt_pipelines.locations.Location" title="pollyxt_pipelines.locations.Location"><code class="xref py py-class docutils literal notranslate"><span class="pre">Location</span></code></a>]</p>
 </dd>
 </dl>
 </dd></dl>

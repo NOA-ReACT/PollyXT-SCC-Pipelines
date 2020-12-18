@@ -85,18 +85,7 @@ your SCC credentials. There are two pairs of credentials:</p>
 <li><p>HTTP Login: The credentials for the first login when you access <a class="reference external" href="https://scc.imaa.cnr.it/">https://scc.imaa.cnr.it/</a></p></li>
 <li><p>Account Login: The credentials for the login menu, top right of the homepage</p></li>
 </ul>
-<p>You need to provide both for the application to work. You can set them using the <code class="code docutils literal notranslate"><span class="pre">config</span></code> command:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># Replace $username and $password with your credentials</span>
-
-<span class="c1"># HTTP Login</span>
-pollyxt_pipelines config http.username <span class="nv">$username</span>
-pollyxt_pipelines config http.password <span class="nv">$password</span>
-
-<span class="c1"># Account login</span>
-pollyxt_pipelines config auth.username <span class="nv">$username</span>
-pollyxt_pipelines config auth.password <span class="nv">$password</span>
-</pre></div>
-</div>
+<p>You need to provide both for the application to work. You can set them using the <code class="code docutils literal notranslate"><span class="pre">login</span></code> command:</p>
 <div class="admonition danger">
 <p class="admonition-title">Danger</p>
 <p>The application config is stored in <code class="code docutils literal notranslate"><span class="pre">%APPDATA%/PollyXT_Pipelines/pollyxt_pipelines.ini</span></code> if

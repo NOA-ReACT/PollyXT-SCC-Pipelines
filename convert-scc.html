@@ -91,17 +91,17 @@
   <div class="section" id="converting-to-scc-format">
 <h1>Converting to SCC Format<a class="headerlink" href="#converting-to-scc-format" title="Permalink to this headline">¶</a></h1>
 <p>PollyXT netCDF files can be converted to SCC netCDF files using the <code class="code docutils literal notranslate"><span class="pre">create-scc</span></code>
-command. It’s sibling command, <code class="code docutils literal notranslate"><span class="pre">create-scc-batch</span></code>, has all the same functionality
-but can work with whole directories of files.</p>
+command. It can operate on single files or whole directories.</p>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines create-scc <span class="o">[</span>--interval &lt;...&gt;<span class="o">]</span> <span class="o">[</span>--round<span class="o">]</span> <span class="o">[</span>--no-radiosonde<span class="o">]</span> <span class="o">[</span>--no-calibration<span class="o">]</span> &lt;input&gt; &lt;location&gt; &lt;output-path&gt;
 </pre></div>
 </div>
 <ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">input</span></code> <span class="badge badge-blue">required</span>: Which PollyXT file to convert into SCC format. Must be in netCDF format.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">input</span></code> <span class="badge badge-blue">required</span>: Path to PollyXT NetCDF files. Can either be a single file or a directory</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">--recursive</span></code>: If <code class="code docutils literal notranslate"><span class="pre">input</span></code> is a directory and this option is set, it will be searched recursively.</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">location</span></code> <span class="badge badge-blue">required</span>: Where did the Polly measurement take place (i.e. station name)</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">output-path</span></code> <span class="badge badge-blue">required</span>: Directory to write the output files. It will be created if it does not exist</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">output-path</span></code> <span class="badge badge-blue">required</span>: <strong>Directory</strong> to write the output files. It will be created if it does not exist</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">--interval=</span></code>: Set the interval (in minutes), in which to split PollyXT files.</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">--no-radiosonde</span></code>: Do not create sounding files</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">--no-calibration</span></code>: Do not create calibration files</p></li>
@@ -243,7 +243,7 @@ as the given <code class="xref py py-obj docutils literal notranslate"><span cla
 
 <dl class="py function">
 <dt id="pollyxt_pipelines.polly_to_scc.scc_netcdf.convert_pollyxt_file">
-<code class="sig-prename descclassname">pollyxt_pipelines.polly_to_scc.scc_netcdf.</code><code class="sig-name descname">convert_pollyxt_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_path</span></em>, <em class="sig-param"><span class="n">output_path</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">interval</span></em>, <em class="sig-param"><span class="n">should_round</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">calibration</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/scc_netcdf.html#convert_pollyxt_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.scc_netcdf.convert_pollyxt_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pollyxt_pipelines.polly_to_scc.scc_netcdf.</code><code class="sig-name descname">convert_pollyxt_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_path</span></em>, <em class="sig-param"><span class="n">output_path</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">interval</span></em>, <em class="sig-param"><span class="n">use_sounding</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">should_round</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">calibration</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/scc_netcdf.html#convert_pollyxt_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.scc_netcdf.convert_pollyxt_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts a PollyXT file into a bunch of SCC files. The input file will be split into intervals before being converted
 to the new format.</p>
 <p>This function is a generator, so you can use it in a for loop to monitor progress:</p>
@@ -258,7 +258,9 @@ to the new format.</p>
 <li><p><strong>output_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Directory to write the SCC files</p></li>
 <li><p><strong>location</strong> (<a class="reference internal" href="locations.html#pollyxt_pipelines.locations.Location" title="pollyxt_pipelines.locations.Location"><code class="xref py py-class docutils literal notranslate"><span class="pre">Location</span></code></a>) – Geographical information, where the measurement took place</p></li>
 <li><p><strong>interval</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code>) – What interval to use when splitting the PollyXT file (e.g. 1 hour)</p></li>
-<li><p><strong>shoudld_round</strong> – If true, the interval starts will be rounded down. For example, from 01:02 to 01:00.</p></li>
+<li><p><strong>use_rounding</strong> – Whether the generated files will use radiosondes or not.</p></li>
+<li><p><strong>should_round</strong> – If true, the interval starts will be rounded down. For example, from 01:02 to 01:00.</p></li>
+<li><p><strong>calibration</strong> – Set to False to disable generation of calibration files.</p></li>
 </ul>
 </dd>
 </dl>
@@ -295,7 +297,7 @@ Take care to create the <code class="xref py py-obj docutils literal notranslate
 
 <dl class="py function">
 <dt id="pollyxt_pipelines.polly_to_scc.scc_netcdf.create_scc_netcdf">
-<code class="sig-prename descclassname">pollyxt_pipelines.polly_to_scc.scc_netcdf.</code><code class="sig-name descname">create_scc_netcdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pf</span></em>, <em class="sig-param"><span class="n">output_path</span></em>, <em class="sig-param"><span class="n">location</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/scc_netcdf.html#create_scc_netcdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.scc_netcdf.create_scc_netcdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pollyxt_pipelines.polly_to_scc.scc_netcdf.</code><code class="sig-name descname">create_scc_netcdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pf</span></em>, <em class="sig-param"><span class="n">output_path</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">use_sounding</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/scc_netcdf.html#create_scc_netcdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.scc_netcdf.create_scc_netcdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a PollyXT netCDF file to a SCC file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -303,6 +305,9 @@ Take care to create the <code class="xref py py-obj docutils literal notranslate
 <li><p><strong>pf</strong> (<a class="reference internal" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile" title="pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">PollyXTFile</span></code></a>) – An opened PollyXT file. When you create this, you can specify the time period of interest.</p></li>
 <li><p><strong>output_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Where to store the produced netCDF file</p></li>
 <li><p><strong>location</strong> (<a class="reference internal" href="locations.html#pollyxt_pipelines.locations.Location" title="pollyxt_pipelines.locations.Location"><code class="xref py py-class docutils literal notranslate"><span class="pre">Location</span></code></a>) – Where did this measurement take place</p></li>
+<li><p><strong>use_sounding</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether this file will be accompanied by a radiosonde file or not. If this is set to True, the
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">Sounding_File_Name</span></code> attribute will be set to the generated filename (<code class="xref py py-obj docutils literal notranslate"><span class="pre">rs_{MEASUREMENT_ID}.rs</span></code>)
+and the <code class="xref py py-obj docutils literal notranslate"><span class="pre">Molecular_Calc</span></code> variable will be set to 1, otherwise 0.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
