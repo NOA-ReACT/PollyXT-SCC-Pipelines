@@ -3,7 +3,6 @@ Entry point for the application, mainly contains cleo setup
 Author: Thanasis Georgiou <ageorgiou@noa.gr>
 '''
 
-from pollyxt_pipelines.locations.commands import ShowLocations
 import pkg_resources
 
 from cleo import Application
@@ -12,6 +11,7 @@ from pollyxt_pipelines.radiosondes.commands import WRFProfileToCSVs
 from pollyxt_pipelines.polly_to_scc.commands import CreateSCCBatch, CreateSCC
 from pollyxt_pipelines.config import ConfigCommand
 from pollyxt_pipelines.scc_access.commands import DeleteSCC, DownloadFiles, Login, RerunSCC, SearchDownloadSCC, SearchSCC, UploadFiles
+from pollyxt_pipelines.locations.commands import LocationPath, ShowLocations
 
 
 def get_package_version():
@@ -44,6 +44,7 @@ def prepare_cli_application() -> Application:
     application.add(SearchSCC())
     application.add(SearchDownloadSCC())
     application.add(ShowLocations())
+    application.add(LocationPath())
 
     return application
 
