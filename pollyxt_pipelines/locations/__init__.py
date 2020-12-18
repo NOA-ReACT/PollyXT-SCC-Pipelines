@@ -6,15 +6,16 @@ the .ini files are included with the software but custom locations can be define
 '''
 
 import io
+from pathlib import Path
 from importlib.resources import read_text
-from configparser import ConfigParser
+from configparser import ConfigParser, SectionProxy
 from typing import NamedTuple, Union, Dict
 
 from rich.markdown import Markdown
 from rich.table import Table
 
 from pollyxt_pipelines.console import console
-from pollyxt_pipelines import locations
+from pollyxt_pipelines import config
 
 
 class Location(NamedTuple):
@@ -65,6 +66,23 @@ class Location(NamedTuple):
         console.print(table)
 
 
+def location_from_section(name: str, section: SectionProxy) -> Location:
+    '''
+    Create a Location from a ConfigParser Section (SectionProxy)
+    '''
+
+    return Location(
+        name=name,
+        profile_name=section["profile_name"],
+        scc_code=section["scc_code"],
+        lat=section.getfloat("lat"),
+        lon=section.getfloat("lon"),
+        altitude=section.getfloat("altitude"),
+        system_id_day=section.getint("system_id_day"),
+        system_id_night=section.getint("system_id_night")
+    )
+
+
 def read_locations() -> Dict[str, Location]:
     '''
     Reads all built-in and custom locations into a dictionary: name -> Location
@@ -80,20 +98,16 @@ def read_locations() -> Dict[str, Location]:
 
     for name in locations_config.sections():
         section = locations_config[name]
-
-        locations[name] = Location(
-            name=name,
-            profile_name=section["profile_name"],
-            scc_code=section["scc_code"],
-            lat=section.getfloat("lat"),
-            lon=section.getfloat("lon"),
-            altitude=section.getfloat("altitude"),
-            system_id_day=section.getint("system_id_day"),
-            system_id_night=section.getint("system_id_night")
-        )
+        locations[name] = location_from_section(name, section)
 
     # Read custom locations
-    # TODO Implement custom locations
+    location_path = Path(config.config_paths()[-1]) / 'locations.ini'
+    locations_config = ConfigParser()
+    locations_config.read(location_path)
+
+    for name in locations_config.sections():
+        section = locations_config[name]
+        locations[name] = location_from_section(name, section)
 
     return locations
 
