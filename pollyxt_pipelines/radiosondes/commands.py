@@ -6,6 +6,7 @@ from cleo import Command
 
 from pollyxt_pipelines.radiosondes import wrf
 from pollyxt_pipelines.config import Config
+from pollyxt_pipelines.console import console
 
 
 class WRFProfileToCSVs(Command):
@@ -42,8 +43,8 @@ class WRFProfileToCSVs(Command):
                                             self.argument('location'),
                                             profile_date)
         except FileNotFoundError as ex:
-            self.line_error('<error>WRF Profile file not found!</error>')
-            self.line_error(f'(Path: {ex.filename})')
+            console.print('[error]WRF Profile file not found![/error]')
+            console.print(f'(Path: {ex.filename})')
             sys.exit(1)
 
         # Split into days and write each into a file
@@ -51,5 +52,5 @@ class WRFProfileToCSVs(Command):
             group_timestamp = group.iloc[0, 0].strftime('%Y%m%d_%H%M')
             filename = csv_path / f'{location}_{group_timestamp}.csv'
 
-            self.line(f'<info>Writing</info> {filename}')
+            console.print(f'[info]Writing[/info] {filename}')
             group.iloc[:, 1:].to_csv(filename, index=False)

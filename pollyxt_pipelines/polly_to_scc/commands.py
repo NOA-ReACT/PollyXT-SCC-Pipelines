@@ -70,7 +70,7 @@ class CreateSCC(Command):
             file_list = list(input_path.glob(pattern))
 
         if len(file_list) == 0:
-            self.line_error(f'<error>No netCDF files found in </error>{input_path}')
+            console.print(f'[error]No netCDF files found in[/error] {input_path}')
             return 1
 
         # Read config for radiosonde path
@@ -88,9 +88,9 @@ class CreateSCC(Command):
                 try:
                     profiles = radiosondes.wrf.read_wrf_daily_profile(config, location, day)
                 except FileNotFoundError as ex:
-                    self.line_error(
-                        f'<error>No radiosonde file found for </error>{location.name}<error> at </error>{day.isoformat()}')
-                    self.line_error('<error>Use the --no-radiosonde option to skip this.')
+                    console.print(
+                        f'[error]No radiosonde file found for [/error]{location.name}[error] at [/error]{day.isoformat()}')
+                    console.print('[error]Use the --no-radiosonde option to skip this.[/error]')
                     return 1
 
             converter = scc_netcdf.convert_pollyxt_file(
@@ -105,8 +105,8 @@ class CreateSCC(Command):
                     if len(p) > 0:
                         path = output_path / f'rs_{id[:-2]}.nc'
                         radiosondes.create_radiosonde_netcdf(p, location, path)
-                        self.line(f'<info>Created radiosonde file at</info> {path}')
+                        console.print(f'[info]Created radiosonde file at[/info] {path}')
                     else:
-                        self.line_error(f'<error>No radiosonde profile found for </error>{id}')
+                        console.print(f'[error]No radiosonde profile found for [/error]{id}')
 
-        self.line('\n<comment>Done!</comment>')
+        console.print('\n[info]Done![/info]')
