@@ -4,6 +4,7 @@ Routines for converting PollyXT files to SCC files
 
 from datetime import date, datetime, timedelta
 from pathlib import Path
+from pollyxt_pipelines.polly_to_scc.exceptions import StartingTimeOutsideFile
 from typing import Tuple
 from enum import Enum
 
@@ -299,7 +300,8 @@ def convert_pollyxt_file(
         interval: timedelta,
         use_sounding=True,
         should_round=False,
-        calibration=True):
+        calibration=True,
+        start_hour=None):
     '''
     Converts a PollyXT file into a bunch of SCC files. The input file will be split into intervals before being converted
     to the new format.
@@ -318,10 +320,21 @@ def convert_pollyxt_file(
         use_rounding: Whether the generated files will use radiosondes or not.
         should_round: If true, the interval starts will be rounded down. For example, from 01:02 to 01:00.
         calibration: Set to False to disable generation of calibration files.
+        start_hour: Optionally, set when the first file should start. The intervals will start from here.
     '''
 
     # Open input netCDF
     measurement_start, measurement_end = pollyxt.get_measurement_period(input_path)
+
+    # Move start time if requested
+    if start_hour is not None:
+        hour, minute = [int(x.strip()) for x in start_hour.split(':')]
+        start_hour = measurement_start.replace(hour=hour, minute=minute)
+
+        if start_hour < measurement_start or measurement_end < start_hour:
+            raise StartingTimeOutsideFile(measurement_start, measurement_end, start_hour)
+
+        measurement_start = start_hour
 
     # Create output files
     interval_start = measurement_start

@@ -11,7 +11,7 @@ Usage
 
 .. code-block:: sh
 
-  pollyxt_pipelines create-scc [--interval <...>] [--round] [--no-radiosonde] [--no-calibration] <input> <location> <output-path>
+  pollyxt_pipelines create-scc [--interval <...>] [--round] [--no-radiosonde] [--no-calibration] [--start-time <...>] <input> <location> <output-path>
 
 * :code:`input` :badge-blue:`required`: Path to PollyXT NetCDF files. Can either be a single file or a directory
 * :code:`--recursive`: If :code:`input` is a directory and this option is set, it will be searched recursively.
@@ -20,6 +20,7 @@ Usage
 * :code:`--interval=`: Set the interval (in minutes), in which to split PollyXT files.
 * :code:`--no-radiosonde`: Do not create sounding files
 * :code:`--no-calibration`: Do not create calibration files
+* :code:`--start-time`: Manually set the start time for the first output file (in HH:MM format). Useful for starting your output at an offset, for example 09:30.
 
 
 The files are by default split in 1 hour files when they are converted to SCC files.
@@ -99,6 +100,13 @@ the :code:`scc_data` directory.
 
 Convert one file from Antikythera to SCC format, 30-minute interval, no calibration and
 no radiosonde files:
+
+.. code-block:: sh
+
+  pollyxt_pipelines create-scc 2019_06_02_Sun_NOA_06_00_01.nc Antikythera ./scc_data --no-calibration --no-radiosonde
+
+
+Create hourly files that start at 09:30 (assuming this time exists in the raw file):
 
 .. code-block:: sh
 

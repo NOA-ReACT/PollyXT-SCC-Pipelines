@@ -20,10 +20,11 @@ class CreateSCC(Command):
 
     create-scc
         {input : Path to PollyXT files. Can be a single file or a directory of files.}
-        {--recursive : If set, the input directory will be searched recursively (i.e. in subdirectories). Ignored for files }
+        {--recursive : If set, the input directory will be searched recursively (i.e. in subdirectories). Ignored for files}
         {location : Where did the measurement take place for *all* input files }
         {output-path : Where to write output files (will create this directory if it doesn't exist)}
         {--interval= : Time interval (in minutes) to split each file. Default is one hour.}
+        {--start-hour= : When to start the first file in HH:MM format. The interval will be counted from here.}
         {--round : When set, output files will start on rounded down hours if possible (e.g. from 00:12 to 00:00, 01:42 to 01:00, etc)}
         {--no-radiosonde : If set, no radiosonde files will be created}
         {--no-calibration : Do not create calibration files}
@@ -93,7 +94,7 @@ class CreateSCC(Command):
                     return 1
 
             converter = scc_netcdf.convert_pollyxt_file(
-                file, output_path, location, interval, should_round=should_round, calibration=(not skip_calibration), use_sounding=use_sounding)
+                file, output_path, location, interval, should_round=should_round, calibration=(not skip_calibration), use_sounding=use_sounding, start_hour=self.option("start-hour"))
             for id, path, timestamp in converter:
                 console.print(
                     f'[info]Created file with measurement ID[/info] {id} [info]at[/info] {str(path)}')
