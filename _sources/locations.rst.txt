@@ -6,13 +6,20 @@ In PollyXT-Pipelines, a :code:`Location` represents a station where PollyXT is, 
 contains the station's coordinates and the related IDs for SCC. Specifically, for each station we know:
 
 * **Name**: Station Name
-* **Profile name**: The name used by WRF for this location
-* **SCC Station ID**: The station ID registered with SCC, it's used in measurement IDs (e.g. :code:`aky`).
-* **Latitude/Longitude**: The station coordinates
-* **Altitude**: The station's altitude
-* **System ID**: The SCC Lidar configuration ID for daytime and nightime
+* **Profile name** (:code:`profile_name`): The name used by WRF for this location
+* **SCC Station ID** (:code:`scc_code`): The station ID registered with SCC, it's used in measurement
+  IDs (e.g. :code:`aky`).
+* **Latitude/Longitude** (:code:`lat`, code:`lon`): The station coordinates
+* **Altitude** (:code:`altiude`): The station's altitude
+* **System ID** (:code:`system_id_day`, :code:`system_id_night`): The SCC Lidar configuration ID for
+  daytime and nightime
+* **Channel ID** (Array, :code:`channel_id`): Value for the :code:`channel_ID` SCC variable.
+* **Background** (Array, :code:`background_low`, :code:`background_high`): Values for the
+  :code:`Background_Low` and :code:`Background_High` SCC variables.
+* **LR Input** (Array, :code:`lr_input`): Value for the :code:`LR_Input` SCC variable.
 
-Currently, the application has a built-in registry containing information about two stations, *Antikythera* and *Finokalia*.
+For the arrays, you can input values separated by commas (see example below). Currently, the application
+has a built-in registry containing information about two stations, *Antikythera* and *Finokalia*.
 
 
 Printing known locations
@@ -48,14 +55,18 @@ The file is ini-formatted, where each section is a station name. For example:
 
 .. code-block:: ini
 
-   [Antikythera]
-   profile_name = ANTIKYTHERA
-   scc_code = aky
-   lat = 23.3100
-   lon = 35.8600
-   altitude = 0.1
-   system_id_day=437
-   system_id_night=438
+  [Antikythera]
+  profile_name = ANTIKYTHERA
+  scc_code = aky
+  lat = 23.3100
+  lon = 35.8600
+  altitude = 0.1
+  system_id_day = 437
+  system_id_night = 438
+  channel_id = 493, 500, 497, 499, 494, 496, 498, 495, 501, 941, 940, 502
+  background_low = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+  background_high = 249, 249, 249, 249, 249, 249, 249, 249, 249, 249, 249, 249
+  lr_input = 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 
 You can add more than one location in the same file. Verify that it worked by running :code:`pollyxt_pipelines locations-show --detail`
 when you are done.

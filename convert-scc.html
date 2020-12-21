@@ -94,7 +94,7 @@
 command. It can operate on single files or whole directories.</p>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines create-scc <span class="o">[</span>--interval &lt;...&gt;<span class="o">]</span> <span class="o">[</span>--round<span class="o">]</span> <span class="o">[</span>--no-radiosonde<span class="o">]</span> <span class="o">[</span>--no-calibration<span class="o">]</span> &lt;input&gt; &lt;location&gt; &lt;output-path&gt;
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines create-scc <span class="o">[</span>--interval &lt;...&gt;<span class="o">]</span> <span class="o">[</span>--round<span class="o">]</span> <span class="o">[</span>--no-radiosonde<span class="o">]</span> <span class="o">[</span>--no-calibration<span class="o">]</span> <span class="o">[</span>--start-time &lt;...&gt;<span class="o">]</span> &lt;input&gt; &lt;location&gt; &lt;output-path&gt;
 </pre></div>
 </div>
 <ul class="simple">
@@ -105,6 +105,7 @@ command. It can operate on single files or whole directories.</p>
 <li><p><code class="code docutils literal notranslate"><span class="pre">--interval=</span></code>: Set the interval (in minutes), in which to split PollyXT files.</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">--no-radiosonde</span></code>: Do not create sounding files</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">--no-calibration</span></code>: Do not create calibration files</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">--start-time</span></code>: Manually set the start time for the first output file (in HH:MM format). Useful for starting your output at an offset, for example 09:30.</p></li>
 </ul>
 <p>The files are by default split in 1 hour files when they are converted to SCC files.
 This interval can be changed with the <code class="code docutils literal notranslate"><span class="pre">--interval=</span></code> option.</p>
@@ -165,6 +166,10 @@ the <code class="code docutils literal notranslate"><span class="pre">scc_data</
 </div>
 <p>Convert one file from Antikythera to SCC format, 30-minute interval, no calibration and
 no radiosonde files:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines create-scc 2019_06_02_Sun_NOA_06_00_01.nc Antikythera ./scc_data --no-calibration --no-radiosonde
+</pre></div>
+</div>
+<p>Create hourly files that start at 09:30 (assuming this time exists in the raw file):</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines create-scc 2019_06_02_Sun_NOA_06_00_01.nc Antikythera ./scc_data --no-calibration --no-radiosonde
 </pre></div>
 </div>
@@ -243,7 +248,7 @@ as the given <code class="xref py py-obj docutils literal notranslate"><span cla
 
 <dl class="py function">
 <dt id="pollyxt_pipelines.polly_to_scc.scc_netcdf.convert_pollyxt_file">
-<code class="sig-prename descclassname">pollyxt_pipelines.polly_to_scc.scc_netcdf.</code><code class="sig-name descname">convert_pollyxt_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_path</span></em>, <em class="sig-param"><span class="n">output_path</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">interval</span></em>, <em class="sig-param"><span class="n">use_sounding</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">should_round</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">calibration</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/scc_netcdf.html#convert_pollyxt_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.scc_netcdf.convert_pollyxt_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pollyxt_pipelines.polly_to_scc.scc_netcdf.</code><code class="sig-name descname">convert_pollyxt_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_path</span></em>, <em class="sig-param"><span class="n">output_path</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">interval</span></em>, <em class="sig-param"><span class="n">use_sounding</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">should_round</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">calibration</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">start_hour</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/scc_netcdf.html#convert_pollyxt_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.scc_netcdf.convert_pollyxt_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts a PollyXT file into a bunch of SCC files. The input file will be split into intervals before being converted
 to the new format.</p>
 <p>This function is a generator, so you can use it in a for loop to monitor progress:</p>
@@ -261,6 +266,7 @@ to the new format.</p>
 <li><p><strong>use_rounding</strong> – Whether the generated files will use radiosondes or not.</p></li>
 <li><p><strong>should_round</strong> – If true, the interval starts will be rounded down. For example, from 01:02 to 01:00.</p></li>
 <li><p><strong>calibration</strong> – Set to False to disable generation of calibration files.</p></li>
+<li><p><strong>start_hour</strong> – Optionally, set when the first file should start. The intervals will start from here.</p></li>
 </ul>
 </dd>
 </dl>
