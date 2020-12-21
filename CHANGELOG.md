@@ -1,3 +1,9 @@
+# v1.4.0
+- ✨ Added new `--start-time=` option to `create-scc` for specifying when the output time should start.
+- ✨ You can now set `channel_id`, `background_low`, `background_high` and `input_lr` for custom stations!
+- 🐜 Fix crash trying to use `scc-upload` on files without accompaning radiosondes
+- 🛠 Print a more helpful message when trying to upload files without being logged in
+
 # v1.3.0
 - ✨ Added support for custom locations! New commands `locations-show` and `locations-path` to accomodate new system.
 - ✨ Added new `login` command for... logging in.
