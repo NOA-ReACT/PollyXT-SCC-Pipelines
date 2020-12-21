@@ -120,12 +120,15 @@ class UploadFiles(Command):
             for file in track(files, description='Uploading files...', console=console):
                 # Read file to find radiosondes
                 nc = Dataset(file, 'r')
-                radiosonde_path = file.parent / nc.Sounding_File_Name
+                try:
+                    radiosonde_path = file.parent / nc.Sounding_File_Name
+                except AttributeError:
+                    radiosonde_path = None
                 dataset_id = nc.Measurement_ID
                 configuration_id = nc.NOAReACT_Configuration_ID
                 nc.close()
 
-                if not radiosonde_path.exists():
+                if radiosonde_path is not None and not radiosonde_path.exists():
                     console.print(
                         f'[error]Cannot find radiosonde file[/error] {radiosonde_path} [error] for measurement [/error] {file} [error]. Skipping file.[/error]')
                     continue
