@@ -131,20 +131,20 @@ def create_scc_netcdf(
     raw_data_start_time[:] = pf.measurement_time[:, 1] - pf.measurement_time[0, 1]
     raw_data_stop_time[:] = (pf.measurement_time[:, 1] - pf.measurement_time[0, 1]) + 30
     raw_lidar_data[:] = np.swapaxes(pf.raw_signal, 1, 2)
-    channel_id[:] = np.array([493, 500, 497, 499, 494, 496, 498, 495, 501, 941, 940, 502])
+    channel_id[:] = np.array(location.channel_id)
     id_timescale[:] = np.zeros(np.size(pf.raw_signal, axis=2))
     laser_pointing_angle[:] = int(pf.zenith_angle.item(0))
     laser_pointing_angle_of_profiles[:] = np.zeros(np.size(pf.raw_signal, axis=0))
     laser_shots[:] = pf.measurement_shots[:]
-    background_low[:] = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-    background_high[:] = np.array([249, 249, 249, 249, 249, 249, 249, 249, 249, 249, 249, 249])
+    background_low[:] = np.array(location.background_low)
+    background_high[:] = np.array(location.background_high)
     if use_sounding:
         molecular_calc[:] = 1
     else:
         molecular_calc[:] = 0
     pressure_at_lidar_station[:] = 1008
     temperature_at_lidar_station[:] = 20
-    lr_input[:] = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+    lr_input[:] = np.array(location.lr_input)
 
     # Close the netCDF file.
     nc.close()
