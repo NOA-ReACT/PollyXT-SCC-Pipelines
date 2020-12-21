@@ -14,7 +14,7 @@ from netCDF4 import Dataset
 from pollyxt_pipelines.console import console
 from pollyxt_pipelines import locations
 from pollyxt_pipelines.scc_access import scc_session, SCC, SCC_Credentials, exceptions
-from pollyxt_pipelines.config import Config, config_paths
+from pollyxt_pipelines.config import Config, config_paths, print_login_error
 from pollyxt_pipelines.utils import bool_to_emoji, option_to_bool
 
 
@@ -104,13 +104,7 @@ class UploadFiles(Command):
         try:
             credentials = SCC_Credentials(config)
         except KeyError:
-            self.line('<error>Credentials not found in config</error>')
-            self.line('Use `pollyxt_pipelines config` to set the following variables:')
-            self.line('- http.username')
-            self.line('- http.password')
-            self.line('- auth.username')
-            self.line('- auth.password')
-            self.line('For example, `pollyxt_pipelines config http.username scc_user')
+            print_login_error()
             return 1
 
         # Upload files
@@ -199,13 +193,7 @@ class DownloadFiles(Command):
         try:
             credentials = SCC_Credentials(config)
         except KeyError:
-            self.line('<error>Credentials not found in config</error>')
-            self.line('Use `pollyxt_pipelines config` to set the following variables:')
-            self.line('- http.username')
-            self.line('- http.password')
-            self.line('- auth.username')
-            self.line('- auth.password')
-            self.line('For example, `pollyxt_pipelines config http.username scc_user')
+            print_login_error()
             return 1
 
         # Download files for each ID
@@ -247,13 +235,7 @@ class DeleteSCC(Command):
         try:
             credentials = SCC_Credentials(config)
         except KeyError:
-            self.line('<error>Credentials not found in config</error>')
-            self.line('Use `pollyxt_pipelines config` to set the following variables:')
-            self.line('- http.username')
-            self.line('- http.password')
-            self.line('- auth.username')
-            self.line('- auth.password')
-            self.line('For example, `pollyxt_pipelines config http.username scc_user')
+            print_login_error()
             return 1
 
         # Login to SCC
@@ -305,13 +287,7 @@ class RerunSCC(Command):
         try:
             credentials = SCC_Credentials(config)
         except KeyError:
-            self.line('<error>Credentials not found in config</error>')
-            self.line('Use `pollyxt_pipelines config` to set the following variables:')
-            self.line('- http.username')
-            self.line('- http.password')
-            self.line('- auth.username')
-            self.line('- auth.password')
-            self.line('For example, `pollyxt_pipelines config http.username scc_user')
+            print_login_error()
             return 1
 
         # Login to SCC
@@ -388,13 +364,7 @@ class SearchSCC(Command):
         try:
             credentials = SCC_Credentials(config)
         except KeyError:
-            self.line('<error>Credentials not found in config</error>')
-            self.line('Use `pollyxt_pipelines config` to set the following variables:')
-            self.line('- http.username')
-            self.line('- http.password')
-            self.line('- auth.username')
-            self.line('- auth.password')
-            self.line('For example, `pollyxt_pipelines config http.username scc_user')
+            print_login_error()
             return 1
 
         # Login to SCC to make queries
@@ -518,13 +488,7 @@ class SearchDownloadSCC(Command):
         try:
             credentials = SCC_Credentials(config)
         except KeyError:
-            self.line('<error>Credentials not found in config</error>')
-            self.line('Use `pollyxt_pipelines config` to set the following variables:')
-            self.line('- http.username')
-            self.line('- http.password')
-            self.line('- auth.username')
-            self.line('- auth.password')
-            self.line('For example, `pollyxt_pipelines config http.username scc_user')
+            print_login_error()
             return 1
 
         # Login to SCC

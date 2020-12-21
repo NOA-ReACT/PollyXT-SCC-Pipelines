@@ -100,3 +100,13 @@ class ConfigCommand(Command):
             config.write()
 
         return 0
+
+
+def print_login_error():
+    '''
+    Use this to print an error when the user needs to login.
+    '''
+
+    console.print('[error]Credentials not found in config![/error]')
+    console.print(
+        'Use `pollyxt_pipelines login` to provide your SCC credentials and run this command again.')
