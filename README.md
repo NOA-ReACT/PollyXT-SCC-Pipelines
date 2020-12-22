@@ -9,7 +9,7 @@ the following features:
 * Batch upload to SCC for processing
 * Batch download of products, both for new files and by date range
 
-To get started, read the documentation [here!](https://noa-react.github.io/PollyXT-SCC-Pipelines/).
+To get started, check the [**demo**](https://asciinema.org/a/380595) and read the [**documentation**](https://noa-react.github.io/PollyXT-SCC-Pipelines/)!
 
 ## Installation
 
