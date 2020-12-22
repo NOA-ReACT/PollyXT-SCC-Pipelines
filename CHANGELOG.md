@@ -1,3 +1,9 @@
+# v1.5.0
+- ✨ Added `--end-time=` option to `create-scc`, which can be used alongside `--start-time=` to create files for specific
+  intervals.
+- 🛠 Add more options to the location configs
+- 🛠 Changed measurement ID format to use HHMM (hour minutes) for time, instead of start hour and end hour.
+
 # v1.4.0
 - ✨ Added new `--start-time=` option to `create-scc` for specifying when the output time should start.
 - ✨ You can now set `channel_id`, `background_low`, `background_high` and `input_lr` for custom stations!
