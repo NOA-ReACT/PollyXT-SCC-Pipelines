@@ -185,7 +185,12 @@ def create_scc_calibration_netcdf(
 
     # Create SCC file
     # Output filename is always the measurement ID
-    output_filename = output_path / f'calibration_{measurement_id}.nc'
+    if wavelength == Wavelength.NM_355:
+        output_filename = output_path / f'calibration_{measurement_id}_355.nc'
+    elif wavelength == Wavelength.NM_532:
+        output_filename = output_path / f'calibration_{measurement_id}_532.nc'
+    else:
+        raise ValueError(f'Unknown wavelength {wavelength}')
     nc = Dataset(output_filename, 'w')
 
     # Create Dimensions. (mandatory)
@@ -255,37 +260,30 @@ def create_scc_calibration_netcdf(
         total_channel = 0
         cross_channel = 1
         channel_id[:] = np.array([1236, 1266, 1267, 1268])
-        nc.Measurement_ID = measurement_id + '35'  # TODO This is the filename!!
+        nc.Measurement_ID = measurement_id + '35'
     elif wavelength == Wavelength.NM_532:
         total_channel = 4
         cross_channel = 5
         channel_id[:] = np.array([1269, 1270, 1271, 1272])
-        nc.Measurement_ID = measurement_id + '53'  # TODO This is the filename!!
+        nc.Measurement_ID = measurement_id + '53'
     else:
         raise ValueError(f'Unknown wavelength {wavelength}')
 
     # Copy calibration cycles
-    raw_data_start_time[0, 0] = start_first_measurement
-    raw_data_start_time[1, 0] = start_first_measurement + 1
-    raw_data_start_time[2, 0] = start_first_measurement + 2
-    raw_data_stop_time[0, 0] = stop_first_measurement
-    raw_data_stop_time[1, 0] = stop_first_measurement + 1
-    raw_data_stop_time[2, 0] = stop_first_measurement + 2
+    for meas_cycle in range(0, 3, 1):
+        laser_shots[meas_cycle, :] = np.array([600, 600, 600, 600])
 
-    raw_lidar_data[0, 0, :] = pf.raw_signal_swap[start_first_measurement, cross_channel, :]
-    raw_lidar_data[0, 1, :] = pf.raw_signal_swap[start_first_measurement, total_channel, :]
-    raw_lidar_data[0, 2, :] = pf.raw_signal_swap[stop_first_measurement, cross_channel, :]
-    raw_lidar_data[0, 3, :] = pf.raw_signal_swap[stop_first_measurement, total_channel, :]
+        raw_data_start_time[meas_cycle, 0] = start_first_measurement + meas_cycle
+        raw_data_stop_time[meas_cycle, 0] = stop_first_measurement + meas_cycle
 
-    raw_lidar_data[1, 0, :] = pf.raw_signal_swap[start_first_measurement + 1, cross_channel, :]
-    raw_lidar_data[1, 1, :] = pf.raw_signal_swap[start_first_measurement + 1, total_channel, :]
-    raw_lidar_data[1, 2, :] = pf.raw_signal_swap[stop_first_measurement + 1, cross_channel, :]
-    raw_lidar_data[1, 3, :] = pf.raw_signal_swap[stop_first_measurement + 1, total_channel, :]
-
-    raw_lidar_data[2, 0, :] = pf.raw_signal_swap[start_first_measurement + 2, cross_channel, :]
-    raw_lidar_data[2, 1, :] = pf.raw_signal_swap[start_first_measurement + 2, total_channel, :]
-    raw_lidar_data[2, 2, :] = pf.raw_signal_swap[stop_first_measurement + 2, cross_channel, :]
-    raw_lidar_data[2, 3, :] = pf.raw_signal_swap[stop_first_measurement + 2, total_channel, :]
+        raw_lidar_data[meas_cycle, 0, :] = pf.raw_signal_swap[start_first_measurement +
+                                                           meas_cycle, cross_channel, :]
+        raw_lidar_data[meas_cycle, 1, :] = pf.raw_signal_swap[start_first_measurement +
+                                                           meas_cycle, total_channel, :]
+        raw_lidar_data[meas_cycle, 2, :] = pf.raw_signal_swap[stop_first_measurement +
+                                                           meas_cycle, cross_channel, :]
+        raw_lidar_data[meas_cycle, 3, :] = pf.raw_signal_swap[stop_first_measurement +
+                                                           meas_cycle, total_channel, :]
 
     # Close the netCDF file.
     nc.close()
