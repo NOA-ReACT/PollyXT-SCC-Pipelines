@@ -65,7 +65,7 @@ def create_scc_netcdf(
 
     # Calculate measurement ID
     measurement_id = pf.start_date.strftime(
-        f'%Y%m%d{location.scc_code}%H{pf.end_date.strftime("%H")}')
+        f'%Y%m%d{location.scc_code}%H%M')
 
     # Create SCC file
     # Output filename is always the measurement ID
