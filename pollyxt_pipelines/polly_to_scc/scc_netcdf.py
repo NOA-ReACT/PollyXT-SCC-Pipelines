@@ -142,8 +142,8 @@ def create_scc_netcdf(
         molecular_calc[:] = 1
     else:
         molecular_calc[:] = 0
-    pressure_at_lidar_station[:] = 1008
-    temperature_at_lidar_station[:] = 20
+    pressure_at_lidar_station[:] = location.pressure
+    temperature_at_lidar_station[:] = location.temperature
     lr_input[:] = np.array(location.lr_input)
 
     # Close the netCDF file.
@@ -247,8 +247,8 @@ def create_scc_calibration_netcdf(
     molecular_calc[:] = 0
     pol_calib_range_min_var[:] = np.repeat(pol_calib_range_min, 4)
     pol_calib_range_max_var[:] = np.repeat(pol_calib_range_max, 4)
-    pressure_at_lidar_station[:] = 1008  # TODO Maybe take these from radiosonde?
-    temperature_at_lidar_station[:] = 20
+    pressure_at_lidar_station[:] = location.pressure
+    temperature_at_lidar_station[:] = location.temperature
 
     # Define total and cross channels IDs from Polly
     if wavelength == Wavelength.NM_355:

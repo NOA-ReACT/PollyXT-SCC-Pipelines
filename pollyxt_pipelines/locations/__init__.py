@@ -59,6 +59,12 @@ class Location(NamedTuple):
     lr_input: List[int]
     '''Value for the `lr_input` variable'''
 
+    temperature: int
+    '''Temperature at the lidar station (`Temperature_at_Lidar_Station` variable)'''
+
+    pressure: int
+    '''Pressure at the lidar station (`Pressure_at_Lidar_Station` variable)'''
+
     def print(self):
         '''
         Prints this location as a Table in the terminal
@@ -78,6 +84,8 @@ class Location(NamedTuple):
         table.add_row("background_low", ", ".join(self.background_low))
         table.add_row("background_high", ", ".join(self.background_high))
         table.add_row("lr_input", ", ".join(self.lr_input))
+        table.add_row("temperature", str(self.temperature))
+        table.add_row("pressure", str(self.pressure))
 
         console.print(table)
 
@@ -108,7 +116,9 @@ def location_from_section(name: str, section: SectionProxy) -> Location:
         channel_id=channel_id,
         background_low=background_low,
         background_high=background_high,
-        lr_input=lr_input
+        lr_input=lr_input,
+        temperature=section.getint("temperature"),
+        pressure=section.getint("pressure")
     )
 
 
