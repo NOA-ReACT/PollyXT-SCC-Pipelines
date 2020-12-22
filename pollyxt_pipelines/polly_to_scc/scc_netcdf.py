@@ -96,9 +96,9 @@ def create_scc_netcdf(
     # Custom attribute for configuration ID
     # From 04:00 until 16:00 we use daytime configuration
     if pf.start_date.replace(hour=4, minute=0) < pf.start_date and pf.start_date < pf.start_date.replace(hour=16, minute=0):
-        nc.NOAReACT_Configuration_ID = location.system_id_day
+        nc.NOAReACT_Configuration_ID = location.daytime_configuration
     else:
-        nc.NOAReACT_Configuration_ID = location.system_id_night
+        nc.NOAReACT_Configuration_ID = location.nighttime_configuration
 
     # Create Variables. (mandatory)
     raw_data_start_time = nc.createVariable(

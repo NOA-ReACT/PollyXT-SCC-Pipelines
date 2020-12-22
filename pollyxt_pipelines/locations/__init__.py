@@ -39,13 +39,13 @@ class Location(NamedTuple):
     lon: float
     '''Longitude of station'''
 
-    altitude: float
+    altitude_asl: float
     '''Altitude of station'''
 
-    system_id_day: int
+    daytime_configuration: int
     '''SCC Lidar Configuration ID - Daytime'''
 
-    system_id_night: int
+    nighttime_configuration: int
     '''SCC Lidar Configuration ID - Nightime'''
 
     channel_id: List[int]
@@ -109,13 +109,14 @@ class Location(NamedTuple):
         table.add_row("scc_code", self.scc_code)
         table.add_row("lat", str(self.lat))
         table.add_row("lon", str(self.lon))
-        table.add_row("system_id_day", str(self.system_id_day))
-        table.add_row("system_id_night", str(self.system_id_night))
+        table.add_row("daytime_configuration", str(self.daytime_configuration))
+        table.add_row("nighttime_configuration", str(self.nighttime_configuration))
         table.add_row("channel_id", ints_to_csv(self.channel_id))
         table.add_row("background_low", ints_to_csv(self.background_low))
         table.add_row("background_high", ints_to_csv(self.background_high))
         table.add_row("lr_input", ints_to_csv(self.lr_input))
         table.add_row("temperature", str(self.temperature))
+        table.add_row("altitude_asl", str(self.altitude_asl))
         table.add_row("total_channel_355_nm", str(self.total_channel_355_nm))
         table.add_row("cross_channel_355_nm", str(self.cross_channel_355_nm))
         table.add_row("total_channel_532_nm", str(self.total_channel_532_nm))
@@ -153,9 +154,9 @@ def location_from_section(name: str, section: SectionProxy) -> Location:
         scc_code=section["scc_code"],
         lat=section.getfloat("lat"),
         lon=section.getfloat("lon"),
-        altitude=section.getfloat("altitude"),
-        system_id_day=section.getint("system_id_day"),
-        system_id_night=section.getint("system_id_night"),
+        altitude_asl=section.getfloat("altitude_asl"),
+        daytime_configuration=section.getint("daytime_configuration"),
+        nighttime_configuration=section.getint("nighttime_configuration"),
         channel_id=channel_id,
         background_low=background_low,
         background_high=background_high,
