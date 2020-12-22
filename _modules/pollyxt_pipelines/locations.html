@@ -95,6 +95,7 @@
 
 <span class="kn">from</span> <span class="nn">pollyxt_pipelines.console</span> <span class="kn">import</span> <span class="n">console</span>
 <span class="kn">from</span> <span class="nn">pollyxt_pipelines</span> <span class="kn">import</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">pollyxt_pipelines.utils</span> <span class="kn">import</span> <span class="n">ints_to_csv</span>
 
 
 <div class="viewcode-block" id="Location"><a class="viewcode-back" href="../../locations.html#pollyxt_pipelines.locations.Location">[docs]</a><span class="k">class</span> <span class="nc">Location</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
@@ -117,13 +118,13 @@
     <span class="n">lon</span><span class="p">:</span> <span class="nb">float</span>
     <span class="sd">&#39;&#39;&#39;Longitude of station&#39;&#39;&#39;</span>
 
-    <span class="n">altitude</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">altitude_asl</span><span class="p">:</span> <span class="nb">float</span>
     <span class="sd">&#39;&#39;&#39;Altitude of station&#39;&#39;&#39;</span>
 
-    <span class="n">system_id_day</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">daytime_configuration</span><span class="p">:</span> <span class="nb">int</span>
     <span class="sd">&#39;&#39;&#39;SCC Lidar Configuration ID - Daytime&#39;&#39;&#39;</span>
 
-    <span class="n">system_id_night</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">nighttime_configuration</span><span class="p">:</span> <span class="nb">int</span>
     <span class="sd">&#39;&#39;&#39;SCC Lidar Configuration ID - Nightime&#39;&#39;&#39;</span>
 
     <span class="n">channel_id</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
@@ -138,6 +139,42 @@
     <span class="n">lr_input</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
     <span class="sd">&#39;&#39;&#39;Value for the `lr_input` variable&#39;&#39;&#39;</span>
 
+    <span class="n">temperature</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="sd">&#39;&#39;&#39;Temperature at the lidar station (`Temperature_at_Lidar_Station` variable)&#39;&#39;&#39;</span>
+
+    <span class="n">pressure</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="sd">&#39;&#39;&#39;Pressure at the lidar station (`Pressure_at_Lidar_Station` variable)&#39;&#39;&#39;</span>
+
+    <span class="n">total_channel_355_nm</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="sd">&#39;&#39;&#39;Index for the total channel (355nm)&#39;&#39;&#39;</span>
+
+    <span class="n">cross_channel_355_nm</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="sd">&#39;&#39;&#39;Index for the cross channel (355nm)&#39;&#39;&#39;</span>
+
+    <span class="n">total_channel_532_nm</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="sd">&#39;&#39;&#39;Index for the total channel (532nm)&#39;&#39;&#39;</span>
+
+    <span class="n">cross_channel_532_nm</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="sd">&#39;&#39;&#39;Index for the cross channel (532nm)&#39;&#39;&#39;</span>
+
+    <span class="n">calibration_355nm_channel_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Calibration channel IDs for 355nm in this order:</span>
+<span class="sd">    - 355_plus_45_transmitted</span>
+<span class="sd">    - 355_plus_45_reflected</span>
+<span class="sd">    - 355_minus_45_transmitted</span>
+<span class="sd">    - 355_minus_45_reflected</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">calibration_532nm_channel_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Calibration channel IDs for 532nm in this order:</span>
+<span class="sd">    - 532_plus_45_transmitted</span>
+<span class="sd">    - 532_plus_45_reflected</span>
+<span class="sd">    - 532_minus_45_transmitted</span>
+<span class="sd">    - 532_minus_45_reflected</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
 <div class="viewcode-block" id="Location.print"><a class="viewcode-back" href="../../locations.html#pollyxt_pipelines.locations.Location.print">[docs]</a>    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Prints this location as a Table in the terminal</span>
@@ -151,12 +188,22 @@
         <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;scc_code&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">scc_code</span><span class="p">)</span>
         <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lat</span><span class="p">))</span>
         <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lon</span><span class="p">))</span>
-        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;system_id_day&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">system_id_day</span><span class="p">))</span>
-        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;system_id_night&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">system_id_night</span><span class="p">))</span>
-        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;channel_id&quot;</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">channel_id</span><span class="p">))</span>
-        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;background_low&quot;</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">background_low</span><span class="p">))</span>
-        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;background_high&quot;</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">background_high</span><span class="p">))</span>
-        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;lr_input&quot;</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lr_input</span><span class="p">))</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;daytime_configuration&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">daytime_configuration</span><span class="p">))</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;nighttime_configuration&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nighttime_configuration</span><span class="p">))</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;channel_id&quot;</span><span class="p">,</span> <span class="n">ints_to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">channel_id</span><span class="p">))</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;background_low&quot;</span><span class="p">,</span> <span class="n">ints_to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">background_low</span><span class="p">))</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;background_high&quot;</span><span class="p">,</span> <span class="n">ints_to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">background_high</span><span class="p">))</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;lr_input&quot;</span><span class="p">,</span> <span class="n">ints_to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lr_input</span><span class="p">))</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;temperature&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">))</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;altitude_asl&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">altitude_asl</span><span class="p">))</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;total_channel_355_nm&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_channel_355_nm</span><span class="p">))</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;cross_channel_355_nm&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cross_channel_355_nm</span><span class="p">))</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;total_channel_532_nm&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_channel_532_nm</span><span class="p">))</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;cross_channel_532_nm&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cross_channel_532_nm</span><span class="p">))</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;calibration_355nm_channel_ids&quot;</span><span class="p">,</span>
+                      <span class="n">ints_to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calibration_355nm_channel_ids</span><span class="p">))</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;calibration_532nm_channel_ids&quot;</span><span class="p">,</span>
+                      <span class="n">ints_to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calibration_532nm_channel_ids</span><span class="p">))</span>
 
         <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span></div></div>
 
@@ -175,19 +222,32 @@
     <span class="n">lr_input</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
                 <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lr_input&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
 
+    <span class="n">calibration_355nm_channel_ids</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                                     <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_355nm_channel_ids&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+    <span class="n">calibration_532nm_channel_ids</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                                     <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_532nm_channel_ids&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+
     <span class="k">return</span> <span class="n">Location</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
         <span class="n">profile_name</span><span class="o">=</span><span class="n">section</span><span class="p">[</span><span class="s2">&quot;profile_name&quot;</span><span class="p">],</span>
         <span class="n">scc_code</span><span class="o">=</span><span class="n">section</span><span class="p">[</span><span class="s2">&quot;scc_code&quot;</span><span class="p">],</span>
         <span class="n">lat</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">),</span>
         <span class="n">lon</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">),</span>
-        <span class="n">altitude</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s2">&quot;altitude&quot;</span><span class="p">),</span>
-        <span class="n">system_id_day</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;system_id_day&quot;</span><span class="p">),</span>
-        <span class="n">system_id_night</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;system_id_night&quot;</span><span class="p">),</span>
+        <span class="n">altitude_asl</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s2">&quot;altitude_asl&quot;</span><span class="p">),</span>
+        <span class="n">daytime_configuration</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;daytime_configuration&quot;</span><span class="p">),</span>
+        <span class="n">nighttime_configuration</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;nighttime_configuration&quot;</span><span class="p">),</span>
         <span class="n">channel_id</span><span class="o">=</span><span class="n">channel_id</span><span class="p">,</span>
         <span class="n">background_low</span><span class="o">=</span><span class="n">background_low</span><span class="p">,</span>
         <span class="n">background_high</span><span class="o">=</span><span class="n">background_high</span><span class="p">,</span>
-        <span class="n">lr_input</span><span class="o">=</span><span class="n">lr_input</span>
+        <span class="n">lr_input</span><span class="o">=</span><span class="n">lr_input</span><span class="p">,</span>
+        <span class="n">temperature</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;temperature&quot;</span><span class="p">),</span>
+        <span class="n">pressure</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;pressure&quot;</span><span class="p">),</span>
+        <span class="n">total_channel_355_nm</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;total_channel_355_nm&quot;</span><span class="p">),</span>
+        <span class="n">cross_channel_355_nm</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;cross_channel_355_nm&quot;</span><span class="p">),</span>
+        <span class="n">total_channel_532_nm</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;total_channel_532_nm&quot;</span><span class="p">),</span>
+        <span class="n">cross_channel_532_nm</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;cross_channel_532_nm&quot;</span><span class="p">),</span>
+        <span class="n">calibration_355nm_channel_ids</span><span class="o">=</span><span class="n">calibration_355nm_channel_ids</span><span class="p">,</span>
+        <span class="n">calibration_532nm_channel_ids</span><span class="o">=</span><span class="n">calibration_532nm_channel_ids</span>
     <span class="p">)</span></div>
 
 

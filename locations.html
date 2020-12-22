@@ -86,19 +86,43 @@
 <h1>Locations<a class="headerlink" href="#locations" title="Permalink to this headline">¶</a></h1>
 <p>In PollyXT-Pipelines, a <code class="code docutils literal notranslate"><span class="pre">Location</span></code> represents a station where PollyXT is, or was, hosted. It
 contains the station’s coordinates and the related IDs for SCC. Specifically, for each station we know:</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>All variables are <strong>required</strong>.</p>
+</div>
 <ul class="simple">
 <li><p><strong>Name</strong>: Station Name</p></li>
 <li><p><strong>Profile name</strong> (<code class="code docutils literal notranslate"><span class="pre">profile_name</span></code>): The name used by WRF for this location</p></li>
 <li><p><strong>SCC Station ID</strong> (<code class="code docutils literal notranslate"><span class="pre">scc_code</span></code>): The station ID registered with SCC, it’s used in measurement
 IDs (e.g. <code class="code docutils literal notranslate"><span class="pre">aky</span></code>).</p></li>
 <li><p><strong>Latitude/Longitude</strong> (<code class="code docutils literal notranslate"><span class="pre">lat</span></code>, code:<code class="xref py py-obj docutils literal notranslate"><span class="pre">lon</span></code>): The station coordinates</p></li>
-<li><p><strong>Altitude</strong> (<code class="code docutils literal notranslate"><span class="pre">altiude</span></code>): The station’s altitude</p></li>
-<li><p><strong>System ID</strong> (<code class="code docutils literal notranslate"><span class="pre">system_id_day</span></code>, <code class="code docutils literal notranslate"><span class="pre">system_id_night</span></code>): The SCC Lidar configuration ID for
+<li><p><strong>Altitude</strong> (<code class="code docutils literal notranslate"><span class="pre">altitude_asl</span></code>): The station’s altitude</p></li>
+<li><p><strong>System ID</strong> (<code class="code docutils literal notranslate"><span class="pre">daytime_configuration</span></code>, <code class="code docutils literal notranslate"><span class="pre">nighttime_configuration</span></code>): The SCC Lidar configuration ID for
 daytime and nightime</p></li>
 <li><p><strong>Channel ID</strong> (Array, <code class="code docutils literal notranslate"><span class="pre">channel_id</span></code>): Value for the <code class="code docutils literal notranslate"><span class="pre">channel_ID</span></code> SCC variable.</p></li>
 <li><p><strong>Background</strong> (Array, <code class="code docutils literal notranslate"><span class="pre">background_low</span></code>, <code class="code docutils literal notranslate"><span class="pre">background_high</span></code>): Values for the
 <code class="code docutils literal notranslate"><span class="pre">Background_Low</span></code> and <code class="code docutils literal notranslate"><span class="pre">Background_High</span></code> SCC variables.</p></li>
 <li><p><strong>LR Input</strong> (Array, <code class="code docutils literal notranslate"><span class="pre">lr_input</span></code>): Value for the <code class="code docutils literal notranslate"><span class="pre">LR_Input</span></code> SCC variable.</p></li>
+<li><p><strong>Temperature</strong> (<code class="code docutils literal notranslate"><span class="pre">temperature</span></code>): Value for the <code class="code docutils literal notranslate"><span class="pre">Temperature_at_Lidar_Station</span></code> SCC variable</p></li>
+<li><p><strong>Pressure</strong> (<code class="code docutils literal notranslate"><span class="pre">pressure</span></code>): Value for the <code class="code docutils literal notranslate"><span class="pre">Pressure_at_Lidar_Station</span></code> SCC variable</p></li>
+<li><dl class="simple">
+<dt><strong>Total/Cross channels</strong>: Four variables are available for setting the total/cross channel indices for 355nm and 532nm:</dt><dd><ol class="arabic simple">
+<li><p>For 355nm: <code class="code docutils literal notranslate"><span class="pre">total_channel_355_nm</span></code> and <code class="code docutils literal notranslate"><span class="pre">cross_channel_355_nm</span></code>.</p></li>
+<li><p>For 532nm: <code class="code docutils literal notranslate"><span class="pre">total_channel_532_nm</span></code> and <code class="code docutils literal notranslate"><span class="pre">cross_channel_532_nm</span></code>.</p></li>
+</ol>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>Calibration channels</strong>: For both wavelengths, the channel IDs must be provided in the following order in <code class="code docutils literal notranslate"><span class="pre">calibration_355nm_channel_ids</span></code> and <code class="code docutils literal notranslate"><span class="pre">calibration_532nm_channel_ids</span></code> for each wavelength:</dt><dd><ol class="arabic simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">plus_45_transmitted</span></code></p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">plus_45_reflected</span></code></p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">minus_45_transmitted</span></code></p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">minus_45_reflected</span></code></p></li>
+</ol>
+</dd>
+</dl>
+</li>
 </ul>
 <p>For the arrays, you can input values separated by commas (see example below). Currently, the application
 has a built-in registry containing information about two stations, <em>Antikythera</em> and <em>Finokalia</em>.</p>
@@ -130,13 +154,21 @@ pollyxt_pipelines locations-path --user <span class="c1"># Print only the user&#
 <span class="na">scc_code</span> <span class="o">=</span> <span class="s">aky</span>
 <span class="na">lat</span> <span class="o">=</span> <span class="s">23.3100</span>
 <span class="na">lon</span> <span class="o">=</span> <span class="s">35.8600</span>
-<span class="na">altitude</span> <span class="o">=</span> <span class="s">0.1</span>
-<span class="na">system_id_day</span> <span class="o">=</span> <span class="s">437</span>
-<span class="na">system_id_night</span> <span class="o">=</span> <span class="s">438</span>
+<span class="na">altitude_asl</span> <span class="o">=</span> <span class="s">0.1</span>
+<span class="na">daytime_configuration</span> <span class="o">=</span> <span class="s">437</span>
+<span class="na">nighttime_configuration</span> <span class="o">=</span> <span class="s">438</span>
 <span class="na">channel_id</span> <span class="o">=</span> <span class="s">493, 500, 497, 499, 494, 496, 498, 495, 501, 941, 940, 502</span>
 <span class="na">background_low</span> <span class="o">=</span> <span class="s">0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0</span>
 <span class="na">background_high</span> <span class="o">=</span> <span class="s">249, 249, 249, 249, 249, 249, 249, 249, 249, 249, 249, 249</span>
 <span class="na">lr_input</span> <span class="o">=</span> <span class="s">1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1</span>
+<span class="na">temperature</span> <span class="o">=</span> <span class="s">20</span>
+<span class="na">pressure</span> <span class="o">=</span> <span class="s">1008</span>
+<span class="na">total_channel_355_nm</span> <span class="o">=</span> <span class="s">0</span>
+<span class="na">cross_channel_355_nm</span> <span class="o">=</span> <span class="s">1</span>
+<span class="na">total_channel_532_nm</span> <span class="o">=</span> <span class="s">4</span>
+<span class="na">cross_channel_532_nm</span> <span class="o">=</span> <span class="s">5</span>
+<span class="na">calibration_355nm_channel_ids</span> <span class="o">=</span> <span class="s">1236, 1266, 1267, 1268</span>
+<span class="na">calibration_532nm_channel_ids</span> <span class="o">=</span> <span class="s">1269, 1270, 1271, 1272</span>
 </pre></div>
 </div>
 <p>You can add more than one location in the same file. Verify that it worked by running <code class="code docutils literal notranslate"><span class="pre">pollyxt_pipelines</span> <span class="pre">locations-show</span> <span class="pre">--detail</span></code>
@@ -153,18 +185,18 @@ to search stations by their name/IDs.</p>
 the .ini files are included with the software but custom locations can be defined.</p>
 <dl class="py data">
 <dt id="pollyxt_pipelines.locations.LOCATIONS">
-<code class="sig-prename descclassname">pollyxt_pipelines.locations.</code><code class="sig-name descname">LOCATIONS</code><em class="property"> = {'Antikythera': Location(name='Antikythera', profile_name='ANTIKYTHERA', scc_code='aky', lat=23.31, lon=35.86, altitude=0.1, system_id_day=437, system_id_night=438, channel_id=[493, 500, 497, 499, 494, 496, 498, 495, 501, 941, 940, 502], background_low=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], background_high=[249, 249, 249, 249, 249, 249, 249, 249, 249, 249, 249, 249], lr_input=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]), 'Finokalia': Location(name='Finokalia', profile_name='FINOKALIA', scc_code='fik', lat=25.6698, lon=35.3377, altitude=0.1, system_id_day=186, system_id_night=302, channel_id=[493, 500, 497, 499, 494, 496, 498, 495, 501, 941, 940, 502], background_low=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], background_high=[249, 249, 249, 249, 249, 249, 249, 249, 249, 249, 249, 249], lr_input=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])}</em><a class="headerlink" href="#pollyxt_pipelines.locations.LOCATIONS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pollyxt_pipelines.locations.</code><code class="sig-name descname">LOCATIONS</code><em class="property"> = {'Antikythera': Location(name='Antikythera', profile_name='ANTIKYTHERA', scc_code='aky', lat=23.31, lon=35.86, altitude_asl=0.1, daytime_configuration=437, nighttime_configuration=438, channel_id=[493, 500, 497, 499, 494, 496, 498, 495, 501, 941, 940, 502], background_low=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], background_high=[249, 249, 249, 249, 249, 249, 249, 249, 249, 249, 249, 249], lr_input=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], temperature=20, pressure=1008, total_channel_355_nm=0, cross_channel_355_nm=1, total_channel_532_nm=4, cross_channel_532_nm=5, calibration_355nm_channel_ids=[1236, 1266, 1267, 1268], calibration_532nm_channel_ids=[1269, 1270, 1271, 1272]), 'Finokalia': Location(name='Finokalia', profile_name='FINOKALIA', scc_code='fik', lat=25.6698, lon=35.3377, altitude_asl=0.1, daytime_configuration=186, nighttime_configuration=302, channel_id=[493, 500, 497, 499, 494, 496, 498, 495, 501, 941, 940, 502], background_low=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], background_high=[249, 249, 249, 249, 249, 249, 249, 249, 249, 249, 249, 249], lr_input=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], temperature=20, pressure=1008, total_channel_355_nm=0, cross_channel_355_nm=1, total_channel_532_nm=4, cross_channel_532_nm=5, calibration_355nm_channel_ids=[1236, 1266, 1267, 1268], calibration_532nm_channel_ids=[1269, 1270, 1271, 1272])}</em><a class="headerlink" href="#pollyxt_pipelines.locations.LOCATIONS" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of all known locations</p>
 </dd></dl>
 
 <dl class="py class">
 <dt id="pollyxt_pipelines.locations.Location">
-<em class="property">class </em><code class="sig-prename descclassname">pollyxt_pipelines.locations.</code><code class="sig-name descname">Location</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">profile_name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">scc_code</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">lat</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">lon</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">altitude</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">system_id_day</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">system_id_night</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">channel_id</span><span class="p">:</span> <span class="n">List<span class="p">[</span>int<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">background_low</span><span class="p">:</span> <span class="n">List<span class="p">[</span>int<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">background_high</span><span class="p">:</span> <span class="n">List<span class="p">[</span>int<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">lr_input</span><span class="p">:</span> <span class="n">List<span class="p">[</span>int<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/locations.html#Location"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.locations.Location" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pollyxt_pipelines.locations.</code><code class="sig-name descname">Location</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">profile_name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">scc_code</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">lat</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">lon</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">altitude_asl</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">daytime_configuration</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">nighttime_configuration</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">channel_id</span><span class="p">:</span> <span class="n">List<span class="p">[</span>int<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">background_low</span><span class="p">:</span> <span class="n">List<span class="p">[</span>int<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">background_high</span><span class="p">:</span> <span class="n">List<span class="p">[</span>int<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">lr_input</span><span class="p">:</span> <span class="n">List<span class="p">[</span>int<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">temperature</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">pressure</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">total_channel_355_nm</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">cross_channel_355_nm</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">total_channel_532_nm</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">cross_channel_532_nm</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">calibration_355nm_channel_ids</span><span class="p">:</span> <span class="n">List<span class="p">[</span>int<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">calibration_532nm_channel_ids</span><span class="p">:</span> <span class="n">List<span class="p">[</span>int<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/locations.html#Location"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.locations.Location" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
 <p>Represents a physical location of PollyXT installation.</p>
 <dl class="py attribute">
-<dt id="pollyxt_pipelines.locations.Location.altitude">
-<code class="sig-name descname">altitude</code><em class="property">: float</em><a class="headerlink" href="#pollyxt_pipelines.locations.Location.altitude" title="Permalink to this definition">¶</a></dt>
+<dt id="pollyxt_pipelines.locations.Location.altitude_asl">
+<code class="sig-name descname">altitude_asl</code><em class="property">: float</em><a class="headerlink" href="#pollyxt_pipelines.locations.Location.altitude_asl" title="Permalink to this definition">¶</a></dt>
 <dd><p>Altitude of station</p>
 </dd></dl>
 
@@ -181,9 +213,47 @@ the .ini files are included with the software but custom locations can be define
 </dd></dl>
 
 <dl class="py attribute">
+<dt id="pollyxt_pipelines.locations.Location.calibration_355nm_channel_ids">
+<code class="sig-name descname">calibration_355nm_channel_ids</code><em class="property">: List<span class="p">[</span>int<span class="p">]</span></em><a class="headerlink" href="#pollyxt_pipelines.locations.Location.calibration_355nm_channel_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calibration channel IDs for 355nm in this order:
+- 355_plus_45_transmitted
+- 355_plus_45_reflected
+- 355_minus_45_transmitted
+- 355_minus_45_reflected</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pollyxt_pipelines.locations.Location.calibration_532nm_channel_ids">
+<code class="sig-name descname">calibration_532nm_channel_ids</code><em class="property">: List<span class="p">[</span>int<span class="p">]</span></em><a class="headerlink" href="#pollyxt_pipelines.locations.Location.calibration_532nm_channel_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calibration channel IDs for 532nm in this order:
+- 532_plus_45_transmitted
+- 532_plus_45_reflected
+- 532_minus_45_transmitted
+- 532_minus_45_reflected</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt id="pollyxt_pipelines.locations.Location.channel_id">
 <code class="sig-name descname">channel_id</code><em class="property">: List<span class="p">[</span>int<span class="p">]</span></em><a class="headerlink" href="#pollyxt_pipelines.locations.Location.channel_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of channel IDs (for SCC <code class="xref py py-obj docutils literal notranslate"><span class="pre">channel_ID</span></code> variable)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pollyxt_pipelines.locations.Location.cross_channel_355_nm">
+<code class="sig-name descname">cross_channel_355_nm</code><em class="property">: int</em><a class="headerlink" href="#pollyxt_pipelines.locations.Location.cross_channel_355_nm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Index for the cross channel (355nm)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pollyxt_pipelines.locations.Location.cross_channel_532_nm">
+<code class="sig-name descname">cross_channel_532_nm</code><em class="property">: int</em><a class="headerlink" href="#pollyxt_pipelines.locations.Location.cross_channel_532_nm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Index for the cross channel (532nm)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pollyxt_pipelines.locations.Location.daytime_configuration">
+<code class="sig-name descname">daytime_configuration</code><em class="property">: int</em><a class="headerlink" href="#pollyxt_pipelines.locations.Location.daytime_configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>SCC Lidar Configuration ID - Daytime</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -210,6 +280,18 @@ the .ini files are included with the software but custom locations can be define
 <dd><p>Location friendly name</p>
 </dd></dl>
 
+<dl class="py attribute">
+<dt id="pollyxt_pipelines.locations.Location.nighttime_configuration">
+<code class="sig-name descname">nighttime_configuration</code><em class="property">: int</em><a class="headerlink" href="#pollyxt_pipelines.locations.Location.nighttime_configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>SCC Lidar Configuration ID - Nightime</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pollyxt_pipelines.locations.Location.pressure">
+<code class="sig-name descname">pressure</code><em class="property">: int</em><a class="headerlink" href="#pollyxt_pipelines.locations.Location.pressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pressure at the lidar station (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Pressure_at_Lidar_Station</span></code> variable)</p>
+</dd></dl>
+
 <dl class="py method">
 <dt id="pollyxt_pipelines.locations.Location.print">
 <code class="sig-name descname">print</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/locations.html#Location.print"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.locations.Location.print" title="Permalink to this definition">¶</a></dt>
@@ -229,15 +311,21 @@ the .ini files are included with the software but custom locations can be define
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pollyxt_pipelines.locations.Location.system_id_day">
-<code class="sig-name descname">system_id_day</code><em class="property">: int</em><a class="headerlink" href="#pollyxt_pipelines.locations.Location.system_id_day" title="Permalink to this definition">¶</a></dt>
-<dd><p>SCC Lidar Configuration ID - Daytime</p>
+<dt id="pollyxt_pipelines.locations.Location.temperature">
+<code class="sig-name descname">temperature</code><em class="property">: int</em><a class="headerlink" href="#pollyxt_pipelines.locations.Location.temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Temperature at the lidar station (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Temperature_at_Lidar_Station</span></code> variable)</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pollyxt_pipelines.locations.Location.system_id_night">
-<code class="sig-name descname">system_id_night</code><em class="property">: int</em><a class="headerlink" href="#pollyxt_pipelines.locations.Location.system_id_night" title="Permalink to this definition">¶</a></dt>
-<dd><p>SCC Lidar Configuration ID - Nightime</p>
+<dt id="pollyxt_pipelines.locations.Location.total_channel_355_nm">
+<code class="sig-name descname">total_channel_355_nm</code><em class="property">: int</em><a class="headerlink" href="#pollyxt_pipelines.locations.Location.total_channel_355_nm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Index for the total channel (355nm)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pollyxt_pipelines.locations.Location.total_channel_532_nm">
+<code class="sig-name descname">total_channel_532_nm</code><em class="property">: int</em><a class="headerlink" href="#pollyxt_pipelines.locations.Location.total_channel_532_nm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Index for the total channel (532nm)</p>
 </dd></dl>
 
 </dd></dl>
