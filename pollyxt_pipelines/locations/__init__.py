@@ -16,6 +16,7 @@ from rich.table import Table
 
 from pollyxt_pipelines.console import console
 from pollyxt_pipelines import config
+from pollyxt_pipelines.utils import ints_to_csv
 
 
 class Location(NamedTuple):
@@ -65,6 +66,36 @@ class Location(NamedTuple):
     pressure: int
     '''Pressure at the lidar station (`Pressure_at_Lidar_Station` variable)'''
 
+    total_channel_355_nm: int
+    '''Index for the total channel (355nm)'''
+
+    cross_channel_355_nm: int
+    '''Index for the cross channel (355nm)'''
+
+    total_channel_532_nm: int
+    '''Index for the total channel (532nm)'''
+
+    cross_channel_532_nm: int
+    '''Index for the cross channel (532nm)'''
+
+    calibration_355nm_channel_ids: List[int]
+    '''
+    Calibration channel IDs for 355nm in this order:
+    - 355_plus_45_transmitted
+    - 355_plus_45_reflected
+    - 355_minus_45_transmitted
+    - 355_minus_45_reflected
+    '''
+
+    calibration_532nm_channel_ids: List[int]
+    '''
+    Calibration channel IDs for 532nm in this order:
+    - 532_plus_45_transmitted
+    - 532_plus_45_reflected
+    - 532_minus_45_transmitted
+    - 532_minus_45_reflected
+    '''
+
     def print(self):
         '''
         Prints this location as a Table in the terminal
@@ -80,12 +111,19 @@ class Location(NamedTuple):
         table.add_row("lon", str(self.lon))
         table.add_row("system_id_day", str(self.system_id_day))
         table.add_row("system_id_night", str(self.system_id_night))
-        table.add_row("channel_id", ", ".join(self.channel_id))
-        table.add_row("background_low", ", ".join(self.background_low))
-        table.add_row("background_high", ", ".join(self.background_high))
-        table.add_row("lr_input", ", ".join(self.lr_input))
+        table.add_row("channel_id", ints_to_csv(self.channel_id))
+        table.add_row("background_low", ints_to_csv(self.background_low))
+        table.add_row("background_high", ints_to_csv(self.background_high))
+        table.add_row("lr_input", ints_to_csv(self.lr_input))
         table.add_row("temperature", str(self.temperature))
-        table.add_row("pressure", str(self.pressure))
+        table.add_row("total_channel_355_nm", str(self.total_channel_355_nm))
+        table.add_row("cross_channel_355_nm", str(self.cross_channel_355_nm))
+        table.add_row("total_channel_532_nm", str(self.total_channel_532_nm))
+        table.add_row("cross_channel_532_nm", str(self.cross_channel_532_nm))
+        table.add_row("calibration_355nm_channel_ids",
+                      ints_to_csv(self.calibration_355nm_channel_ids))
+        table.add_row("calibration_532nm_channel_ids",
+                      ints_to_csv(self.calibration_532nm_channel_ids))
 
         console.print(table)
 
@@ -104,6 +142,11 @@ def location_from_section(name: str, section: SectionProxy) -> Location:
     lr_input = [int(x.strip())
                 for x in section.get("lr_input").split(",")]
 
+    calibration_355nm_channel_ids = [int(x.strip())
+                                     for x in section.get("calibration_355nm_channel_ids").split(",")]
+    calibration_532nm_channel_ids = [int(x.strip())
+                                     for x in section.get("calibration_532nm_channel_ids").split(",")]
+
     return Location(
         name=name,
         profile_name=section["profile_name"],
@@ -118,7 +161,13 @@ def location_from_section(name: str, section: SectionProxy) -> Location:
         background_high=background_high,
         lr_input=lr_input,
         temperature=section.getint("temperature"),
-        pressure=section.getint("pressure")
+        pressure=section.getint("pressure"),
+        total_channel_355_nm=section.getint("total_channel_355_nm"),
+        cross_channel_355_nm=section.getint("cross_channel_355_nm"),
+        total_channel_532_nm=section.getint("total_channel_532_nm"),
+        cross_channel_532_nm=section.getint("cross_channel_532_nm"),
+        calibration_355nm_channel_ids=calibration_355nm_channel_ids,
+        calibration_532nm_channel_ids=calibration_532nm_channel_ids
     )
 
 

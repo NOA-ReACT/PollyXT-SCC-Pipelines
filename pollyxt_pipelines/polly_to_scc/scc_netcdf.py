@@ -257,14 +257,14 @@ def create_scc_calibration_netcdf(
 
     # Define total and cross channels IDs from Polly
     if wavelength == Wavelength.NM_355:
-        total_channel = 0
-        cross_channel = 1
-        channel_id[:] = np.array([1236, 1266, 1267, 1268])
+        total_channel = location.total_channel_355_nm
+        cross_channel = location.cross_channel_355_nm
+        channel_id[:] = np.array(location.calibration_355nm_channel_ids)
         nc.Measurement_ID = measurement_id + '35'
     elif wavelength == Wavelength.NM_532:
-        total_channel = 4
-        cross_channel = 5
-        channel_id[:] = np.array([1269, 1270, 1271, 1272])
+        total_channel = location.total_channel_532_nm
+        cross_channel = location.cross_channel_532_nm
+        channel_id[:] = np.array(location.calibration_532nm_channel_ids)
         nc.Measurement_ID = measurement_id + '53'
     else:
         raise ValueError(f'Unknown wavelength {wavelength}')
@@ -277,13 +277,13 @@ def create_scc_calibration_netcdf(
         raw_data_stop_time[meas_cycle, 0] = stop_first_measurement + meas_cycle
 
         raw_lidar_data[meas_cycle, 0, :] = pf.raw_signal_swap[start_first_measurement +
-                                                           meas_cycle, cross_channel, :]
+                                                              meas_cycle, cross_channel, :]
         raw_lidar_data[meas_cycle, 1, :] = pf.raw_signal_swap[start_first_measurement +
-                                                           meas_cycle, total_channel, :]
+                                                              meas_cycle, total_channel, :]
         raw_lidar_data[meas_cycle, 2, :] = pf.raw_signal_swap[stop_first_measurement +
-                                                           meas_cycle, cross_channel, :]
+                                                              meas_cycle, cross_channel, :]
         raw_lidar_data[meas_cycle, 3, :] = pf.raw_signal_swap[stop_first_measurement +
-                                                           meas_cycle, total_channel, :]
+                                                              meas_cycle, total_channel, :]
 
     # Close the netCDF file.
     nc.close()

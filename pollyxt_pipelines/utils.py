@@ -1,5 +1,7 @@
 '''Various helper functions that fit nowhere'''
 
+from typing import List
+
 
 def bool_to_emoji(x: bool) -> str:
     '''
@@ -36,3 +38,17 @@ def option_to_bool(x: bool, absence_value: bool):
     if absence_value:
         return not x
     return x
+
+
+def ints_to_strs(arr: List[int]) -> List[str]:
+    '''
+    Convert a list of `int` to a list of `str`.
+    '''
+    return [str(x) for x in arr]
+
+
+def ints_to_csv(arr: List[int]) -> str:
+    '''
+    Convert a list of `int` to a string with comma separated values
+    '''
+    return ", ".join(ints_to_strs(arr))
