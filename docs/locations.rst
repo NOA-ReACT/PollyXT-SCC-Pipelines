@@ -5,6 +5,9 @@ Locations
 In PollyXT-Pipelines, a :code:`Location` represents a station where PollyXT is, or was, hosted. It
 contains the station's coordinates and the related IDs for SCC. Specifically, for each station we know:
 
+.. caution::
+  All variables are **required**.
+
 * **Name**: Station Name
 * **Profile name** (:code:`profile_name`): The name used by WRF for this location
 * **SCC Station ID** (:code:`scc_code`): The station ID registered with SCC, it's used in measurement
@@ -17,6 +20,16 @@ contains the station's coordinates and the related IDs for SCC. Specifically, fo
 * **Background** (Array, :code:`background_low`, :code:`background_high`): Values for the
   :code:`Background_Low` and :code:`Background_High` SCC variables.
 * **LR Input** (Array, :code:`lr_input`): Value for the :code:`LR_Input` SCC variable.
+* **Temperature** (:code:`temperature`): Value for the :code:`Temperature_at_Lidar_Station` SCC variable
+* **Pressure** (:code:`pressure`): Value for the :code:`Pressure_at_Lidar_Station` SCC variable
+* **Total/Cross channels**: Four variables are available for setting the total/cross channel indices for 355nm and 532nm:
+    #. For 355nm: :code:`total_channel_355_nm` and :code:`cross_channel_355_nm`.
+    #. For 532nm: :code:`total_channel_532_nm` and :code:`cross_channel_532_nm`.
+* **Calibration channels**: For both wavelengths, the channel IDs must be provided in the following order in :code:`calibration_355nm_channel_ids` and :code:`calibration_532nm_channel_ids` for each wavelength:
+    #. :code:`plus_45_transmitted`
+    #. :code:`plus_45_reflected`
+    #. :code:`minus_45_transmitted`
+    #. :code:`minus_45_reflected`
 
 For the arrays, you can input values separated by commas (see example below). Currently, the application
 has a built-in registry containing information about two stations, *Antikythera* and *Finokalia*.
@@ -69,6 +82,12 @@ The file is ini-formatted, where each section is a station name. For example:
   lr_input = 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
   temperature = 20
   pressure = 1008
+  total_channel_355_nm = 0
+  cross_channel_355_nm = 1
+  total_channel_532_nm = 4
+  cross_channel_532_nm = 5
+  calibration_355nm_channel_ids = 1236, 1266, 1267, 1268
+  calibration_532nm_channel_ids = 1269, 1270, 1271, 1272
 
 You can add more than one location in the same file. Verify that it worked by running :code:`pollyxt_pipelines locations-show --detail`
 when you are done.
