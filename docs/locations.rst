@@ -67,6 +67,8 @@ The file is ini-formatted, where each section is a station name. For example:
   background_low = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
   background_high = 249, 249, 249, 249, 249, 249, 249, 249, 249, 249, 249, 249
   lr_input = 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+  temperature = 20
+  pressure = 1008
 
 You can add more than one location in the same file. Verify that it worked by running :code:`pollyxt_pipelines locations-show --detail`
 when you are done.
