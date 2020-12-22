@@ -21,6 +21,8 @@ Usage
 * :code:`--no-radiosonde`: Do not create sounding files
 * :code:`--no-calibration`: Do not create calibration files
 * :code:`--start-time`: Manually set the start time for the first output file (in HH:MM format). Useful for starting your output at an offset, for example 09:30.
+* :code:`--end-time`: In combination with :code:`--start-time`, you can also set the end time. For example, you could generate a file from
+  09:42 up until 10:11. Cannot be used without :code:`--start-time`.
 
 
 The files are by default split in 1 hour files when they are converted to SCC files.
@@ -110,7 +112,14 @@ Create hourly files that start at 09:30 (assuming this time exists in the raw fi
 
 .. code-block:: sh
 
-  pollyxt_pipelines create-scc 2019_06_02_Sun_NOA_06_00_01.nc Antikythera ./scc_data --no-calibration --no-radiosonde
+  pollyxt_pipelines create-scc 2019_06_02_Sun_NOA_06_00_01.nc Antikythera ./scc_data --no-calibration --no-radiosonde --start-time=09:30
+
+
+Create one file that start at 09:30 and ends at 12:34 (assuming this time exists in the raw file):
+
+.. code-block:: sh
+
+  pollyxt_pipelines create-scc 2019_06_02_Sun_NOA_06_00_01.nc Antikythera ./scc_data --start-time=09:30 --end-time=12:34
 
 
 API

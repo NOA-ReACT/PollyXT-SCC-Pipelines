@@ -4,7 +4,7 @@ Routines for converting PollyXT files to SCC files
 
 from datetime import date, datetime, timedelta
 from pathlib import Path
-from pollyxt_pipelines.polly_to_scc.exceptions import StartingTimeOutsideFile
+from pollyxt_pipelines.polly_to_scc.exceptions import TimeOutsideFile
 from typing import Tuple
 from enum import Enum
 
@@ -301,7 +301,8 @@ def convert_pollyxt_file(
         use_sounding=True,
         should_round=False,
         calibration=True,
-        start_hour=None):
+        start_time=None,
+        end_time=None):
     '''
     Converts a PollyXT file into a bunch of SCC files. The input file will be split into intervals before being converted
     to the new format.
@@ -320,21 +321,36 @@ def convert_pollyxt_file(
         use_rounding: Whether the generated files will use radiosondes or not.
         should_round: If true, the interval starts will be rounded down. For example, from 01:02 to 01:00.
         calibration: Set to False to disable generation of calibration files.
-        start_hour: Optionally, set when the first file should start. The intervals will start from here.
+        start_hour: Optionally, set when the first file should start. The intervals will start from here. (HH:MM format, string)
+        end_hour: Optionally, also set the end time. Must be used with `start_hour`. If this is set, only one output file
+                  is generated, for your target interval (HH:MM format, string).
     '''
 
     # Open input netCDF
     measurement_start, measurement_end = pollyxt.get_measurement_period(input_path)
 
-    # Move start time if requested
-    if start_hour is not None:
-        hour, minute = [int(x.strip()) for x in start_hour.split(':')]
-        start_hour = measurement_start.replace(hour=hour, minute=minute)
+    # Handle start/end time
+    if start_time is not None:
+        hour, minute = [int(x.strip()) for x in start_time.split(':')]
+        start_time = measurement_start.replace(hour=hour, minute=minute)
 
-        if start_hour < measurement_start or measurement_end < start_hour:
-            raise StartingTimeOutsideFile(measurement_start, measurement_end, start_hour)
+        if start_time < measurement_start or measurement_end < start_time:
+            raise TimeOutsideFile(measurement_start, measurement_end, start_time)
 
-        measurement_start = start_hour
+        measurement_start = start_time
+
+    if start_time is None and end_time is not None:
+        raise ValueError("Can't use end_hour without start_hour")
+
+    if end_time is not None:
+        hour, minute = [int(x.strip()) for x in end_time.split(':')]
+        end_time = measurement_start.replace(hour=hour, minute=minute)
+
+        if end_time < measurement_start or measurement_end < start_time:
+            raise TimeOutsideFile(measurement_start, measurement_end, end_time)
+
+        measurement_end = end_time
+        interval = timedelta(seconds=(end_time - start_time).total_seconds())
 
     # Create output files
     interval_start = measurement_start
