@@ -1,56 +1,77 @@
-from datetime import date
-import sys
+from datetime import date, datetime
+from pollyxt_pipelines import locations
+from pollyxt_pipelines.locations import LOCATIONS
 from pathlib import Path
 
 from cleo import Command
+from rich.markdown import Markdown
 
-from pollyxt_pipelines.radiosondes import wrf
+from pollyxt_pipelines.radiosondes.exceptions import RadiosondeNotFound
+from pollyxt_pipelines.radiosondes import (
+    RadiosondeProviders,
+    write_radiosonde_netcdf,
+)
 from pollyxt_pipelines.config import Config
 from pollyxt_pipelines.console import console
 
 
-class WRFProfileToCSVs(Command):
-    '''
-    Convert a WRF profile file to CSV files, each containing an individual profile.
+class GetRadiosonde(Command):
+    """
+    Fetches sounding information and optionally write to a file. Mainly used to test providers.
 
-    wrf-to-csv
-        {location : Profile location (i.e. city name)}
-        {profile-date : Profile date in ISO Format (YYYY-MM-DD)}
-        {csv-path : Where to write the CSV files}
-    '''
-
-    help = '''
-    Examples
-    ---
-
-    Read a WRF file and write all profiles into the 'profiles' directory:
-    \t pollyxt_pipelines wrf-to-csv ANTIKYTHERA 2020-01-02 ./profiles
-    '''
+    get-radiosonde
+        {provider : Which provider to use}
+        {timestamp : Find radiosonde for this timestamp (YYYY-MM-DD_HH:mm format)}
+        {location : Location (station) name}
+        {--to-csv= : Optionally write the radiosonde data to a CSV file}
+        {--to-scc= : Optionaly write the radiosonde data to a SCC-formatted netCDF file}
+    """
 
     def handle(self):
-        # Parse date and path
-        profile_date = date.fromisoformat(self.argument('profile-date'))
-        csv_path = Path(self.argument('csv-path'))
-        csv_path.mkdir(parents=True, exist_ok=True)
+        # Get requested provider
+        provider = RadiosondeProviders.get(self.argument("provider"), None)
+        if provider is None:
+            console.print(f"[error]Unknown provider[/error] {self.argument('provider')}")
+            known_providers = "List of supported providers:\n\n"
+            for key in RadiosondeProviders.keys():
+                known_providers += f"- {key}\n"
+            console.print(Markdown(known_providers))
+            return 1
 
-        location = self.argument('location')
+        # Get location
+        location = self.argument("location")
+        location = LOCATIONS.get(location, None)
+        if location is None:
+            locations.unknown_location_error(self.argument("location"))
+            return 1
 
-        config = Config()
+        # Parse timestamp
+        timestamp = datetime.strptime(self.argument("timestamp"), "%Y-%m-%d_%H:%M")
 
-        # Read the WRF profile file
+        # Get profile from provider
         try:
-            df = wrf.read_wrf_daily_profile(config,
-                                            self.argument('location'),
-                                            profile_date)
-        except FileNotFoundError as ex:
-            console.print('[error]WRF Profile file not found![/error]')
-            console.print(f'(Path: {ex.filename})')
-            sys.exit(1)
+            profile_time, profile = provider(location, timestamp, timestamp)
+        except RadiosondeNotFound as ex:
+            ex.print_error()
+            return 1
+        except Exception as ex:
+            console.print(
+                f"[error]Got unknown error while using provider[/error] {self.argument('provider')}"
+            )
+            console.print_exception()
+            return 1
 
-        # Split into days and write each into a file
-        for _, group in df.groupby('timestamp'):
-            group_timestamp = group.iloc[0, 0].strftime('%Y%m%d_%H%M')
-            filename = csv_path / f'{location}_{group_timestamp}.csv'
+        # Print the profile
+        console.print(f"Found profile with time {profile_time}")
+        console.print(profile)
 
-            console.print(f'[info]Writing[/info] {filename}')
-            group.iloc[:, 1:].to_csv(filename, index=False)
+        # Write to disk if requested
+        to_csv = self.option("to-csv")
+        if to_csv is not None:
+            console.print(f"[info]Writing profile as CSV file:[/info] {to_csv}")
+            profile.to_csv(to_csv, index=False)
+
+        to_scc = self.option("to-scc")
+        if to_scc is not None:
+            console.print(f"[info]Writing profile as SCC radiosonde file:[/info] {to_scc}")
+            write_radiosonde_netcdf(profile, location, profile_time, to_scc)

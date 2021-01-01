@@ -87,19 +87,6 @@ class CreateSCC(Command):
         for file in track(file_list, description="Converting...", console=console):
             console.print(f"-> [info]Converting[/info] {file} [info]...[/info]", style="bold")
 
-            # Try to find radiosonde profiles
-            profiles = None
-            if use_sounding:
-                day = pollyxt.get_measurement_period(file)[0].date()
-                try:
-                    profiles = radiosondes.wrf.read_wrf_daily_profile(config, location, day)
-                except FileNotFoundError as ex:
-                    console.print(
-                        f"[error]No radiosonde file found for [/error]{location.name}[error] at [/error]{day.isoformat()}"
-                    )
-                    console.print("[error]Use the --no-radiosonde option to skip this.[/error]")
-                    return 1
-
             converter = scc_netcdf.convert_pollyxt_file(
                 file,
                 output_path,
@@ -116,14 +103,13 @@ class CreateSCC(Command):
                     f"[info]Created file with measurement ID[/info] {id} [info]at[/info] {str(path)}"
                 )
 
-                # Attempt to write radiosonde for this profile
-                if profiles is not None:
-                    p = profiles[profiles["timestamp"] == timestamp.replace(minute=0, second=0)]
-                    if len(p) > 0:
-                        path = output_path / f"rs_{id[:-2]}.nc"
-                        radiosondes.create_radiosonde_netcdf(p, location, path)
-                        console.print(f"[info]Created radiosonde file at[/info] {path}")
-                    else:
-                        console.print(f"[error]No radiosonde profile found for [/error]{id}")
+                if use_sounding:
+                    radiosondes.create_radiosonde_netcdf(
+                        "wrf_noa",
+                        location,
+                        timestamp,
+                        timestamp + interval,
+                        netcdf_path=output_path / f"rs{id[:-2]}.nc",
+                    )
 
         console.print("\n[info]Done![/info]")
