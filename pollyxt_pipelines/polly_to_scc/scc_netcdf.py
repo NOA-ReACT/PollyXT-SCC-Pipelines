@@ -1,6 +1,6 @@
-'''
+"""
 Routines for converting PollyXT files to SCC files
-'''
+"""
 
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -16,25 +16,26 @@ from pollyxt_pipelines.locations import Location
 
 
 class Wavelength(Enum):
-    '''Laser wavelength'''
+    """Laser wavelength"""
+
     NM_355 = 355
     NM_532 = 532
 
 
-'''When calibration takes place each day, in HH:MM-HH:MM format'''
-CALIBRATION_PERIODS = ['02:31-02:41', '17:31-17:41', '21:31-21:41']
+"""When calibration takes place each day, in HH:MM-HH:MM format"""
+CALIBRATION_PERIODS = ["02:31-02:41", "17:31-17:41", "21:31-21:41"]
 
 
 def calibration_to_datetime(base: datetime, period: str) -> Tuple[datetime, datetime]:
-    '''
+    """
     Given a calibrarion period in HH:MM-HH:MM format (start-end), it converts it to a pair of `datetime`, the same day
     as the given `base`.
-    '''
+    """
     base = base.replace(hour=0, minute=0, second=0)
 
-    start, end = period.split('-')
-    start = [int(x) for x in start.split(':')]
-    end = [int(x) for x in end.split(':')]
+    start, end = period.split("-")
+    start = [int(x) for x in start.split(":")]
+    end = [int(x) for x in end.split(":")]
 
     start = base + timedelta(hours=start[0], minutes=start[1])
     end = base + timedelta(hours=end[0], minutes=end[1])
@@ -43,12 +44,9 @@ def calibration_to_datetime(base: datetime, period: str) -> Tuple[datetime, date
 
 
 def create_scc_netcdf(
-    pf: pollyxt.PollyXTFile,
-    output_path: Path,
-    location: Location,
-    use_sounding: bool = True
+    pf: pollyxt.PollyXTFile, output_path: Path, location: Location, use_sounding: bool = True
 ) -> Tuple[str, Path]:
-    '''
+    """
     Convert a PollyXT netCDF file to a SCC file.
 
     Parameters:
@@ -61,71 +59,80 @@ def create_scc_netcdf(
 
     Returns:
         A tuple containing  the measurement ID and the output path
-    '''
+    """
 
     # Calculate measurement ID
-    measurement_id = pf.start_date.strftime(
-        f'%Y%m%d{location.scc_code}%H%M')
+    measurement_id = pf.start_date.strftime(f"%Y%m%d{location.scc_code}%H%M")
 
     # Create SCC file
     # Output filename is always the measurement ID
-    output_filename = output_path / f'{measurement_id}.nc'
-    nc = Dataset(output_filename, 'w')
+    output_filename = output_path / f"{measurement_id}.nc"
+    nc = Dataset(output_filename, "w")
 
     # Create dimensions (mandatory!)
-    nc.createDimension('points', np.size(pf.raw_signal, axis=1))
-    nc.createDimension('channels', np.size(pf.raw_signal, axis=2))
-    nc.createDimension('time', None)
-    nc.createDimension('nb_of_time_scales', 1)
-    nc.createDimension('scan_angles', 1)
+    nc.createDimension("points", np.size(pf.raw_signal, axis=1))
+    nc.createDimension("channels", np.size(pf.raw_signal, axis=2))
+    nc.createDimension("time", None)
+    nc.createDimension("nb_of_time_scales", 1)
+    nc.createDimension("scan_angles", 1)
 
     # Create Global Attributes (mandatory!)
     nc.Measurement_ID = measurement_id
-    nc.RawData_Start_Date = pf.start_date.strftime('%Y%m%d')
-    nc.RawData_Start_Time_UT = pf.start_date.strftime('%H%M%S')
-    nc.RawData_Stop_Time_UT = pf.end_date.strftime('%H%M%S')
+    nc.RawData_Start_Date = pf.start_date.strftime("%Y%m%d")
+    nc.RawData_Start_Time_UT = pf.start_date.strftime("%H%M%S")
+    nc.RawData_Stop_Time_UT = pf.end_date.strftime("%H%M%S")
 
     # Create Global Attributes (optional)
     nc.RawBck_Start_Date = nc.RawData_Start_Date
     nc.RawBck_Start_Time_UT = nc.RawData_Start_Time_UT
     nc.RawBck_Stop_Time_UT = nc.RawData_Stop_Time_UT
     if use_sounding:
-        nc.Sounding_File_Name = f'rs_{measurement_id[:-2]}.nc'
+        nc.Sounding_File_Name = f"rs_{measurement_id[:-2]}.nc"
     # nc.Overlap_File_Name = 'ov_' + selected_start.strftime('%Y%m%daky%H') + '.nc'
 
     # Custom attribute for configuration ID
     # From 04:00 until 16:00 we use daytime configuration
-    if pf.start_date.replace(hour=4, minute=0) < pf.start_date and pf.start_date < pf.start_date.replace(hour=16, minute=0):
+    if pf.start_date.replace(
+        hour=4, minute=0
+    ) < pf.start_date and pf.start_date < pf.start_date.replace(hour=16, minute=0):
         nc.NOAReACT_Configuration_ID = location.daytime_configuration
     else:
         nc.NOAReACT_Configuration_ID = location.nighttime_configuration
 
     # Create Variables. (mandatory)
     raw_data_start_time = nc.createVariable(
-        'Raw_Data_Start_Time', 'i4', dimensions=('time', 'nb_of_time_scales'), zlib=True)
+        "Raw_Data_Start_Time", "i4", dimensions=("time", "nb_of_time_scales"), zlib=True
+    )
     raw_data_stop_time = nc.createVariable(
-        'Raw_Data_Stop_Time', 'i4', dimensions=('time', 'nb_of_time_scales'), zlib=True)
+        "Raw_Data_Stop_Time", "i4", dimensions=("time", "nb_of_time_scales"), zlib=True
+    )
     raw_lidar_data = nc.createVariable(
-        'Raw_Lidar_Data', 'f8', dimensions=('time', 'channels', 'points'), zlib=True)
-    channel_id = nc.createVariable('channel_ID', 'i4', dimensions=('channels'), zlib=True)
-    id_timescale = nc.createVariable('id_timescale', 'i4', dimensions=('channels'), zlib=True)
+        "Raw_Lidar_Data", "f8", dimensions=("time", "channels", "points"), zlib=True
+    )
+    channel_id = nc.createVariable("channel_ID", "i4", dimensions=("channels"), zlib=True)
+    id_timescale = nc.createVariable("id_timescale", "i4", dimensions=("channels"), zlib=True)
     laser_pointing_angle = nc.createVariable(
-        'Laser_Pointing_Angle', 'f8', dimensions=('scan_angles'), zlib=True)
+        "Laser_Pointing_Angle", "f8", dimensions=("scan_angles"), zlib=True
+    )
     laser_pointing_angle_of_profiles = nc.createVariable(
-        'Laser_Pointing_Angle_of_Profiles', 'i4', dimensions=('time', 'nb_of_time_scales'), zlib=True)
-    laser_shots = nc.createVariable('Laser_Shots', 'i4', dimensions=('time', 'channels'), zlib=True)
-    background_low = nc.createVariable('Background_Low', 'f8', dimensions=('channels'), zlib=True)
-    background_high = nc.createVariable('Background_High', 'f8', dimensions=('channels'), zlib=True)
-    molecular_calc = nc.createVariable('Molecular_Calc', 'i4', dimensions=(), zlib=True)
-    nc.createVariable(
-        'Pol_Calib_Range_Min', 'f8', dimensions=('channels'), zlib=True)
-    nc.createVariable(
-        'Pol_Calib_Range_Max', 'f8', dimensions=('channels'), zlib=True)
+        "Laser_Pointing_Angle_of_Profiles",
+        "i4",
+        dimensions=("time", "nb_of_time_scales"),
+        zlib=True,
+    )
+    laser_shots = nc.createVariable("Laser_Shots", "i4", dimensions=("time", "channels"), zlib=True)
+    background_low = nc.createVariable("Background_Low", "f8", dimensions=("channels"), zlib=True)
+    background_high = nc.createVariable("Background_High", "f8", dimensions=("channels"), zlib=True)
+    molecular_calc = nc.createVariable("Molecular_Calc", "i4", dimensions=(), zlib=True)
+    nc.createVariable("Pol_Calib_Range_Min", "f8", dimensions=("channels"), zlib=True)
+    nc.createVariable("Pol_Calib_Range_Max", "f8", dimensions=("channels"), zlib=True)
     pressure_at_lidar_station = nc.createVariable(
-        'Pressure_at_Lidar_Station', 'f8', dimensions=(), zlib=True)
+        "Pressure_at_Lidar_Station", "f8", dimensions=(), zlib=True
+    )
     temperature_at_lidar_station = nc.createVariable(
-        'Temperature_at_Lidar_Station', 'f8', dimensions=(), zlib=True)
-    lr_input = nc.createVariable('LR_Input', 'i4', dimensions=('channels'), zlib=True)
+        "Temperature_at_Lidar_Station", "f8", dimensions=(), zlib=True
+    )
+    lr_input = nc.createVariable("LR_Input", "i4", dimensions=("channels"), zlib=True)
 
     # Fill Variables with Data. (mandatory)
     raw_data_start_time[:] = pf.measurement_time[:, 1] - pf.measurement_time[0, 1]
@@ -158,9 +165,9 @@ def create_scc_calibration_netcdf(
     location: Location,
     wavelength: Wavelength,
     pol_calib_range_min: int = 1200,
-    pol_calib_range_max: int = 2500
+    pol_calib_range_max: int = 2500,
 ) -> Tuple[str, Path]:
-    '''
+    """
     From a PollyXT netCDF file, create the corresponding calibration SCC file.
     Calibration times are:
     - 02:31 to 02:41
@@ -178,20 +185,20 @@ def create_scc_calibration_netcdf(
 
     Returns:
         A tuple containing the measurement ID and the output path
-    '''
+    """
 
     # Calculate measurement ID
-    measurement_id = pf.start_date.strftime(f'%Y%m%d{location.scc_code}%H')
+    measurement_id = pf.start_date.strftime(f"%Y%m%d{location.scc_code}%H")
 
     # Create SCC file
     # Output filename is always the measurement ID
     if wavelength == Wavelength.NM_355:
-        output_filename = output_path / f'calibration_{measurement_id}_355.nc'
+        output_filename = output_path / f"calibration_{measurement_id}_355.nc"
     elif wavelength == Wavelength.NM_532:
-        output_filename = output_path / f'calibration_{measurement_id}_532.nc'
+        output_filename = output_path / f"calibration_{measurement_id}_532.nc"
     else:
-        raise ValueError(f'Unknown wavelength {wavelength}')
-    nc = Dataset(output_filename, 'w')
+        raise ValueError(f"Unknown wavelength {wavelength}")
+    nc = Dataset(output_filename, "w")
 
     # Create Dimensions. (mandatory)
     nc.createDimension("points", np.size(pf.raw_signal, axis=1))
@@ -201,9 +208,9 @@ def create_scc_calibration_netcdf(
     nc.createDimension("scan_angles", 1)
 
     # Create Global Attributes. (mandatory)
-    nc.RawData_Start_Date = pf.start_date.strftime('%Y%m%d')
-    nc.RawData_Start_Time_UT = pf.start_date.strftime('%H%M%S')
-    nc.RawData_Stop_Time_UT = pf.end_date.strftime('%H%M%S')
+    nc.RawData_Start_Date = pf.start_date.strftime("%Y%m%d")
+    nc.RawData_Start_Time_UT = pf.start_date.strftime("%H%M%S")
+    nc.RawData_Stop_Time_UT = pf.end_date.strftime("%H%M%S")
 
     # Create Global Attributes (optional)
     nc.RawBck_Start_Date = nc.RawData_Start_Date
@@ -212,29 +219,41 @@ def create_scc_calibration_netcdf(
 
     # Create Variables. (mandatory)
     raw_data_start_time = nc.createVariable(
-        "Raw_Data_Start_Time", "i4", dimensions=("time", "nb_of_time_scales"), zlib=True)
+        "Raw_Data_Start_Time", "i4", dimensions=("time", "nb_of_time_scales"), zlib=True
+    )
     raw_data_stop_time = nc.createVariable(
-        "Raw_Data_Stop_Time", "i4", dimensions=("time", "nb_of_time_scales"), zlib=True)
+        "Raw_Data_Stop_Time", "i4", dimensions=("time", "nb_of_time_scales"), zlib=True
+    )
     raw_lidar_data = nc.createVariable(
-        "Raw_Lidar_Data", "f8", dimensions=("time", "channels", "points"), zlib=True)
+        "Raw_Lidar_Data", "f8", dimensions=("time", "channels", "points"), zlib=True
+    )
     channel_id = nc.createVariable("channel_ID", "i4", dimensions=("channels"), zlib=True)
     id_timescale = nc.createVariable("id_timescale", "i4", dimensions=("channels"), zlib=True)
     laser_pointing_angle = nc.createVariable(
-        "Laser_Pointing_Angle", "f8", dimensions=("scan_angles"), zlib=True)
+        "Laser_Pointing_Angle", "f8", dimensions=("scan_angles"), zlib=True
+    )
     laser_pointing_angle_of_profiles = nc.createVariable(
-        "Laser_Pointing_Angle_of_Profiles", "i4", dimensions=("time", "nb_of_time_scales"), zlib=True)
+        "Laser_Pointing_Angle_of_Profiles",
+        "i4",
+        dimensions=("time", "nb_of_time_scales"),
+        zlib=True,
+    )
     laser_shots = nc.createVariable("Laser_Shots", "i4", dimensions=("time", "channels"), zlib=True)
     background_low = nc.createVariable("Background_Low", "f8", dimensions=("channels"), zlib=True)
     background_high = nc.createVariable("Background_High", "f8", dimensions=("channels"), zlib=True)
     molecular_calc = nc.createVariable("Molecular_Calc", "i4", dimensions=(), zlib=True)
     pol_calib_range_min_var = nc.createVariable(
-        "Pol_Calib_Range_Min", "f8", dimensions=("channels"), zlib=True)
+        "Pol_Calib_Range_Min", "f8", dimensions=("channels"), zlib=True
+    )
     pol_calib_range_max_var = nc.createVariable(
-        "Pol_Calib_Range_Max", "f8", dimensions=("channels"), zlib=True)
+        "Pol_Calib_Range_Max", "f8", dimensions=("channels"), zlib=True
+    )
     pressure_at_lidar_station = nc.createVariable(
-        "Pressure_at_Lidar_Station", "f8", dimensions=(), zlib=True)
+        "Pressure_at_Lidar_Station", "f8", dimensions=(), zlib=True
+    )
     temperature_at_lidar_station = nc.createVariable(
-        "Temperature_at_Lidar_Station", "f8", dimensions=(), zlib=True)
+        "Temperature_at_Lidar_Station", "f8", dimensions=(), zlib=True
+    )
 
     # define measurement_cycles
     start_first_measurement = 0
@@ -260,14 +279,14 @@ def create_scc_calibration_netcdf(
         total_channel = location.total_channel_355_nm
         cross_channel = location.cross_channel_355_nm
         channel_id[:] = np.array(location.calibration_355nm_channel_ids)
-        nc.Measurement_ID = measurement_id + '35'
+        nc.Measurement_ID = measurement_id + "35"
     elif wavelength == Wavelength.NM_532:
         total_channel = location.total_channel_532_nm
         cross_channel = location.cross_channel_532_nm
         channel_id[:] = np.array(location.calibration_532nm_channel_ids)
-        nc.Measurement_ID = measurement_id + '53'
+        nc.Measurement_ID = measurement_id + "53"
     else:
-        raise ValueError(f'Unknown wavelength {wavelength}')
+        raise ValueError(f"Unknown wavelength {wavelength}")
 
     # Copy calibration cycles
     for meas_cycle in range(0, 3, 1):
@@ -276,14 +295,18 @@ def create_scc_calibration_netcdf(
         raw_data_start_time[meas_cycle, 0] = start_first_measurement + meas_cycle
         raw_data_stop_time[meas_cycle, 0] = stop_first_measurement + meas_cycle
 
-        raw_lidar_data[meas_cycle, 0, :] = pf.raw_signal_swap[start_first_measurement +
-                                                              meas_cycle, cross_channel, :]
-        raw_lidar_data[meas_cycle, 1, :] = pf.raw_signal_swap[start_first_measurement +
-                                                              meas_cycle, total_channel, :]
-        raw_lidar_data[meas_cycle, 2, :] = pf.raw_signal_swap[stop_first_measurement +
-                                                              meas_cycle, cross_channel, :]
-        raw_lidar_data[meas_cycle, 3, :] = pf.raw_signal_swap[stop_first_measurement +
-                                                              meas_cycle, total_channel, :]
+        raw_lidar_data[meas_cycle, 0, :] = pf.raw_signal_swap[
+            start_first_measurement + meas_cycle, cross_channel, :
+        ]
+        raw_lidar_data[meas_cycle, 1, :] = pf.raw_signal_swap[
+            start_first_measurement + meas_cycle, total_channel, :
+        ]
+        raw_lidar_data[meas_cycle, 2, :] = pf.raw_signal_swap[
+            stop_first_measurement + meas_cycle, cross_channel, :
+        ]
+        raw_lidar_data[meas_cycle, 3, :] = pf.raw_signal_swap[
+            stop_first_measurement + meas_cycle, total_channel, :
+        ]
 
     # Close the netCDF file.
     nc.close()
@@ -292,16 +315,17 @@ def create_scc_calibration_netcdf(
 
 
 def convert_pollyxt_file(
-        input_path: Path,
-        output_path: Path,
-        location: Location,
-        interval: timedelta,
-        use_sounding=True,
-        should_round=False,
-        calibration=True,
-        start_time=None,
-        end_time=None):
-    '''
+    input_path: Path,
+    output_path: Path,
+    location: Location,
+    interval: timedelta,
+    use_sounding=True,
+    should_round=False,
+    calibration=True,
+    start_time=None,
+    end_time=None,
+):
+    """
     Converts a PollyXT file into a bunch of SCC files. The input file will be split into intervals before being converted
     to the new format.
 
@@ -322,14 +346,14 @@ def convert_pollyxt_file(
         start_hour: Optionally, set when the first file should start. The intervals will start from here. (HH:MM format, string)
         end_hour: Optionally, also set the end time. Must be used with `start_hour`. If this is set, only one output file
                   is generated, for your target interval (HH:MM format, string).
-    '''
+    """
 
     # Open input netCDF
     measurement_start, measurement_end = pollyxt.get_measurement_period(input_path)
 
     # Handle start/end time
     if start_time is not None:
-        hour, minute = [int(x.strip()) for x in start_time.split(':')]
+        hour, minute = [int(x.strip()) for x in start_time.split(":")]
         start_time = measurement_start.replace(hour=hour, minute=minute)
 
         if start_time < measurement_start or measurement_end < start_time:
@@ -341,7 +365,7 @@ def convert_pollyxt_file(
         raise ValueError("Can't use end_hour without start_hour")
 
     if end_time is not None:
-        hour, minute = [int(x.strip()) for x in end_time.split(':')]
+        hour, minute = [int(x.strip()) for x in end_time.split(":")]
         end_time = measurement_start.replace(hour=hour, minute=minute)
 
         if end_time < measurement_start or measurement_end < start_time:
@@ -380,6 +404,7 @@ def convert_pollyxt_file(
             if start > measurement_start and end < measurement_end:
                 pf = pollyxt.PollyXTFile(input_path, start, end)
                 id, path = create_scc_calibration_netcdf(
-                    pf, output_path, location, wavelength=Wavelength.NM_532)
+                    pf, output_path, location, wavelength=Wavelength.NM_532
+                )
 
                 yield id, path, start
