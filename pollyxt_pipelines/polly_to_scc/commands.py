@@ -64,52 +64,37 @@ class CreateSCC(Command):
             locations.unknown_location_error(location_name)
             return 1
 
-        # Get list of input files
-        input_path = Path(self.argument("input"))
-        if not input_path.is_dir():
-            file_list = [input_path]
-        else:
-            if self.option("recursive"):
-                pattern = "**/*.nc"
-            else:
-                pattern = "*.nc"
-            file_list = list(input_path.glob(pattern))
-
-        if len(file_list) == 0:
-            console.print(f"[error]No netCDF files found in[/error] {input_path}")
-            return 1
-
+        # Create a repository for the given path
+        repository = pollyxt.PollyXTRepository(Path(self.argument("input")))
         # Read config for radiosonde path
         config = Config()
 
         # Iterate over list and convert files
         skip_calibration = self.option("no-calibration")
-        for file in track(file_list, description="Converting...", console=console):
-            console.print(f"-> [info]Converting[/info] {file} [info]...[/info]", style="bold")
 
-            converter = scc_netcdf.convert_pollyxt_file(
-                file,
-                output_path,
-                location,
-                interval,
-                should_round=should_round,
-                calibration=(not skip_calibration),
-                use_sounding=use_sounding,
-                start_time=start_time,
-                end_time=end_time,
+        converter = scc_netcdf.convert_pollyxt_file(
+            repository,
+            output_path,
+            location,
+            interval,
+            should_round=should_round,
+            calibration=(not skip_calibration),
+            use_sounding=use_sounding,
+            start_time=start_time,
+            end_time=end_time,
+        )
+        for id, path, timestamp in converter:
+            console.print(
+                f"[info]Created file with measurement ID[/info] {id} [info]at[/info] {str(path)}"
             )
-            for id, path, timestamp in converter:
-                console.print(
-                    f"[info]Created file with measurement ID[/info] {id} [info]at[/info] {str(path)}"
-                )
 
-                if use_sounding:
-                    radiosondes.create_radiosonde_netcdf(
-                        "wrf_noa",
-                        location,
-                        timestamp,
-                        timestamp + interval,
-                        netcdf_path=output_path / f"rs{id[:-2]}.nc",
-                    )
+            if use_sounding:
+                radiosondes.create_radiosonde_netcdf(
+                    "wrf_noa",
+                    location,
+                    timestamp,
+                    timestamp + interval,
+                    netcdf_path=output_path / f"rs{id[:-2]}.nc",
+                )
 
         console.print("\n[info]Done![/info]")

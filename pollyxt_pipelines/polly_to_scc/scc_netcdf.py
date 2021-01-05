@@ -4,7 +4,7 @@ Routines for converting PollyXT files to SCC files
 
 from datetime import date, datetime, timedelta
 from pathlib import Path
-from pollyxt_pipelines.polly_to_scc.exceptions import TimeOutsideFile
+from pollyxt_pipelines.polly_to_scc.exceptions import NoMeasurementsInTimePeriod, TimeOutsideFile
 from typing import Tuple
 from enum import Enum
 
@@ -315,7 +315,7 @@ def create_scc_calibration_netcdf(
 
 
 def convert_pollyxt_file(
-    input_path: Path,
+    repo: pollyxt.PollyXTRepository,
     output_path: Path,
     location: Location,
     interval: timedelta,
@@ -326,17 +326,17 @@ def convert_pollyxt_file(
     end_time=None,
 ):
     """
-    Converts a PollyXT file into a bunch of SCC files. The input file will be split into intervals before being converted
-    to the new format.
+    Converts a pollyXT repository into a collection of SCC files. The input files will be split/merged into intervals
+    before being converted to the new format.
 
-    This function is a generator, so you can use it in a for loop to monitor progress::
+    This function is a generator, so you can use it in a for loop to monitor progress:
 
         for measurement_id, path in convert_pollyxt_file(...):
             # Do something with id/path, maybe print a message?
 
 
     Parameters:
-        input_path: PollyXT file to convert
+        repo: PollyXT file to convert
         output_path: Directory to write the SCC files
         location: Geographical information, where the measurement took place
         interval: What interval to use when splitting the PollyXT file (e.g. 1 hour)
@@ -349,7 +349,7 @@ def convert_pollyxt_file(
     """
 
     # Open input netCDF
-    measurement_start, measurement_end = pollyxt.get_measurement_period(input_path)
+    measurement_start, measurement_end = repo.get_time_period()
 
     # Handle start/end time
     if start_time is not None:
@@ -385,9 +385,14 @@ def convert_pollyxt_file(
         interval_end = interval_start + interval
 
         # Open netCDF file and convert to SCC
-        pf = pollyxt.PollyXTFile(input_path, interval_start, interval_end)
-        id, path = create_scc_netcdf(pf, output_path, location, use_sounding)
-        yield id, path, interval_start
+        try:
+            pf = repo.get_pollyxt_file(interval_start, interval_end)
+            id, path = create_scc_netcdf(pf, output_path, location, use_sounding)
+            yield id, path, interval_start
+        except NoMeasurementsInTimePeriod as ex:
+            # Go to next loop
+            interval_start = interval_end
+            continue
 
         # Set start of next interval to the end of this one
         interval_start = interval_end
@@ -402,7 +407,7 @@ def convert_pollyxt_file(
             start, end = calibration_to_datetime(measurement_start, period)
 
             if start > measurement_start and end < measurement_end:
-                pf = pollyxt.PollyXTFile(input_path, start, end)
+                pf = repo.get_pollyxt_file(start, end)
                 id, path = create_scc_calibration_netcdf(
                     pf, output_path, location, wavelength=Wavelength.NM_532
                 )
