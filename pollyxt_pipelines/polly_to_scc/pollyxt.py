@@ -17,7 +17,7 @@ def polly_date_to_datetime(timestamp: Tuple[int, int]) -> datetime:
     Converts a PollyXT Date to a Python object.
 
     Parameters:
-        timestamp: PollyXT timestamp in two-integer format: 1) date as YYYMMDD 2) seconds since start of day
+        timestamp: PollyXT timestamp in two-integer format: 1) date as YYYYMMDD 2) seconds since start of day
 
     Returns:
         A datetime object
