@@ -1,5 +1,6 @@
 from pathlib import Path
 from datetime import datetime
+from typing import Tuple
 
 
 class TimeOutsideFile(Exception):
@@ -8,7 +9,7 @@ class TimeOutsideFile(Exception):
     """
 
     def __init__(self, start: datetime, end: datetime, requested: datetime):
-        super()
+        super().__init__(start, end, requested)
 
         self.start = start
         self.end = end
@@ -38,3 +39,20 @@ class NoFilesFound(Exception):
 
     def __str__(self) -> str:
         return f"No netCDF files found at {self.path}"
+
+
+class BadMeasurementTime(Exception):
+    """
+    Raised when a bad measurement time value is encountered in a raw PollyXT file
+    """
+
+    def __init__(self, filename: str, value: Tuple[int, int]) -> None:
+        super().__init__(filename, value)
+
+        self.filename = filename
+        self.value = value
+
+    def __str__(self) -> str:
+        return (
+            f"Bad measurement time value was encountered in file {self.filename}: {str(self.value)}"
+        )

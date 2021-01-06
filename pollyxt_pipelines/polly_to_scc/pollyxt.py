@@ -3,13 +3,18 @@ Routines related to PollyXT files
 """
 
 from pathlib import Path
-from pollyxt_pipelines.polly_to_scc.exceptions import NoFilesFound, NoMeasurementsInTimePeriod
 from typing import Tuple, Union
 from datetime import datetime, timedelta
 
 import numpy as np
 import pandas as pd
 from netCDF4 import Dataset
+
+from pollyxt_pipelines.polly_to_scc.exceptions import (
+    NoFilesFound,
+    NoMeasurementsInTimePeriod,
+    BadMeasurementTime,
+)
 
 
 def polly_date_to_datetime(timestamp: Tuple[int, int]) -> datetime:
@@ -136,7 +141,10 @@ class PollyXTRepository:
                 measurement_time = nc["measurement_time"][:]
                 for i, timestamp in enumerate(measurement_time):
                     # Parse date
-                    timestamp = polly_date_to_datetime(timestamp)
+                    try:
+                        timestamp = polly_date_to_datetime(timestamp)
+                    except ValueError:
+                        raise BadMeasurementTime(path, timestamp)
 
                     rows.append({"timestamp": timestamp, "index": i, "path": path})
 

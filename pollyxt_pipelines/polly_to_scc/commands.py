@@ -11,7 +11,7 @@ from cleo import Command
 from pollyxt_pipelines.console import console
 from pollyxt_pipelines.polly_to_scc import pollyxt, scc_netcdf
 from pollyxt_pipelines import locations, radiosondes
-from pollyxt_pipelines.config import Config
+from pollyxt_pipelines.polly_to_scc.exceptions import BadMeasurementTime
 
 
 class CreateSCC(Command):
@@ -65,9 +65,15 @@ class CreateSCC(Command):
             return 1
 
         # Create a repository for the given path
-        repository = pollyxt.PollyXTRepository(Path(self.argument("input")))
-        # Read config for radiosonde path
-        config = Config()
+        try:
+            console.print("Building repository...")
+            repository = pollyxt.PollyXTRepository(Path(self.argument("input")))
+        except BadMeasurementTime as ex:
+            console.print(
+                f"[error]While reading file[/error] {ex.filename} [error]an invalid measurement_time value was encountered:[/error] {ex.value}"
+            )
+            console.print("[error]Remove this file and try again[/error]")
+            return 1
 
         # Iterate over list and convert files
         skip_calibration = self.option("no-calibration")
