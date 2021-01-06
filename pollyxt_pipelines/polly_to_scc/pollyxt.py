@@ -205,6 +205,8 @@ class PollyXTRepository:
             pass
         pollyxt_file.depol_cal_angle = np.concatenate([x.depol_cal_angle for x in polly_files])
 
+        pollyxt_file.end_date = polly_files[-1].end_date
+
         return pollyxt_file
 
 
