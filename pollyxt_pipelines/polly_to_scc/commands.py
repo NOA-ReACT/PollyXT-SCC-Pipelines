@@ -50,7 +50,7 @@ class CreateSCC(Command):
         use_sounding = not self.option("no-radiosonde")
         if interval is None:
             interval = 60  # Default duration is 1 hour/60 minutes
-        interval = timedelta(minutes=interval)
+        interval = timedelta(minutes=int(interval))
         start_time = self.option("start-time")
         end_time = self.option("end-time")
         if start_time is None and end_time is not None:
