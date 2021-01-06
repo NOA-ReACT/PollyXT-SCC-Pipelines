@@ -89,17 +89,19 @@ class CreateSCC(Command):
             start_time=start_time,
             end_time=end_time,
         )
-        for id, path, timestamp in converter:
+        for id, path, timestamp_start, timestamp_end in converter:
+            start_str = timestamp_start.strftime("%Y-%m-%d %H:%M")
+            end_str = timestamp_end.strftime("%Y-%m-%d %H:%M")
             console.print(
-                f"[info]Created file with measurement ID[/info] {id} [info]at[/info] {str(path)}"
+                f"[info]Created file with measurement ID[/info] {id} [info]at[/info] {str(path)} [info]({start_str} - {end_str})[/info]"
             )
 
             if use_sounding:
                 radiosondes.create_radiosonde_netcdf(
                     "wrf_noa",
                     location,
-                    timestamp,
-                    timestamp + interval,
+                    timestamp_start,
+                    timestamp_start + interval,
                     netcdf_path=output_path / f"rs{id[:-2]}.nc",
                 )
 

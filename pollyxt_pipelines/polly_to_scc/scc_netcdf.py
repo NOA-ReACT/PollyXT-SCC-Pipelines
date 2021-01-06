@@ -331,7 +331,7 @@ def convert_pollyxt_file(
 
     This function is a generator, so you can use it in a for loop to monitor progress:
 
-        for measurement_id, path in convert_pollyxt_file(...):
+        for measurement_id, path, start_time, end_time in convert_pollyxt_file(...):
             # Do something with id/path, maybe print a message?
 
 
@@ -388,7 +388,8 @@ def convert_pollyxt_file(
         try:
             pf = repo.get_pollyxt_file(interval_start, interval_end)
             id, path = create_scc_netcdf(pf, output_path, location, use_sounding)
-            yield id, path, interval_start
+
+            yield id, path, pf.start_date, pf.end_date
         except NoMeasurementsInTimePeriod as ex:
             # Go to next loop
             interval_start = interval_end
@@ -412,4 +413,4 @@ def convert_pollyxt_file(
                     pf, output_path, location, wavelength=Wavelength.NM_532
                 )
 
-                yield id, path, start
+                yield id, path, start, end
