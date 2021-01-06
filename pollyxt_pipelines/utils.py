@@ -54,3 +54,39 @@ def ints_to_csv(arr: List[int]) -> str:
     Convert a list of `int` to a string with comma separated values
     """
     return ", ".join(ints_to_strs(arr))
+
+
+def date_option_to_datetime(today: datetime, string: str) -> datetime:
+    """
+    Given a datetime and a string, this function will do one of the following:
+        - If the `string` contains only time info (in HH:MM format), the function will return `today` with the hours
+          and minutes set to the values from `string`.
+        - If `string` contains both date and time (in YYYY-mm-DD HH:MM format), the function will return this as
+          a datetime object. The `today` object will be ignored
+    This function is used to parse command line options that allow the user to input either time or date and time when
+    trimming files.
+
+    Args:
+        today: A date to use if `string` contains only time information.
+        string: Time in "HH:MM" or date and time in "YYYY-mm-DD HH:MM"
+
+    Returns:
+        The string parsed as a datetime object
+
+    Throws:
+        ValueError: When the string is not in an acceptable format
+    """
+
+    # Try to determine the string's format
+    date_match = re.search(r"^\d{4}-[01]\d-[0123]\d_[012]\d:[0-5]\d", string)
+    if date_match is not None:
+        # String seems to be a date, parse and return
+        return datetime.strptime(string, "%Y-%m-%d_%H:%M")
+
+    time_match = re.search(r"^[012]\d:[0-5]\d", string)
+    if time_match is not None:
+        # String is only time, replace in `today` and return
+        hour, minute = [int(x) for x in string.split(":")]
+        return today.replace(hour=hour, minute=minute)
+
+    raise ValueError("`string` is neither in HH:MM nor YYYY-mm-DD HH:MM format!")

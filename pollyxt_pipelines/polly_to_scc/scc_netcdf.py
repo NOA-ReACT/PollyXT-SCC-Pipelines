@@ -4,7 +4,6 @@ Routines for converting PollyXT files to SCC files
 
 from datetime import date, datetime, timedelta
 from pathlib import Path
-from pollyxt_pipelines.polly_to_scc.exceptions import NoMeasurementsInTimePeriod, TimeOutsideFile
 from typing import Tuple
 from enum import Enum
 
@@ -13,6 +12,8 @@ import numpy as np
 
 from pollyxt_pipelines.polly_to_scc import pollyxt
 from pollyxt_pipelines.locations import Location
+from pollyxt_pipelines import utils
+from pollyxt_pipelines.polly_to_scc.exceptions import NoMeasurementsInTimePeriod, TimeOutsideFile
 
 
 class Wavelength(Enum):
@@ -343,9 +344,9 @@ def convert_pollyxt_file(
         use_rounding: Whether the generated files will use radiosondes or not.
         should_round: If true, the interval starts will be rounded down. For example, from 01:02 to 01:00.
         calibration: Set to False to disable generation of calibration files.
-        start_hour: Optionally, set when the first file should start. The intervals will start from here. (HH:MM format, string)
+        start_hour: Optionally, set when the first file should start. The intervals will start from here. (HH:MM or YYYY-MM-DD_HH:MM format, string)
         end_hour: Optionally, also set the end time. Must be used with `start_hour`. If this is set, only one output file
-                  is generated, for your target interval (HH:MM format, string).
+                  is generated, for your target interval (HH:MM or YYYY-MM-DD_HH:MM format, string).
     """
 
     # Open input netCDF
@@ -353,8 +354,7 @@ def convert_pollyxt_file(
 
     # Handle start/end time
     if start_time is not None:
-        hour, minute = [int(x.strip()) for x in start_time.split(":")]
-        start_time = measurement_start.replace(hour=hour, minute=minute)
+        start_time = utils.date_option_to_datetime(measurement_start, start_time)
 
         if start_time < measurement_start or measurement_end < start_time:
             raise TimeOutsideFile(measurement_start, measurement_end, start_time)
@@ -365,8 +365,7 @@ def convert_pollyxt_file(
         raise ValueError("Can't use end_hour without start_hour")
 
     if end_time is not None:
-        hour, minute = [int(x.strip()) for x in end_time.split(":")]
-        end_time = measurement_start.replace(hour=hour, minute=minute)
+        end_time = utils.date_option_to_datetime(measurement_end, end_time)
 
         if end_time < measurement_start or measurement_end < start_time:
             raise TimeOutsideFile(measurement_start, measurement_end, end_time)
