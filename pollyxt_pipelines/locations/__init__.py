@@ -214,7 +214,7 @@ def get_location_by_scc_code(code: str) -> Union[Location, None]:
     Returns a location by its SCC code or `None` if it doesn't exist.
     """
 
-    for loc in LOCATIONS.items():
+    for loc in LOCATIONS.values():
         if loc.scc_code == code:
             return loc
     return None
