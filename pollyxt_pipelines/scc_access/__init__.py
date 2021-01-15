@@ -90,7 +90,7 @@ class SCC:
             path: Where to store the downloaded file
         """
 
-        with requests.get(url, stream=True) as r:
+        with self.session.get(url, stream=True) as r:
             with open(path, "wb") as file:
                 shutil.copyfileobj(r.raw, file)
 
