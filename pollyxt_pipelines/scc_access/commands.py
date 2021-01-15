@@ -531,14 +531,17 @@ class SearchDownloadSCC(Command):
                 for m in measurements:
                     progress.update(
                         task, description=f'Downloading products ({i}/{measurement_count})...')
-                    for file in scc.download_products(m.id, download_path,
-                                                      hirelpp and m.has_hirelpp,
-                                                      cloudmask and m.has_cloudmask,
-                                                      elpp and m.has_elpp,
-                                                      optical and (m.has_elda or m.has_eldec),
-                                                      elic and m.has_elic):
-                        file_count += 1
-                        console.log(f'[info]Downloaded[/info] {file}')
+                    try:
+                        for file in scc.download_products(m.id, download_path,
+                                                          hirelpp and m.has_hirelpp,
+                                                          cloudmask and m.has_cloudmask,
+                                                          elpp and m.has_elpp,
+                                                          optical and (m.has_elda or m.has_eldec),
+                                                          elic and m.has_elic):
+                            file_count += 1
+                            console.log(f'[info]Downloaded[/info] {file}')
+                    except ValueError:
+                        console.log(f'[error]Measurement[/error] {m.id} [error]has no products, skipping[/error]')
                     progress.advance(task)
                     i += 1
 
