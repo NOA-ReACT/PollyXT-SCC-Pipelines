@@ -31,6 +31,20 @@ This interval can be changed with the :code:`--interval=` option.
 The location is required to determine the measurement ID, as well as the SCC system ID.
 
 
+Merging of raw files
+====================
+
+When passing a directory path to :code:`input`, the input files are automatically
+merged if required by the output. Consider the following example:
+
+- Two input files, one from 00:00 up until 05:45, and one from 05:45 up until 12:00.
+- We want to generate hourly output files from 00:00 until 12:00.
+
+The program will generate files as normal from 00:00 until 05:00. The file
+corresponding to 05:00-06:00 will automatically use data from *both* input files.
+The rest will continue normally, using data only from the second input file.
+
+
 
 Sounding
 ========
