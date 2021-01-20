@@ -517,9 +517,7 @@ class SearchDownloadSCC(Command):
                 task = progress.add_task("Fetching results...", start=False, total=1)
 
                 # Query SCC for measurements
-                pages, measurements = scc.query_measurements(
-                    date_start, date_end, location, credentials
-                )
+                pages, measurements = scc.query_measurements(date_start, date_end, location)
                 if len(measurements) == 0:
                     progress.stop()
                     console.print("[warn]No measurements found![/warn]")
