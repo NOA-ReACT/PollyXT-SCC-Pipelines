@@ -95,7 +95,7 @@ class SCC:
                 shutil.copyfileobj(r.raw, file)
 
     def query_measurements(
-        self, date_start: date, date_end: date, location: Union[Location, None], page=0
+        self, date_start: date, date_end: date, location: Union[Location, None], page=1
     ) -> Tuple[int, List[Measurement]]:
         """
         Searches SCC for uploaded measurements
@@ -110,10 +110,13 @@ class SCC:
             The number of pages and the list of measurements
         """
 
+        if page - 1 < 0:
+            raise ValueError("Page numbers start at 1!")
+
         params = {
             "start__gte": date_start.strftime("%Y-%m-%d %H:%M:%S"),
             "start__lt": date_end.strftime("%Y-%m-%d %H:%M:%S"),
-            "p": page,
+            "p": page - 1,
         }
         if location is not None:
             params["station_id"] = location.scc_code
