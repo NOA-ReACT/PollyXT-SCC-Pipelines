@@ -1,7 +1,7 @@
 """Various helper functions that fit nowhere"""
 
 from typing import List
-from datetime import datetime
+from datetime import datetime, timedelta
 import re
 
 
@@ -89,4 +89,12 @@ def date_option_to_datetime(today: datetime, string: str) -> datetime:
         hour, minute = [int(x) for x in string.split(":")]
         return today.replace(hour=hour, minute=minute)
 
-    raise ValueError("`string` is neither in HH:MM nor YYYY-mm-DD HH:MM format!")
+    minutes_match = re.search(r"^XX:[0-5]\d$", string)
+    if minutes_match is not None:
+        minute = int(string[-2])
+        if today.replace(minute=minute) < today:
+            return (today + timedelta(hours=1)).replace(minute=minute)
+        else:
+            return today.replace(minute=minute)
+
+    raise ValueError("`string` is neither in XX:MM, HH:MM nor YYYY-mm-DD HH:MM format!")
