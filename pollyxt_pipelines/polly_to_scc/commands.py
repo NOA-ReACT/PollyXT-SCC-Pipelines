@@ -24,7 +24,7 @@ class CreateSCC(Command):
         {location : Where did the measurement take place for *all* input files }
         {output-path : Where to write output files (will create this directory if it doesn't exist)}
         {--interval= : Time interval (in minutes) to split each file. Default is one hour.}
-        {--start-time= : When to start the first file in HH:MM format. If `end-hour` is defined, a file of the chosen length will be created. Otherwise the intervals will start from this time.}
+        {--start-time= : When to start the first file (see description below for format). If `end-hour` is defined, a file of the chosen length will be created. Otherwise the intervals will start from this time.}
         {--end-time= : Set when the output file should end. This option MUST be used with `--start-hour`.}
         {--round : When set, output files will start on rounded down hours if possible (e.g. from 00:12 to 00:00, 01:42 to 01:00, etc)}
         {--no-radiosonde : If set, no radiosonde files will be created}
@@ -32,6 +32,22 @@ class CreateSCC(Command):
     """
 
     help = """
+    The `--start-time=` and `--end-time=` options support the following datetime formats:
+
+    - XX:MM (Only minutes, eg. XX:30)
+    - HH:MM (Time of day, eg. 20:30)
+    - YYYY-mm-DD_HH:MM (Timestamp, 2021-01-29_20:30)
+
+    When the only minutes option is used (XX:30), the first generated file will begin at the first available time for the
+    given minutes. For example, if the raw files begin at 2021-01-01 01:50 and the option is set to `--start-time=XX:30`,
+    the first output file will start at 02:30 (01:30 is outside the file's range!).
+
+    The time of day option will use the first day which contains the given time. For example, if the raw files begin at
+    2021-01-01 01:50 and `--start-time=02:00` is used, the first output file will start at 2021-01-01 02:00.
+
+    Finally, the timestamp option will use the exact time provided. This is useful if the input directory contains many days
+    of data.
+
     If you try to create an SCC file and it includes of one of the following periods, a calibration file will be created:
     - 02:31 to 02:41
     - 17:31 to 17:41
