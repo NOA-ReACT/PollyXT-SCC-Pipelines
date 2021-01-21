@@ -1,3 +1,13 @@
+# v1.6.0
+- ✨ Added merging of raw files
+- ✨ Added the concept of radiosonde providers in order to support different filetypes for sounding
+- ✨ Allow full dates in `create-scc`'s `--start-time=` and `--end-time=` options to accomondate for merging multiple days
+- ✨ Added new time format for `--start-time=` and `--end-time=`: `XX:MM`. For example `XX:30` will start at the first available half-hour
+- 🛠 Print time period contained in each output file when using `create-scc`.
+- 🐜 Fix `scc-search` and `scc-search-download` missing the second page of data.
+- 🐜 Fix crash on bad `measurement_time` value
+- 🐜 Fix `--interval=` not being parsed correctly
+
 # v1.5.0
 - ✨ Added `--end-time=` option to `create-scc`, which can be used alongside `--start-time=` to create files for specific
   intervals.
