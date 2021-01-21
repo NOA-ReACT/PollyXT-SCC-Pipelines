@@ -77,29 +77,30 @@
     <div class="t-body yue">
       
   <h1>Source code for pollyxt_pipelines.scc_access.exceptions</h1><div class="highlight"><pre>
-<span></span><span class="sd">&#39;&#39;&#39;Exceptions that might occur while working with SCC&#39;&#39;&#39;</span>
+<span></span><span class="sd">&quot;&quot;&quot;Exceptions that might occur while working with SCC&quot;&quot;&quot;</span>
 
 
 <div class="viewcode-block" id="PageNotAccessible"><a class="viewcode-back" href="../../../network-api.html#pollyxt_pipelines.scc_access.exceptions.PageNotAccessible">[docs]</a><span class="k">class</span> <span class="nc">PageNotAccessible</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Raised when a page cannot be accessed</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">page_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">status_code</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">page_url</span> <span class="o">=</span> <span class="n">page_url</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">status_code</span> <span class="o">=</span> <span class="n">status_code</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;Page </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">page_url</span><span class="si">}</span><span class="s1"> not accessible (status code </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s1">)&#39;</span></div>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Page </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">page_url</span><span class="si">}</span><span class="s2"> not accessible (status code </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">)&quot;</span></div>
 
 
 <div class="viewcode-block" id="WrongCredentialsException"><a class="viewcode-back" href="../../../network-api.html#pollyxt_pipelines.scc_access.exceptions.WrongCredentialsException">[docs]</a><span class="k">class</span> <span class="nc">WrongCredentialsException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Raised when login() fails due to wrong credentials&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;Raised when login() fails due to wrong credentials&quot;&quot;&quot;</span>
+
     <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="SCCError"><a class="viewcode-back" href="../../../network-api.html#pollyxt_pipelines.scc_access.exceptions.SCCError">[docs]</a><span class="k">class</span> <span class="nc">SCCError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Raised when an error message from SCC is parsed from the page body&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;Raised when an error message from SCC is parsed from the page body&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">errors</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">errors</span> <span class="o">=</span> <span class="n">errors</span>
@@ -109,18 +110,18 @@
 
 
 <div class="viewcode-block" id="MeasurementNotFound"><a class="viewcode-back" href="../../../network-api.html#pollyxt_pipelines.scc_access.exceptions.MeasurementNotFound">[docs]</a><span class="k">class</span> <span class="nc">MeasurementNotFound</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Raised when the requested measurement does not exist in the SCC database&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;Raised when the requested measurement does not exist in the SCC database&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">measurement_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">measurement_id</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">measurement_id</span> <span class="o">=</span> <span class="n">measurement_id</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;Measurement with ID </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">measurement_id</span><span class="si">}</span><span class="s1"> does not exist in the SCC database&#39;</span></div>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Measurement with ID </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">measurement_id</span><span class="si">}</span><span class="s2"> does not exist in the SCC database&quot;</span></div>
 
 
 <div class="viewcode-block" id="UnexpectedResponse"><a class="viewcode-back" href="../../../network-api.html#pollyxt_pipelines.scc_access.exceptions.UnexpectedResponse">[docs]</a><span class="k">class</span> <span class="nc">UnexpectedResponse</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Raised when the response is not OK and we don&#39;t have a concrete reason for it&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;Raised when the response is not OK and we don&#39;t have a concrete reason for it&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
@@ -128,9 +129,9 @@
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s1">&#39;SCC responded in an unknown way: &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span>
+            <span class="k">return</span> <span class="s2">&quot;SCC responded in an unknown way: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s1">&#39;SCC responded in an unknown way&#39;</span></div>
+            <span class="k">return</span> <span class="s2">&quot;SCC responded in an unknown way&quot;</span></div>
 </pre></div>
   <div class="t-pagination clearfix">
   </div>

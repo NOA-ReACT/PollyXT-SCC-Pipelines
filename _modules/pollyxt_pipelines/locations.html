@@ -77,12 +77,12 @@
     <div class="t-body yue">
       
   <h1>Source code for pollyxt_pipelines.locations</h1><div class="highlight"><pre>
-<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Contains information about locations</span>
 
 <span class="sd">Each location (i.e. SCC station) is defined in an .ini file. For some stations,</span>
 <span class="sd">the .ini files are included with the software but custom locations can be defined.</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">io</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
@@ -99,92 +99,94 @@
 
 
 <div class="viewcode-block" id="Location"><a class="viewcode-back" href="../../locations.html#pollyxt_pipelines.locations.Location">[docs]</a><span class="k">class</span> <span class="nc">Location</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Represents a physical location of PollyXT installation.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="sd">&#39;&#39;&#39;Location friendly name&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;Location friendly name&quot;&quot;&quot;</span>
 
     <span class="n">profile_name</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="sd">&#39;&#39;&#39;How are the WRF profile names prefixed&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;How are the WRF profile names prefixed&quot;&quot;&quot;</span>
+
+    <span class="n">sounding_provider</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="sd">&quot;&quot;&quot;Which radiosonde provider to use&quot;&quot;&quot;</span>
 
     <span class="n">scc_code</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="sd">&#39;&#39;&#39;SCC Station code&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;SCC Station code&quot;&quot;&quot;</span>
 
     <span class="n">lat</span><span class="p">:</span> <span class="nb">float</span>
-    <span class="sd">&#39;&#39;&#39;Latitude of station&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;Latitude of station&quot;&quot;&quot;</span>
 
     <span class="n">lon</span><span class="p">:</span> <span class="nb">float</span>
-    <span class="sd">&#39;&#39;&#39;Longitude of station&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;Longitude of station&quot;&quot;&quot;</span>
 
     <span class="n">altitude_asl</span><span class="p">:</span> <span class="nb">float</span>
-    <span class="sd">&#39;&#39;&#39;Altitude of station&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;Altitude of station&quot;&quot;&quot;</span>
 
     <span class="n">daytime_configuration</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="sd">&#39;&#39;&#39;SCC Lidar Configuration ID - Daytime&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;SCC Lidar Configuration ID - Daytime&quot;&quot;&quot;</span>
 
     <span class="n">nighttime_configuration</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="sd">&#39;&#39;&#39;SCC Lidar Configuration ID - Nightime&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;SCC Lidar Configuration ID - Nightime&quot;&quot;&quot;</span>
 
     <span class="n">channel_id</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
-    <span class="sd">&#39;&#39;&#39;List of channel IDs (for SCC `channel_ID` variable)&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;List of channel IDs (for SCC `channel_ID` variable)&quot;&quot;&quot;</span>
 
     <span class="n">background_low</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
-    <span class="sd">&#39;&#39;&#39;Value for the `Background_Low` variable&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;Value for the `Background_Low` variable&quot;&quot;&quot;</span>
 
     <span class="n">background_high</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
-    <span class="sd">&#39;&#39;&#39;Value for the `Background_High` variable&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;Value for the `Background_High` variable&quot;&quot;&quot;</span>
 
     <span class="n">lr_input</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
-    <span class="sd">&#39;&#39;&#39;Value for the `lr_input` variable&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;Value for the `lr_input` variable&quot;&quot;&quot;</span>
 
     <span class="n">temperature</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="sd">&#39;&#39;&#39;Temperature at the lidar station (`Temperature_at_Lidar_Station` variable)&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;Temperature at the lidar station (`Temperature_at_Lidar_Station` variable)&quot;&quot;&quot;</span>
 
     <span class="n">pressure</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="sd">&#39;&#39;&#39;Pressure at the lidar station (`Pressure_at_Lidar_Station` variable)&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;Pressure at the lidar station (`Pressure_at_Lidar_Station` variable)&quot;&quot;&quot;</span>
 
     <span class="n">total_channel_355_nm</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="sd">&#39;&#39;&#39;Index for the total channel (355nm)&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;Index for the total channel (355nm)&quot;&quot;&quot;</span>
 
     <span class="n">cross_channel_355_nm</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="sd">&#39;&#39;&#39;Index for the cross channel (355nm)&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;Index for the cross channel (355nm)&quot;&quot;&quot;</span>
 
     <span class="n">total_channel_532_nm</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="sd">&#39;&#39;&#39;Index for the total channel (532nm)&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;Index for the total channel (532nm)&quot;&quot;&quot;</span>
 
     <span class="n">cross_channel_532_nm</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="sd">&#39;&#39;&#39;Index for the cross channel (532nm)&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;Index for the cross channel (532nm)&quot;&quot;&quot;</span>
 
     <span class="n">calibration_355nm_channel_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calibration channel IDs for 355nm in this order:</span>
 <span class="sd">    - 355_plus_45_transmitted</span>
 <span class="sd">    - 355_plus_45_reflected</span>
 <span class="sd">    - 355_minus_45_transmitted</span>
 <span class="sd">    - 355_minus_45_reflected</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">calibration_532nm_channel_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calibration channel IDs for 532nm in this order:</span>
 <span class="sd">    - 532_plus_45_transmitted</span>
 <span class="sd">    - 532_plus_45_reflected</span>
 <span class="sd">    - 532_minus_45_transmitted</span>
 <span class="sd">    - 532_minus_45_reflected</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Location.print"><a class="viewcode-back" href="../../locations.html#pollyxt_pipelines.locations.Location.print">[docs]</a>    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prints this location as a Table in the terminal</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Key&quot;</span><span class="p">)</span>
         <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Value&quot;</span><span class="p">)</span>
 
-        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;profile_name&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile_name</span><span class="p">)</span>
         <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;scc_code&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">scc_code</span><span class="p">)</span>
         <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lat</span><span class="p">))</span>
         <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lon</span><span class="p">))</span>
@@ -200,36 +202,37 @@
         <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;cross_channel_355_nm&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cross_channel_355_nm</span><span class="p">))</span>
         <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;total_channel_532_nm&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_channel_532_nm</span><span class="p">))</span>
         <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;cross_channel_532_nm&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cross_channel_532_nm</span><span class="p">))</span>
-        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;calibration_355nm_channel_ids&quot;</span><span class="p">,</span>
-                      <span class="n">ints_to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calibration_355nm_channel_ids</span><span class="p">))</span>
-        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;calibration_532nm_channel_ids&quot;</span><span class="p">,</span>
-                      <span class="n">ints_to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calibration_532nm_channel_ids</span><span class="p">))</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+            <span class="s2">&quot;calibration_355nm_channel_ids&quot;</span><span class="p">,</span> <span class="n">ints_to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calibration_355nm_channel_ids</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span>
+            <span class="s2">&quot;calibration_532nm_channel_ids&quot;</span><span class="p">,</span> <span class="n">ints_to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calibration_532nm_channel_ids</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;profile_name&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile_name</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="s2">&quot;sounding_provider&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sounding_provider</span><span class="p">)</span>
 
         <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="location_from_section"><a class="viewcode-back" href="../../locations.html#pollyxt_pipelines.locations.location_from_section">[docs]</a><span class="k">def</span> <span class="nf">location_from_section</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">section</span><span class="p">:</span> <span class="n">SectionProxy</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Location</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a Location from a ConfigParser Section (SectionProxy)</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">channel_id</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-                  <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;channel_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
-    <span class="n">background_low</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-                      <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;background_low&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
-    <span class="n">background_high</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-                       <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;background_high&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
-    <span class="n">lr_input</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lr_input&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+    <span class="n">channel_id</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;channel_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+    <span class="n">background_low</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;background_low&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+    <span class="n">background_high</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;background_high&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+    <span class="n">lr_input</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lr_input&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
 
-    <span class="n">calibration_355nm_channel_ids</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-                                     <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_355nm_channel_ids&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
-    <span class="n">calibration_532nm_channel_ids</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-                                     <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_532nm_channel_ids&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+    <span class="n">calibration_355nm_channel_ids</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_355nm_channel_ids&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">calibration_532nm_channel_ids</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_532nm_channel_ids&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+    <span class="p">]</span>
 
     <span class="k">return</span> <span class="n">Location</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-        <span class="n">profile_name</span><span class="o">=</span><span class="n">section</span><span class="p">[</span><span class="s2">&quot;profile_name&quot;</span><span class="p">],</span>
         <span class="n">scc_code</span><span class="o">=</span><span class="n">section</span><span class="p">[</span><span class="s2">&quot;scc_code&quot;</span><span class="p">],</span>
         <span class="n">lat</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">),</span>
         <span class="n">lon</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">),</span>
@@ -247,20 +250,21 @@
         <span class="n">total_channel_532_nm</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;total_channel_532_nm&quot;</span><span class="p">),</span>
         <span class="n">cross_channel_532_nm</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;cross_channel_532_nm&quot;</span><span class="p">),</span>
         <span class="n">calibration_355nm_channel_ids</span><span class="o">=</span><span class="n">calibration_355nm_channel_ids</span><span class="p">,</span>
-        <span class="n">calibration_532nm_channel_ids</span><span class="o">=</span><span class="n">calibration_532nm_channel_ids</span>
+        <span class="n">calibration_532nm_channel_ids</span><span class="o">=</span><span class="n">calibration_532nm_channel_ids</span><span class="p">,</span>
+        <span class="n">sounding_provider</span><span class="o">=</span><span class="n">section</span><span class="p">[</span><span class="s2">&quot;sounding_provider&quot;</span><span class="p">],</span>
+        <span class="n">profile_name</span><span class="o">=</span><span class="n">section</span><span class="p">[</span><span class="s2">&quot;profile_name&quot;</span><span class="p">],</span>
     <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="read_locations"><a class="viewcode-back" href="../../locations.html#pollyxt_pipelines.locations.read_locations">[docs]</a><span class="k">def</span> <span class="nf">read_locations</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Location</span><span class="p">]:</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Reads all built-in and custom locations into a dictionary: name -&gt; Location</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">locations</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="c1"># Read built-in locations</span>
-    <span class="n">locations_buffer</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">(</span>
-        <span class="n">read_text</span><span class="p">(</span><span class="s2">&quot;pollyxt_pipelines.locations&quot;</span><span class="p">,</span> <span class="s2">&quot;locations.ini&quot;</span><span class="p">))</span>
+    <span class="n">locations_buffer</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">(</span><span class="n">read_text</span><span class="p">(</span><span class="s2">&quot;pollyxt_pipelines.locations&quot;</span><span class="p">,</span> <span class="s2">&quot;locations.ini&quot;</span><span class="p">))</span>
     <span class="n">locations_config</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="p">()</span>
     <span class="n">locations_config</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">locations_buffer</span><span class="p">)</span>
 
@@ -269,7 +273,7 @@
         <span class="n">locations</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">location_from_section</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">section</span><span class="p">)</span>
 
     <span class="c1"># Read custom locations</span>
-    <span class="n">location_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config_paths</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="s1">&#39;locations.ini&#39;</span>
+    <span class="n">location_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config_paths</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="s2">&quot;locations.ini&quot;</span>
     <span class="n">locations_config</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="p">()</span>
     <span class="n">locations_config</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">location_path</span><span class="p">)</span>
 
@@ -281,28 +285,28 @@
 
 
 <span class="n">LOCATIONS</span> <span class="o">=</span> <span class="n">read_locations</span><span class="p">()</span>
-<span class="sd">&#39;&#39;&#39;List of all known locations&#39;&#39;&#39;</span>
+<span class="sd">&quot;&quot;&quot;List of all known locations&quot;&quot;&quot;</span>
 
 
 <div class="viewcode-block" id="get_location_by_scc_code"><a class="viewcode-back" href="../../locations.html#pollyxt_pipelines.locations.get_location_by_scc_code">[docs]</a><span class="k">def</span> <span class="nf">get_location_by_scc_code</span><span class="p">(</span><span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Location</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns a location by its SCC code or `None` if it doesn&#39;t exist.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">for</span> <span class="n">loc</span> <span class="ow">in</span> <span class="n">LOCATIONS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">loc</span> <span class="ow">in</span> <span class="n">LOCATIONS</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">loc</span><span class="o">.</span><span class="n">scc_code</span> <span class="o">==</span> <span class="n">code</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">loc</span>
     <span class="k">return</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="unknown_location_error"><a class="viewcode-back" href="../../locations.html#pollyxt_pipelines.locations.unknown_location_error">[docs]</a><span class="k">def</span> <span class="nf">unknown_location_error</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Prints an error message that the given location is not found, along with a</span>
 <span class="sd">    list of known locations</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">error</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;[error]Could not find location[/error]</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">[error]</span><span class="se">\n</span><span class="s1">Known locations:</span><span class="se">\n\n</span><span class="s1">.&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">error</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[error]Could not find location[/error]</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">[error]</span><span class="se">\n</span><span class="s2">Known locations:</span><span class="se">\n\n</span><span class="s2">.&quot;</span>
     <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">LOCATIONS</span><span class="p">:</span>
-        <span class="n">error</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;* </span><span class="si">{</span><span class="n">l</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">error</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;* </span><span class="si">{</span><span class="n">l</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
 
     <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">Markdown</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
 </pre></div>

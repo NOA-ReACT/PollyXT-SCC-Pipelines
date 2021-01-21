@@ -55,6 +55,8 @@
 <li class="toctree-l1"><a class="reference internal" href="locations.html">Locations</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Converting to SCC Format</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#merging-of-raw-files">Merging of raw files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#selecting-time-range-for-output-files">Selecting time range for output files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#sounding">Sounding</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#calibration">Calibration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a></li>
@@ -105,13 +107,41 @@ command. It can operate on single files or whole directories.</p>
 <li><p><code class="code docutils literal notranslate"><span class="pre">--interval=</span></code>: Set the interval (in minutes), in which to split PollyXT files.</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">--no-radiosonde</span></code>: Do not create sounding files</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">--no-calibration</span></code>: Do not create calibration files</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">--start-time</span></code>: Manually set the start time for the first output file (in HH:MM format). Useful for starting your output at an offset, for example 09:30.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">--start-time</span></code>: When to start the first file (see below for format). If <code class="xref py py-obj docutils literal notranslate"><span class="pre">end-hour</span></code> is defined, a file of the chosen length will be created. Otherwise the intervals will start from this time.</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">--end-time</span></code>: In combination with <code class="code docutils literal notranslate"><span class="pre">--start-time</span></code>, you can also set the end time. For example, you could generate a file from
 09:42 up until 10:11. Cannot be used without <code class="code docutils literal notranslate"><span class="pre">--start-time</span></code>.</p></li>
 </ul>
 <p>The files are by default split in 1 hour files when they are converted to SCC files.
 This interval can be changed with the <code class="code docutils literal notranslate"><span class="pre">--interval=</span></code> option.</p>
 <p>The location is required to determine the measurement ID, as well as the SCC system ID.</p>
+</div>
+<div class="section" id="merging-of-raw-files">
+<h2>Merging of raw files<a class="headerlink" href="#merging-of-raw-files" title="Permalink to this headline">¶</a></h2>
+<p>When passing a directory path to <code class="code docutils literal notranslate"><span class="pre">input</span></code>, the input files are automatically
+merged if required by the output. Consider the following example:</p>
+<ul class="simple">
+<li><p>Two input files, one from 00:00 up until 05:45, and one from 05:45 up until 12:00.</p></li>
+<li><p>We want to generate hourly output files from 00:00 until 12:00.</p></li>
+</ul>
+<p>The program will generate files as normal from 00:00 until 05:00. The file
+corresponding to 05:00-06:00 will automatically use data from <em>both</em> input files.
+The rest will continue normally, using data only from the second input file.</p>
+</div>
+<div class="section" id="selecting-time-range-for-output-files">
+<h2>Selecting time range for output files<a class="headerlink" href="#selecting-time-range-for-output-files" title="Permalink to this headline">¶</a></h2>
+<p>By default, the first output file will start at the first available measurement of
+the raw files and will end one interval (<code class="code docutils literal notranslate"><span class="pre">--interval=</span></code>) length afterwards. This will be repeated
+until the application runs out of raw data. You can configure the time of the first output file using
+<code class="code docutils literal notranslate"><span class="pre">--start-time=</span></code> with the following time formats:</p>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">--start-time=XX:MM</span></code>: Start at the first hour which has :MM available. (e.g. XX:30)</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">--start-time=HH:MM</span></code>: Start at the first available day, exactly at HH:MM (24-hour time, e.g. 14:30)</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">--start-time=YYYY-mm-DD_HH:MM</span></code>: Start exactly at the given date and time, useful for when the input directory contains many days of measurements (e.g. 2019-12-04_14:30).</p></li>
+</ul>
+<p>When using <code class="code docutils literal notranslate"><span class="pre">--start-time=</span></code>, instead of generating until you run out of intervals,
+you can optionally use <code class="code docutils literal notranslate"><span class="pre">--end-time=</span></code> to set exactly where the output file should
+start and end. When using both <code class="code docutils literal notranslate"><span class="pre">--start-time=</span></code> and <code class="code docutils literal notranslate"><span class="pre">--end-time=</span></code>, the
+application will create only one file. The datetime formats are the same for both options.</p>
 </div>
 <div class="section" id="sounding">
 <h2>Sounding<a class="headerlink" href="#sounding" title="Permalink to this headline">¶</a></h2>
@@ -168,11 +198,15 @@ the <code class="code docutils literal notranslate"><span class="pre">scc_data</
 </div>
 <p>Convert one file from Antikythera to SCC format, 30-minute interval, no calibration and
 no radiosonde files:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines create-scc 2019_06_02_Sun_NOA_06_00_01.nc Antikythera ./scc_data --no-calibration --no-radiosonde
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines create-scc 2019_06_02_Sun_NOA_06_00_01.nc Antikythera ./scc_data --no-calibration --no-radiosonde --interval<span class="o">=</span><span class="m">30</span>
 </pre></div>
 </div>
 <p>Create hourly files that start at 09:30 (assuming this time exists in the raw file):</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines create-scc 2019_06_02_Sun_NOA_06_00_01.nc Antikythera ./scc_data --no-calibration --no-radiosonde --start-time<span class="o">=</span><span class="m">09</span>:30
+</pre></div>
+</div>
+<p>Create hourly files that start at the first available :30:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines create-scc 2019_06_02_Sun_NOA_06_00_01.nc Antikythera ./scc_data --no-calibration --no-radiosonde --start-time<span class="o">=</span>XX:30
 </pre></div>
 </div>
 <p>Create one file that start at 09:30 and ends at 12:34 (assuming this time exists in the raw file):</p>
@@ -192,9 +226,48 @@ are inside <code class="code docutils literal notranslate"><span class="pre">pol
 <p>Routines related to PollyXT files</p>
 <dl class="py class">
 <dt id="pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile">
-<em class="property">class </em><code class="sig-prename descclassname">pollyxt_pipelines.polly_to_scc.pollyxt.</code><code class="sig-name descname">PollyXTFile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_path</span></em>, <em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em>, <em class="sig-param"><span class="n">nan_calibration</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#PollyXTFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pollyxt_pipelines.polly_to_scc.pollyxt.</code><code class="sig-name descname">PollyXTFile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_path</span></em>, <em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">end</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nan_calibration</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#PollyXTFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Reads the variables of interest from a PollyXT netCDF file.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository">
+<em class="property">class </em><code class="sig-prename descclassname">pollyxt_pipelines.polly_to_scc.pollyxt.</code><code class="sig-name descname">PollyXTRepository</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#PollyXTRepository"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents a collection of PollyXT netCDF files. Provides facilities for reading data from such
+files, even across single-file boundaries.</p>
+<dl class="py method">
+<dt id="pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository.get_pollyxt_file">
+<code class="sig-name descname">get_pollyxt_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">time_start</span></em>, <em class="sig-param"><span class="n">time_end</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#PollyXTRepository.get_pollyxt_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository.get_pollyxt_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a PollyXTFile for the given time range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_start</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code>) – First measurement to include</p></li>
+<li><p><strong>time_end</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code>) – Last measurement to include</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The PollyXTFile file for the requested period.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository.get_time_period">
+<code class="sig-name descname">get_time_period</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#PollyXTRepository.get_time_period"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository.get_time_period" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the time period available in this repository</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code>]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A tuple containing the first and last available timestamps</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py function">
@@ -229,6 +302,23 @@ and the second column contains each measurement’s delta from the date, in seco
 </dl>
 </dd></dl>
 
+<dl class="py function">
+<dt id="pollyxt_pipelines.polly_to_scc.pollyxt.polly_date_to_datetime">
+<code class="sig-prename descclassname">pollyxt_pipelines.polly_to_scc.pollyxt.</code><code class="sig-name descname">polly_date_to_datetime</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">timestamp</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#polly_date_to_datetime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.polly_date_to_datetime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a PollyXT Date to a Python object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>timestamp</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – PollyXT timestamp in two-integer format: 1) date as YYYYMMDD 2) seconds since start of day</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A datetime object</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 <div class="section" id="module-pollyxt_pipelines.polly_to_scc.scc_netcdf">
 <span id="scc-file-related-routines"></span><h3>SCC file related routines<a class="headerlink" href="#module-pollyxt_pipelines.polly_to_scc.scc_netcdf" title="Permalink to this headline">¶</a></h3>
@@ -254,27 +344,29 @@ as the given <code class="xref py py-obj docutils literal notranslate"><span cla
 
 <dl class="py function">
 <dt id="pollyxt_pipelines.polly_to_scc.scc_netcdf.convert_pollyxt_file">
-<code class="sig-prename descclassname">pollyxt_pipelines.polly_to_scc.scc_netcdf.</code><code class="sig-name descname">convert_pollyxt_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_path</span></em>, <em class="sig-param"><span class="n">output_path</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">interval</span></em>, <em class="sig-param"><span class="n">use_sounding</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">should_round</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">calibration</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">start_time</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">end_time</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/scc_netcdf.html#convert_pollyxt_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.scc_netcdf.convert_pollyxt_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Converts a PollyXT file into a bunch of SCC files. The input file will be split into intervals before being converted
-to the new format.</p>
+<code class="sig-prename descclassname">pollyxt_pipelines.polly_to_scc.scc_netcdf.</code><code class="sig-name descname">convert_pollyxt_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">repo</span></em>, <em class="sig-param"><span class="n">output_path</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">interval</span></em>, <em class="sig-param"><span class="n">use_sounding</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">should_round</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">calibration</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">start_time</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">end_time</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/scc_netcdf.html#convert_pollyxt_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.scc_netcdf.convert_pollyxt_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a pollyXT repository into a collection of SCC files. The input files will be split/merged into intervals
+before being converted to the new format.</p>
 <p>This function is a generator, so you can use it in a for loop to monitor progress:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">measurement_id</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">convert_pollyxt_file</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
-    <span class="c1"># Do something with id/path, maybe print a message?</span>
-</pre></div>
-</div>
+<blockquote>
+<div><dl class="simple">
+<dt>for measurement_id, path, start_time, end_time in convert_pollyxt_file(…):</dt><dd><p># Do something with id/path, maybe print a message?</p>
+</dd>
+</dl>
+</div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>input_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – PollyXT file to convert</p></li>
+<li><p><strong>repo</strong> (<a class="reference internal" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository" title="pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository"><code class="xref py py-class docutils literal notranslate"><span class="pre">PollyXTRepository</span></code></a>) – PollyXT file to convert</p></li>
 <li><p><strong>output_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Directory to write the SCC files</p></li>
 <li><p><strong>location</strong> (<a class="reference internal" href="locations.html#pollyxt_pipelines.locations.Location" title="pollyxt_pipelines.locations.Location"><code class="xref py py-class docutils literal notranslate"><span class="pre">Location</span></code></a>) – Geographical information, where the measurement took place</p></li>
 <li><p><strong>interval</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code>) – What interval to use when splitting the PollyXT file (e.g. 1 hour)</p></li>
 <li><p><strong>use_rounding</strong> – Whether the generated files will use radiosondes or not.</p></li>
 <li><p><strong>should_round</strong> – If true, the interval starts will be rounded down. For example, from 01:02 to 01:00.</p></li>
 <li><p><strong>calibration</strong> – Set to False to disable generation of calibration files.</p></li>
-<li><p><strong>start_hour</strong> – Optionally, set when the first file should start. The intervals will start from here. (HH:MM format, string)</p></li>
+<li><p><strong>start_hour</strong> – Optionally, set when the first file should start. The intervals will start from here. (HH:MM or YYYY-MM-DD_HH:MM format, string)</p></li>
 <li><p><strong>end_hour</strong> – Optionally, also set the end time. Must be used with <code class="xref py py-obj docutils literal notranslate"><span class="pre">start_hour</span></code>. If this is set, only one output file
-is generated, for your target interval (HH:MM format, string).</p></li>
+is generated, for your target interval (HH:MM or YYYY-MM-DD_HH:MM format, string).</p></li>
 </ul>
 </dd>
 </dl>

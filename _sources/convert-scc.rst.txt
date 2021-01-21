@@ -20,7 +20,7 @@ Usage
 * :code:`--interval=`: Set the interval (in minutes), in which to split PollyXT files.
 * :code:`--no-radiosonde`: Do not create sounding files
 * :code:`--no-calibration`: Do not create calibration files
-* :code:`--start-time`: Manually set the start time for the first output file (in HH:MM format). Useful for starting your output at an offset, for example 09:30.
+* :code:`--start-time`: When to start the first file (see below for format). If `end-hour` is defined, a file of the chosen length will be created. Otherwise the intervals will start from this time.
 * :code:`--end-time`: In combination with :code:`--start-time`, you can also set the end time. For example, you could generate a file from
   09:42 up until 10:11. Cannot be used without :code:`--start-time`.
 
@@ -31,6 +31,36 @@ This interval can be changed with the :code:`--interval=` option.
 The location is required to determine the measurement ID, as well as the SCC system ID.
 
 
+Merging of raw files
+====================
+
+When passing a directory path to :code:`input`, the input files are automatically
+merged if required by the output. Consider the following example:
+
+- Two input files, one from 00:00 up until 05:45, and one from 05:45 up until 12:00.
+- We want to generate hourly output files from 00:00 until 12:00.
+
+The program will generate files as normal from 00:00 until 05:00. The file
+corresponding to 05:00-06:00 will automatically use data from *both* input files.
+The rest will continue normally, using data only from the second input file.
+
+
+Selecting time range for output files
+=====================================
+
+By default, the first output file will start at the first available measurement of
+the raw files and will end one interval (:code:`--interval=`) length afterwards. This will be repeated
+until the application runs out of raw data. You can configure the time of the first output file using
+:code:`--start-time=` with the following time formats:
+
+* :code:`--start-time=XX:MM`: Start at the first hour which has :MM available. (e.g. XX:30)
+* :code:`--start-time=HH:MM`: Start at the first available day, exactly at HH:MM (24-hour time, e.g. 14:30)
+* :code:`--start-time=YYYY-mm-DD_HH:MM`: Start exactly at the given date and time, useful for when the input directory contains many days of measurements (e.g. 2019-12-04_14:30).
+
+When using :code:`--start-time=`, instead of generating until you run out of intervals,
+you can optionally use :code:`--end-time=` to set exactly where the output file should
+start and end. When using both :code:`--start-time=` and :code:`--end-time=`, the
+application will create only one file. The datetime formats are the same for both options.
 
 Sounding
 ========
@@ -105,7 +135,7 @@ no radiosonde files:
 
 .. code-block:: sh
 
-  pollyxt_pipelines create-scc 2019_06_02_Sun_NOA_06_00_01.nc Antikythera ./scc_data --no-calibration --no-radiosonde
+  pollyxt_pipelines create-scc 2019_06_02_Sun_NOA_06_00_01.nc Antikythera ./scc_data --no-calibration --no-radiosonde --interval=30
 
 
 Create hourly files that start at 09:30 (assuming this time exists in the raw file):
@@ -113,6 +143,13 @@ Create hourly files that start at 09:30 (assuming this time exists in the raw fi
 .. code-block:: sh
 
   pollyxt_pipelines create-scc 2019_06_02_Sun_NOA_06_00_01.nc Antikythera ./scc_data --no-calibration --no-radiosonde --start-time=09:30
+
+
+Create hourly files that start at the first available :30:
+
+.. code-block:: sh
+
+  pollyxt_pipelines create-scc 2019_06_02_Sun_NOA_06_00_01.nc Antikythera ./scc_data --no-calibration --no-radiosonde --start-time=XX:30
 
 
 Create one file that start at 09:30 and ends at 12:34 (assuming this time exists in the raw file):
