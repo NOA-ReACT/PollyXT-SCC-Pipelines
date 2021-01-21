@@ -407,9 +407,12 @@ def convert_pollyxt_file(
             start, end = calibration_to_datetime(measurement_start, period)
 
             if start > measurement_start and end < measurement_end:
-                pf = repo.get_pollyxt_file(start, end)
-                id, path = create_scc_calibration_netcdf(
-                    pf, output_path, location, wavelength=Wavelength.NM_532
-                )
+                try:
+                    pf = repo.get_pollyxt_file(start, end)
+                    id, path = create_scc_calibration_netcdf(
+                        pf, output_path, location, wavelength=Wavelength.NM_532
+                    )
 
-                yield id, path, start, end
+                    yield id, path, start, end
+                except NoMeasurementsInTimePeriod:
+                    pass
