@@ -91,7 +91,7 @@ def date_option_to_datetime(today: datetime, string: str) -> datetime:
 
     minutes_match = re.search(r"^XX:[0-5]\d$", string)
     if minutes_match is not None:
-        minute = int(string[-2])
+        minute = int(string[-2:])
         if today.replace(minute=minute) < today:
             return (today + timedelta(hours=1)).replace(minute=minute)
         else:

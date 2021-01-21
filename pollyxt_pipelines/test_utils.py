@@ -27,12 +27,21 @@ class TestDateOptionToDatetime:
         assert result == measurement_start.replace(hour=12, minute=00)
 
     def test_minute(self):
+        # Minutes not available in first hour
         measurement_start = datetime.strptime("2020-01-01_01:23", "%Y-%m-%d_%H:%M")
-        string = "XX:00"
+        string = "XX:02"
 
         result = date_option_to_datetime(measurement_start, string)
 
-        assert result == measurement_start.replace(hour=2, minute=0)
+        assert result == measurement_start.replace(hour=2, minute=2)
+
+        # Minutes available in first hour
+        measurement_start = datetime.strptime("2020-01-01_01:23", "%Y-%m-%d_%H:%M")
+        string = "XX:31"
+
+        result = date_option_to_datetime(measurement_start, string)
+
+        assert result == measurement_start.replace(minute=31)
 
     def test_invalid_input(self):
         measurement_start = datetime.today()  # This doesn't matter much
