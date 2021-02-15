@@ -1,3 +1,6 @@
+# v1.6.1
+- ✨ Add `HH:MM:SS` and `YYYY-mm-DD HH:MM:SS` as possible date input formats.
+
 # v1.6.0
 - ✨ Added merging of raw files
 - ✨ Added the concept of radiosonde providers in order to support different filetypes for sounding
