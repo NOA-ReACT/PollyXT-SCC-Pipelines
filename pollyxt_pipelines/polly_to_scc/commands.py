@@ -118,7 +118,7 @@ class CreateSCC(Command):
                     location,
                     timestamp_start,
                     timestamp_start + interval,
-                    netcdf_path=output_path / f"rs{id[:-2]}.nc",
+                    netcdf_path=output_path / f"rs_{id[:-2]}.nc",
                 )
 
         console.print("\n[info]Done![/info]")
