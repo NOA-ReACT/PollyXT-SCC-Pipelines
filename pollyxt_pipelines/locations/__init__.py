@@ -194,7 +194,7 @@ def read_locations() -> Dict[str, Location]:
         locations[name] = location_from_section(name, section)
 
     # Read custom locations
-    location_path = Path(config.config_paths()[-1]) / "locations.ini"
+    location_path = Path(config.config_paths()[-1]).parent / "locations.ini"
     locations_config = ConfigParser()
     locations_config.read(location_path)
 
