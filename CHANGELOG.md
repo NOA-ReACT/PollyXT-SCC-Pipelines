@@ -1,3 +1,7 @@
+# v1.6.2
+- 🐜 Fix radiosonde files being named `rsYYYYMMDD.nc` instead of `rs_YYYYMMDD.nc`
+- 🐜 Fix loading of user locations
+
 # v1.6.1
 - ✨ Add `HH:MM:SS` and `YYYY-mm-DD HH:MM:SS` as possible date input formats.
 
