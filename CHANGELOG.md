@@ -1,3 +1,6 @@
+# v1.6.3
+- 🐜 Fix %APPDATA% not being expanded in locations path.
+
 # v1.6.2
 - 🐜 Fix radiosonde files being named `rsYYYYMMDD.nc` instead of `rs_YYYYMMDD.nc`
 - 🐜 Fix loading of user locations
