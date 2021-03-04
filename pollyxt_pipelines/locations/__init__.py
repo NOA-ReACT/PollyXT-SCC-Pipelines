@@ -6,7 +6,8 @@ the .ini files are included with the software but custom locations can be define
 """
 
 import io
-from pathlib import Path
+import os
+from pathlib import Path, WindowsPath
 from importlib.resources import read_text
 from configparser import ConfigParser, SectionProxy
 from typing import NamedTuple, Union, Dict, List
@@ -194,7 +195,9 @@ def read_locations() -> Dict[str, Location]:
         locations[name] = location_from_section(name, section)
 
     # Read custom locations
-    location_path = Path(config.config_paths()[-1]).parent / "locations.ini"
+    location_path = (
+        Path(os.path.expandvars(config.config_paths()[-1])).resolve().parent / "locations.ini"
+    )
     locations_config = ConfigParser()
     locations_config.read(location_path)
 
