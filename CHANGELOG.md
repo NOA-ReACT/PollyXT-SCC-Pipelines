@@ -1,3 +1,8 @@
+# v1.6.4
+- ✨ `create-scc`: Add `--system-id-day=` and `--system-id-night=` options to override configuration IDs without making a new location.
+- 🐜 Fix %APPDATA% not being expanded in locations path (for real this time).
+- 🛠 Rewrite how config paths are handles, this should fix most config-related issues.
+
 # v1.6.3
 - 🐜 Fix %APPDATA% not being expanded in locations path.
 
