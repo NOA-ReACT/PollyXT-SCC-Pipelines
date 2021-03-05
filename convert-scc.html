@@ -110,6 +110,8 @@ command. It can operate on single files or whole directories.</p>
 <li><p><code class="code docutils literal notranslate"><span class="pre">--start-time</span></code>: When to start the first file (see below for format). If <code class="xref py py-obj docutils literal notranslate"><span class="pre">end-hour</span></code> is defined, a file of the chosen length will be created. Otherwise the intervals will start from this time.</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">--end-time</span></code>: In combination with <code class="code docutils literal notranslate"><span class="pre">--start-time</span></code>, you can also set the end time. For example, you could generate a file from
 09:42 up until 10:11. Cannot be used without <code class="code docutils literal notranslate"><span class="pre">--start-time</span></code>.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">--system-id-day=</span></code>: Optionally, override the system configuration ID used for morning measurements.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">--system-id-night=</span></code>: Optionally, override the system configuration ID used for night measurements.</p></li>
 </ul>
 <p>The files are by default split in 1 hour files when they are converted to SCC files.
 This interval can be changed with the <code class="code docutils literal notranslate"><span class="pre">--interval=</span></code> option.</p>
@@ -207,6 +209,10 @@ no radiosonde files:</p>
 </div>
 <p>Create hourly files that start at the first available :30:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines create-scc 2019_06_02_Sun_NOA_06_00_01.nc Antikythera ./scc_data --no-calibration --no-radiosonde --start-time<span class="o">=</span>XX:30
+</pre></div>
+</div>
+<p>Create hourly files that start at exactly 10:30 and override configuration ID to be 123. Do not use radiosondes and do not generate calibration files.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines create-scc 2019_06_02_Sun_NOA_06_00_01.nc Antikythera ./scc_data --no-calibration --no-radiosonde --start-time<span class="o">=</span><span class="m">10</span>:30 --system-id-day<span class="o">=</span><span class="m">123</span> --system-id-night<span class="o">=</span><span class="m">123</span>
 </pre></div>
 </div>
 <p>Create one file that start at 09:30 and ends at 12:34 (assuming this time exists in the raw file):</p>

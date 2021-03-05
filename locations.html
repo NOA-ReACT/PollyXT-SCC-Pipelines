@@ -123,6 +123,7 @@ daytime and nightime</p></li>
 </dd>
 </dl>
 </li>
+<li><p><strong>Sounding provider</strong> (<code class="code docutils literal notranslate"><span class="pre">sounding_provider</span></code>): Which provider to use for radiosonde files.</p></li>
 </ul>
 <p>For the arrays, you can input values separated by commas (see example below). Currently, the application
 has a built-in registry containing information about two stations, <em>Antikythera</em> and <em>Finokalia</em>.</p>
@@ -150,7 +151,6 @@ pollyxt_pipelines locations-path --user <span class="c1"># Print only the user&#
 </div>
 <p>The file is ini-formatted, where each section is a station name. For example:</p>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[Antikythera]</span>
-<span class="na">profile_name</span> <span class="o">=</span> <span class="s">ANTIKYTHERA</span>
 <span class="na">scc_code</span> <span class="o">=</span> <span class="s">aky</span>
 <span class="na">lat</span> <span class="o">=</span> <span class="s">23.3100</span>
 <span class="na">lon</span> <span class="o">=</span> <span class="s">35.8600</span>
@@ -169,6 +169,8 @@ pollyxt_pipelines locations-path --user <span class="c1"># Print only the user&#
 <span class="na">cross_channel_532_nm</span> <span class="o">=</span> <span class="s">5</span>
 <span class="na">calibration_355nm_channel_ids</span> <span class="o">=</span> <span class="s">1236, 1266, 1267, 1268</span>
 <span class="na">calibration_532nm_channel_ids</span> <span class="o">=</span> <span class="s">1269, 1270, 1271, 1272</span>
+<span class="na">profile_name</span> <span class="o">=</span> <span class="s">ANTIKYTHERA</span>
+<span class="na">sounding_provider</span> <span class="o">=</span> <span class="s">noa_wrf</span>
 </pre></div>
 </div>
 <p>You can add more than one location in the same file. Verify that it worked by running <code class="code docutils literal notranslate"><span class="pre">pollyxt_pipelines</span> <span class="pre">locations-show</span> <span class="pre">--detail</span></code>
