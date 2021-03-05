@@ -3,7 +3,7 @@ Helper functions and command for the app's config
 Import the `Config` function to use it.
 """
 
-import logging
+import os.path
 from configparser import ConfigParser
 from pathlib import Path
 from typing import List
@@ -16,22 +16,23 @@ from pollyxt_pipelines.console import console
 
 def config_paths() -> List[str]:
     """
-    Returns the config path for each platform.
+    Returns the config directory paths for each platform.
     The last one returned is the user config path and should be
     used for writing.
     """
 
     os_name = platform.system()
     if os_name == "Windows":
-        paths = [Path("%APPDATA%/PollyXT_Pipelines/pollyxt_pipelines.ini").resolve()]
+        path = os.path.expandvars("%APPDATA%/PollyXT_Pipelines/")
+        paths = [Path(path)]
     elif os_name == "Linux":
         paths = [
-            Path("/etc/pollyxt_pipelines/pollyxt_pipelines.ini"),
-            Path("~/.config/pollyxt_pipelines/pollyxt_pipelines.ini").expanduser(),
+            Path("/etc/pollyxt_pipelines/"),
+            Path("~/.config/pollyxt_pipelines/").expanduser(),
         ]
     else:
-        print("Unknown operating system! Using `./pollyxt_pipelines.ini` as config!")
-        paths = [Path("./pollyxt_pipelines.ini").expanduser()]
+        print("Unknown operating system! Using `./` as config directory!")
+        paths = [Path("./").expanduser()]
     return paths
 
 
@@ -41,7 +42,7 @@ class Config:
     """
 
     def __init__(self):
-        self.paths = config_paths()
+        self.paths = [path / "pollyxt_pipelines.ini" for path in config_paths()]
         self.parser = ConfigParser()
         self.parser.read(self.paths)
 
