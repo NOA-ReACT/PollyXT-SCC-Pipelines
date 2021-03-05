@@ -5,7 +5,6 @@ Commands for creating SCC files
 from datetime import timedelta
 from pathlib import Path
 
-from rich.progress import track
 from cleo import Command
 
 from pollyxt_pipelines.console import console
@@ -29,6 +28,8 @@ class CreateSCC(Command):
         {--round : When set, output files will start on rounded down hours if possible (e.g. from 00:12 to 00:00, 01:42 to 01:00, etc)}
         {--no-radiosonde : If set, no radiosonde files will be created}
         {--no-calibration : Do not create calibration files}
+        {--system-id-day= : Optionally *override* the day system ID with a custom value.}
+        {--system-id-night= : Optionally *override* the night system ID with a custom value.}
     """
 
     help = """
@@ -72,6 +73,20 @@ class CreateSCC(Command):
         if start_time is None and end_time is not None:
             console.print("`--end-time` [error]can't be used without[/error] `--start-time`.")
             return 1
+        system_id_day = self.option("system-id-day")
+        if system_id_day is not None:
+            try:
+                system_id_day = int(system_id_day)
+            except ValueError:
+                console.print("[error]Value for system-id-day is not convertable to int![/error]")
+                return 1
+        system_id_night = self.option("system-id-night")
+        if system_id_night is not None:
+            try:
+                system_id_night = int(system_id_night)
+            except ValueError:
+                console.print("[error]Value for system-id-night is not convertable to int![/error]")
+                return 1
 
         # Try to get location
         location_name = self.argument("location")
@@ -79,6 +94,12 @@ class CreateSCC(Command):
         if location is None:
             locations.unknown_location_error(location_name)
             return 1
+
+        # If system IDs are set, override them in the current location
+        if system_id_day is not None:
+            location = location._replace(daytime_configuration=system_id_day)
+        if system_id_night is not None:
+            location = location._replace(nighttime_configuration=system_id_night)
 
         # Create a repository for the given path
         try:

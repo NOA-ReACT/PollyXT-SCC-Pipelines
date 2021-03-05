@@ -23,6 +23,8 @@ Usage
 * :code:`--start-time`: When to start the first file (see below for format). If `end-hour` is defined, a file of the chosen length will be created. Otherwise the intervals will start from this time.
 * :code:`--end-time`: In combination with :code:`--start-time`, you can also set the end time. For example, you could generate a file from
   09:42 up until 10:11. Cannot be used without :code:`--start-time`.
+* :code:`--system-id-day=`: Optionally, override the system configuration ID used for morning measurements.
+* :code:`--system-id-night=`: Optionally, override the system configuration ID used for night measurements.
 
 
 The files are by default split in 1 hour files when they are converted to SCC files.
@@ -150,6 +152,13 @@ Create hourly files that start at the first available :30:
 .. code-block:: sh
 
   pollyxt_pipelines create-scc 2019_06_02_Sun_NOA_06_00_01.nc Antikythera ./scc_data --no-calibration --no-radiosonde --start-time=XX:30
+
+
+Create hourly files that start at exactly 10:30 and override configuration ID to be 123. Do not use radiosondes and do not generate calibration files.
+
+.. code-block:: sh
+
+  pollyxt_pipelines create-scc 2019_06_02_Sun_NOA_06_00_01.nc Antikythera ./scc_data --no-calibration --no-radiosonde --start-time=10:30 --system-id-day=123 --system-id-night=123
 
 
 Create one file that start at 09:30 and ends at 12:34 (assuming this time exists in the raw file):
