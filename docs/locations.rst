@@ -30,6 +30,7 @@ contains the station's coordinates and the related IDs for SCC. Specifically, fo
     #. :code:`plus_45_reflected`
     #. :code:`minus_45_transmitted`
     #. :code:`minus_45_reflected`
+* **Sounding provider** (:code:`sounding_provider`): Which provider to use for radiosonde files.
 
 For the arrays, you can input values separated by commas (see example below). Currently, the application
 has a built-in registry containing information about two stations, *Antikythera* and *Finokalia*.
@@ -69,7 +70,6 @@ The file is ini-formatted, where each section is a station name. For example:
 .. code-block:: ini
 
   [Antikythera]
-  profile_name = ANTIKYTHERA
   scc_code = aky
   lat = 23.3100
   lon = 35.8600
@@ -88,6 +88,8 @@ The file is ini-formatted, where each section is a station name. For example:
   cross_channel_532_nm = 5
   calibration_355nm_channel_ids = 1236, 1266, 1267, 1268
   calibration_532nm_channel_ids = 1269, 1270, 1271, 1272
+  profile_name = ANTIKYTHERA
+  sounding_provider = noa_wrf
 
 You can add more than one location in the same file. Verify that it worked by running :code:`pollyxt_pipelines locations-show --detail`
 when you are done.
