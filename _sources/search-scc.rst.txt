@@ -19,12 +19,30 @@ Searching
 * :code:`date-start` :badge-blue:`required`: First day to search (inclusive)
 * :code:`date-end` :badge-blue:`required`: Last day to search (exclusive)
 * :code:`--location=`: Optionally filter by a measurement station
+* :code:`--detailed-status`: Fetch processing status codes (eg. 127) for each product. This option **must** be used with :code:`--to-csv=`.
 * :code:`--to-csv=`: Optionally store the results in a CSV file. This file can also be used with :code:`scc-download`
 
 
-This command should output a table with all measurements for the given time period and the available products.
+This command should output a table with all measurements for the given time period and the available products. When using
+:code:`--detailed-status`, the resulting CSV will contain the processing status codes for each product. This option requires at least N
+request for N measurements so it should be avoided if not required.
+
+Sample CSV file (without :code:`--detailed-status`):
+
+.. code-block:: csv
+    id,station_id,location,date_start,date_end,date_creation,date_updated,hirelpp,cloudmask,elpp,elda,eldec,elic,elquick,is_processing
+    20210307aky0930,Antikythera,aky,2021-03-07T09:30:00,2021-03-07T10:30:00,2021-03-07T13:46:00,2021-03-07T13:46:00,OK,OK,OK,ERROR,NO_RUN,NO_RUN,OK,OK
+    20210307aky1030,Antikythera,aky,2021-03-07T10:30:00,2021-03-07T11:30:00,2021-03-07T13:46:00,2021-03-07T13:46:00,OK,OK,OK,ERROR,NO_RUN,NO_RUN,OK,OK
+    20210307aky1130,Antikythera,aky,2021-03-07T11:30:00,2021-03-07T12:30:00,2021-03-07T13:46:00,2021-03-07T13:46:00,OK,OK,OK,ERROR,NO_RUN,NO_RUN,OK,OK
 
 
+Sample CSV file (with :code:`--detailed-status`):
+
+.. code-block:: csv
+    station_id,location,date_start,date_end,date_creation,date_updated,upload,hirelpp,cloudmask,elpp,elic
+    20210307aky0930,Antikythera,aky,2021-03-07T09:30:00,2021-03-07T10:30:00,2021-03-07T13:46:00,2021-03-07T13:46:00,127,127,127,-127,127
+    20210307aky1030,Antikythera,aky,2021-03-07T10:30:00,2021-03-07T11:30:00,2021-03-07T13:46:00,2021-03-07T13:46:00,127,127,127,-127,127
+    20210307aky1130,Antikythera,aky,2021-03-07T11:30:00,2021-03-07T12:30:00,2021-03-07T13:46:00,2021-03-07T13:46:00,127,127,127,-127,127
 
 
 Downloading

@@ -98,9 +98,14 @@ files of interest.</p>
 <li><p><code class="code docutils literal notranslate"><span class="pre">date-start</span></code> <span class="badge badge-blue">required</span>: First day to search (inclusive)</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">date-end</span></code> <span class="badge badge-blue">required</span>: Last day to search (exclusive)</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">--location=</span></code>: Optionally filter by a measurement station</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">--detailed-status</span></code>: Fetch processing status codes (eg. 127) for each product. This option <strong>must</strong> be used with <code class="code docutils literal notranslate"><span class="pre">--to-csv=</span></code>.</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">--to-csv=</span></code>: Optionally store the results in a CSV file. This file can also be used with <code class="code docutils literal notranslate"><span class="pre">scc-download</span></code></p></li>
 </ul>
-<p>This command should output a table with all measurements for the given time period and the available products.</p>
+<p>This command should output a table with all measurements for the given time period and the available products. When using
+<code class="code docutils literal notranslate"><span class="pre">--detailed-status</span></code>, the resulting CSV will contain the processing status codes for each product. This option requires at least N
+request for N measurements so it should be avoided if not required.</p>
+<p>Sample CSV file (without <code class="code docutils literal notranslate"><span class="pre">--detailed-status</span></code>):</p>
+<p>Sample CSV file (with <code class="code docutils literal notranslate"><span class="pre">--detailed-status</span></code>):</p>
 </div>
 <div class="section" id="downloading">
 <h2>Downloading<a class="headerlink" href="#downloading" title="Permalink to this headline">¶</a></h2>

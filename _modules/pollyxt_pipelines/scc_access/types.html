@@ -81,7 +81,8 @@
 <span class="sd">Various container classes and utility functions for handling SCC responses</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
 
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
@@ -93,14 +94,78 @@
 <span class="c1"># ## Utility function for HTML parsing</span>
 
 
+<div class="viewcode-block" id="ProductStatus"><a class="viewcode-back" href="../../../network-api.html#pollyxt_pipelines.scc_access.types.ProductStatus">[docs]</a><span class="k">class</span> <span class="nc">ProductStatus</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents the status of a product (ie ELDA) on SCC</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">OK</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">ERROR</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">NO_RUN</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">UNKNOWN</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ProductStatus.to_emoji"><a class="viewcode-back" href="../../../network-api.html#pollyxt_pipelines.scc_access.types.ProductStatus.to_emoji">[docs]</a>    <span class="k">def</span> <span class="nf">to_emoji</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts the given status to emoji.</span>
+
+<span class="sd">        Contains color tags for use with the `rich` library.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">ProductStatus</span><span class="o">.</span><span class="n">OK</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;[green]✔[/green]&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">ProductStatus</span><span class="o">.</span><span class="n">ERROR</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;[red]✘[/red]&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">ProductStatus</span><span class="o">.</span><span class="n">NO_RUN</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;∅&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">ProductStatus</span><span class="o">.</span><span class="n">UNKNOWN</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;❓&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Enum has unknown value!&quot;</span><span class="p">)</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">Product</span><span class="p">:</span>
+    <span class="n">status</span><span class="p">:</span> <span class="n">ProductStatus</span>
+    <span class="n">code</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="n">ProductStatus</span><span class="p">,</span> <span class="n">code</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">status</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">code</span> <span class="o">=</span> <span class="n">code</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_code</span><span class="p">(</span><span class="n">code</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Product</span><span class="p">(</span><span class="n">code</span> <span class="o">==</span> <span class="mi">127</span><span class="p">,</span> <span class="n">code</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="scc_date"><a class="viewcode-back" href="../../../network-api.html#pollyxt_pipelines.scc_access.types.scc_date">[docs]</a><span class="k">def</span> <span class="nf">scc_date</span><span class="p">(</span><span class="n">tag</span><span class="p">:</span> <span class="n">Tag</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Convert a table cell to a date&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">tag</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M&quot;</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="scc_product_status"><a class="viewcode-back" href="../../../network-api.html#pollyxt_pipelines.scc_access.types.scc_product_status">[docs]</a><span class="k">def</span> <span class="nf">scc_product_status</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">Tag</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Product</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert a table cell to a Product. Preserves all states (OK, NO_RUN, ERROR).&quot;&quot;&quot;</span>
+
+    <span class="c1"># Check tristate</span>
+    <span class="n">alt</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">img</span><span class="p">[</span><span class="s2">&quot;alt&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">alt</span> <span class="o">==</span> <span class="s2">&quot;OK&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Product</span><span class="p">(</span><span class="n">ProductStatus</span><span class="o">.</span><span class="n">OK</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">alt</span> <span class="o">==</span> <span class="s2">&quot;Not Executed&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Product</span><span class="p">(</span><span class="n">ProductStatus</span><span class="o">.</span><span class="n">NO_RUN</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">alt</span> <span class="o">==</span> <span class="s2">&quot;Error&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Product</span><span class="p">(</span><span class="n">ProductStatus</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Product</span><span class="p">(</span><span class="n">ProductStatus</span><span class="o">.</span><span class="n">UNKNOWN</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="scc_bool"><a class="viewcode-back" href="../../../network-api.html#pollyxt_pipelines.scc_access.types.scc_bool">[docs]</a><span class="k">def</span> <span class="nf">scc_bool</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">Tag</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Convert a table cell to a bool&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">node</span><span class="o">.</span><span class="n">img</span><span class="p">[</span><span class="s2">&quot;alt&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;True&quot;</span></div>
+    <span class="n">alt</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">img</span><span class="p">[</span><span class="s2">&quot;alt&quot;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">alt</span> <span class="o">==</span> <span class="s2">&quot;True&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Product</span><span class="p">(</span><span class="n">ProductStatus</span><span class="o">.</span><span class="n">OK</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">alt</span> <span class="o">==</span> <span class="s2">&quot;False&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Product</span><span class="p">(</span><span class="n">ProductStatus</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Product</span><span class="p">(</span><span class="n">ProductStatus</span><span class="o">.</span><span class="n">UNKNOWN</span><span class="p">)</span></div>
 
 
 <span class="c1"># ## Container classes</span>
@@ -117,14 +182,14 @@
     <span class="n">date_creation</span><span class="p">:</span> <span class="n">datetime</span>
     <span class="n">date_updated</span><span class="p">:</span> <span class="n">datetime</span>
 
-    <span class="n">is_uploaded</span><span class="p">:</span> <span class="nb">bool</span>
-    <span class="n">has_hirelpp</span><span class="p">:</span> <span class="nb">bool</span>
-    <span class="n">has_cloudmask</span><span class="p">:</span> <span class="nb">bool</span>
-    <span class="n">has_elpp</span><span class="p">:</span> <span class="nb">bool</span>
-    <span class="n">has_elda</span><span class="p">:</span> <span class="nb">bool</span>
-    <span class="n">has_eldec</span><span class="p">:</span> <span class="nb">bool</span>
-    <span class="n">has_elic</span><span class="p">:</span> <span class="nb">bool</span>
-    <span class="n">has_elquick</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">is_uploaded</span><span class="p">:</span> <span class="n">Product</span>
+    <span class="n">hirelpp</span><span class="p">:</span> <span class="n">Product</span>
+    <span class="n">cloudmask</span><span class="p">:</span> <span class="n">Product</span>
+    <span class="n">elpp</span><span class="p">:</span> <span class="n">Product</span>
+    <span class="n">elda</span><span class="p">:</span> <span class="n">Product</span>
+    <span class="n">eldec</span><span class="p">:</span> <span class="n">Product</span>
+    <span class="n">elic</span><span class="p">:</span> <span class="n">Product</span>
+    <span class="n">elquick</span><span class="p">:</span> <span class="n">Product</span>
 
     <span class="n">is_processing</span><span class="p">:</span> <span class="nb">bool</span>
 
@@ -132,7 +197,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="s2">&quot;location&quot;</span><span class="p">,</span> <span class="n">get_location_by_scc_code</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">station_code</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">station_code</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">date_start</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">date_end</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">date_creation</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">date_updated</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">is_uploaded</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">has_hirelpp</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">has_cloudmask</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">has_elpp</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">has_elda</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">has_eldec</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">has_elic</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">has_elquick</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">station_code</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">date_start</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">date_end</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">date_creation</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">date_updated</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">is_uploaded</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hirelpp</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cloudmask</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">elpp</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">elda</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">eldec</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">elic</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">elquick</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
 
 <div class="viewcode-block" id="Measurement.from_table_row"><a class="viewcode-back" href="../../../network-api.html#pollyxt_pipelines.scc_access.types.Measurement.from_table_row">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_table_row</span><span class="p">(</span><span class="n">tr</span><span class="p">:</span> <span class="n">Tag</span><span class="p">):</span>
@@ -150,14 +215,14 @@
             <span class="n">date_end</span><span class="o">=</span><span class="n">scc_date</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;field-stop&quot;</span><span class="p">)),</span>
             <span class="n">date_creation</span><span class="o">=</span><span class="n">scc_date</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;field-creation_date&quot;</span><span class="p">)),</span>
             <span class="n">date_updated</span><span class="o">=</span><span class="n">scc_date</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;field-updated_date&quot;</span><span class="p">)),</span>
-            <span class="n">is_uploaded</span><span class="o">=</span><span class="n">scc_bool</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;field-upload_ok&quot;</span><span class="p">)),</span>
-            <span class="n">has_hirelpp</span><span class="o">=</span><span class="n">scc_bool</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;field-hirelpp_ok&quot;</span><span class="p">)),</span>
-            <span class="n">has_cloudmask</span><span class="o">=</span><span class="n">scc_bool</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;field-cloudmask_ok&quot;</span><span class="p">)),</span>
-            <span class="n">has_elpp</span><span class="o">=</span><span class="n">scc_bool</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;field-elpp_ok&quot;</span><span class="p">)),</span>
-            <span class="n">has_elda</span><span class="o">=</span><span class="n">scc_bool</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;field-eldec_ok&quot;</span><span class="p">)),</span>
-            <span class="n">has_eldec</span><span class="o">=</span><span class="n">scc_bool</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;field-eldec_ok&quot;</span><span class="p">)),</span>
-            <span class="n">has_elic</span><span class="o">=</span><span class="n">scc_bool</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;field-elic_ok&quot;</span><span class="p">)),</span>
-            <span class="n">has_elquick</span><span class="o">=</span><span class="n">scc_bool</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;field-elquick_ok&quot;</span><span class="p">)),</span>
+            <span class="n">is_uploaded</span><span class="o">=</span><span class="n">scc_product_status</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;field-upload_ok_evo&quot;</span><span class="p">)),</span>
+            <span class="n">hirelpp</span><span class="o">=</span><span class="n">scc_product_status</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;field-hirelpp_ok_evo&quot;</span><span class="p">)),</span>
+            <span class="n">cloudmask</span><span class="o">=</span><span class="n">scc_product_status</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;field-cloudmask_ok_evo&quot;</span><span class="p">)),</span>
+            <span class="n">elpp</span><span class="o">=</span><span class="n">scc_product_status</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;field-elpp_ok_evo&quot;</span><span class="p">)),</span>
+            <span class="n">elda</span><span class="o">=</span><span class="n">scc_product_status</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;field-eldec_ok_evo&quot;</span><span class="p">)),</span>
+            <span class="n">eldec</span><span class="o">=</span><span class="n">scc_product_status</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;field-eldec_ok_evo&quot;</span><span class="p">)),</span>
+            <span class="n">elic</span><span class="o">=</span><span class="n">scc_product_status</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;field-elic_ok_evo&quot;</span><span class="p">)),</span>
+            <span class="n">elquick</span><span class="o">=</span><span class="n">scc_product_status</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;field-elquick_ok_evo&quot;</span><span class="p">)),</span>
             <span class="n">is_processing</span><span class="o">=</span><span class="n">scc_bool</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;field-is_being_processed&quot;</span><span class="p">)),</span>
         <span class="p">)</span></div>
 
@@ -170,14 +235,14 @@
             <span class="n">date_end</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;stop&quot;</span><span class="p">]),</span>
             <span class="n">date_creation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">date_updated</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">is_uploaded</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;upload&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">127</span><span class="p">,</span>
-            <span class="n">has_hirelpp</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;hirelpp&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">127</span><span class="p">,</span>
-            <span class="n">has_cloudmask</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;cloudmask&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">127</span><span class="p">,</span>
-            <span class="n">has_elpp</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;elpp&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">127</span><span class="p">,</span>
-            <span class="n">has_elda</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">has_eldec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">has_elic</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;elic&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">127</span><span class="p">,</span>
-            <span class="n">has_elquick</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">is_uploaded</span><span class="o">=</span><span class="n">Product</span><span class="o">.</span><span class="n">from_code</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;upload&quot;</span><span class="p">]),</span>
+            <span class="n">hirelpp</span><span class="o">=</span><span class="n">Product</span><span class="o">.</span><span class="n">from_code</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;hirelpp&quot;</span><span class="p">]),</span>
+            <span class="n">cloudmask</span><span class="o">=</span><span class="n">Product</span><span class="o">.</span><span class="n">from_code</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;cloudmask&quot;</span><span class="p">]),</span>
+            <span class="n">elpp</span><span class="o">=</span><span class="n">Product</span><span class="o">.</span><span class="n">from_code</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;elpp&quot;</span><span class="p">]),</span>
+            <span class="n">elda</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">eldec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">elic</span><span class="o">=</span><span class="n">Product</span><span class="o">.</span><span class="n">from_code</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;elic&quot;</span><span class="p">]),</span>
+            <span class="n">elquick</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">is_processing</span><span class="o">=</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;is_running&quot;</span><span class="p">],</span>
         <span class="p">)</span></div>
 

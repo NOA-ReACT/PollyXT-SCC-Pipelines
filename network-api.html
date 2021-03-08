@@ -345,13 +345,27 @@ class doesn’t do much.</p>
 
 <dl class="py class">
 <dt id="pollyxt_pipelines.scc_access.types.Measurement">
-<em class="property">class </em><code class="sig-prename descclassname">pollyxt_pipelines.scc_access.types.</code><code class="sig-name descname">Measurement</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span></em>, <em class="sig-param"><span class="n">station_code</span></em>, <em class="sig-param"><span class="n">date_start</span></em>, <em class="sig-param"><span class="n">date_end</span></em>, <em class="sig-param"><span class="n">date_creation</span></em>, <em class="sig-param"><span class="n">date_updated</span></em>, <em class="sig-param"><span class="n">is_uploaded</span></em>, <em class="sig-param"><span class="n">has_hirelpp</span></em>, <em class="sig-param"><span class="n">has_cloudmask</span></em>, <em class="sig-param"><span class="n">has_elpp</span></em>, <em class="sig-param"><span class="n">has_elda</span></em>, <em class="sig-param"><span class="n">has_eldec</span></em>, <em class="sig-param"><span class="n">has_elic</span></em>, <em class="sig-param"><span class="n">has_elquick</span></em>, <em class="sig-param"><span class="n">is_processing</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access/types.html#Measurement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.types.Measurement" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pollyxt_pipelines.scc_access.types.</code><code class="sig-name descname">Measurement</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span></em>, <em class="sig-param"><span class="n">station_code</span></em>, <em class="sig-param"><span class="n">date_start</span></em>, <em class="sig-param"><span class="n">date_end</span></em>, <em class="sig-param"><span class="n">date_creation</span></em>, <em class="sig-param"><span class="n">date_updated</span></em>, <em class="sig-param"><span class="n">is_uploaded</span></em>, <em class="sig-param"><span class="n">hirelpp</span></em>, <em class="sig-param"><span class="n">cloudmask</span></em>, <em class="sig-param"><span class="n">elpp</span></em>, <em class="sig-param"><span class="n">elda</span></em>, <em class="sig-param"><span class="n">eldec</span></em>, <em class="sig-param"><span class="n">elic</span></em>, <em class="sig-param"><span class="n">elquick</span></em>, <em class="sig-param"><span class="n">is_processing</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access/types.html#Measurement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.types.Measurement" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt id="pollyxt_pipelines.scc_access.types.Measurement.from_table_row">
 <em class="property">static </em><code class="sig-name descname">from_table_row</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tr</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access/types.html#Measurement.from_table_row"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.types.Measurement.from_table_row" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a measurement object from a table row.
 Table rows are formatted like in <a class="reference external" href="https://scc.imaa.cnr.it/admin/database/measurements/">https://scc.imaa.cnr.it/admin/database/measurements/</a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pollyxt_pipelines.scc_access.types.ProductStatus">
+<em class="property">class </em><code class="sig-prename descclassname">pollyxt_pipelines.scc_access.types.</code><code class="sig-name descname">ProductStatus</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access/types.html#ProductStatus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.types.ProductStatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Represents the status of a product (ie ELDA) on SCC</p>
+<dl class="py method">
+<dt id="pollyxt_pipelines.scc_access.types.ProductStatus.to_emoji">
+<code class="sig-name descname">to_emoji</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access/types.html#ProductStatus.to_emoji"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.types.ProductStatus.to_emoji" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the given status to emoji.</p>
+<p>Contains color tags for use with the <code class="xref py py-obj docutils literal notranslate"><span class="pre">rich</span></code> library.</p>
 </dd></dl>
 
 </dd></dl>
@@ -374,6 +388,17 @@ Table rows are formatted like in <a class="reference external" href="https://scc
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pollyxt_pipelines.scc_access.types.scc_product_status">
+<code class="sig-prename descclassname">pollyxt_pipelines.scc_access.types.</code><code class="sig-name descname">scc_product_status</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access/types.html#scc_product_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.types.scc_product_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a table cell to a Product. Preserves all states (OK, NO_RUN, ERROR).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Product</span></code></p>
 </dd>
 </dl>
 </dd></dl>
