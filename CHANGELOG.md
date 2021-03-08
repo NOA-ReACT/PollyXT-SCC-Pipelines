@@ -1,3 +1,7 @@
+# v1.6.5
+- ✨ `search-scc`: Add `--detailed-status` option for fetching the processing status codes from SCC.
+- 🐜 Fix a couple of issues related to searching and downloading of products caused by the minor SCC website changes.
+
 # v1.6.4
 - ✨ `create-scc`: Add `--system-id-day=` and `--system-id-night=` options to override configuration IDs without making a new location.
 - 🐜 Fix %APPDATA% not being expanded in locations path (for real this time).
