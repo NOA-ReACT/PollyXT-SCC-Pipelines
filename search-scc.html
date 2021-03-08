@@ -105,7 +105,19 @@ files of interest.</p>
 <code class="code docutils literal notranslate"><span class="pre">--detailed-status</span></code>, the resulting CSV will contain the processing status codes for each product. This option requires at least N
 request for N measurements so it should be avoided if not required.</p>
 <p>Sample CSV file (without <code class="code docutils literal notranslate"><span class="pre">--detailed-status</span></code>):</p>
+<div class="highlight-csv notranslate"><div class="highlight"><pre><span></span>id,station_id,location,date_start,date_end,date_creation,date_updated,hirelpp,cloudmask,elpp,elda,eldec,elic,elquick,is_processing
+20210307aky0930,Antikythera,aky,2021-03-07T09:30:00,2021-03-07T10:30:00,2021-03-07T13:46:00,2021-03-07T13:46:00,OK,OK,OK,ERROR,NO_RUN,NO_RUN,OK,OK
+20210307aky1030,Antikythera,aky,2021-03-07T10:30:00,2021-03-07T11:30:00,2021-03-07T13:46:00,2021-03-07T13:46:00,OK,OK,OK,ERROR,NO_RUN,NO_RUN,OK,OK
+20210307aky1130,Antikythera,aky,2021-03-07T11:30:00,2021-03-07T12:30:00,2021-03-07T13:46:00,2021-03-07T13:46:00,OK,OK,OK,ERROR,NO_RUN,NO_RUN,OK,OK
+</pre></div>
+</div>
 <p>Sample CSV file (with <code class="code docutils literal notranslate"><span class="pre">--detailed-status</span></code>):</p>
+<div class="highlight-csv notranslate"><div class="highlight"><pre><span></span>station_id,location,date_start,date_end,date_creation,date_updated,upload,hirelpp,cloudmask,elpp,elic
+20210307aky0930,Antikythera,aky,2021-03-07T09:30:00,2021-03-07T10:30:00,2021-03-07T13:46:00,2021-03-07T13:46:00,127,127,127,-127,127
+20210307aky1030,Antikythera,aky,2021-03-07T10:30:00,2021-03-07T11:30:00,2021-03-07T13:46:00,2021-03-07T13:46:00,127,127,127,-127,127
+20210307aky1130,Antikythera,aky,2021-03-07T11:30:00,2021-03-07T12:30:00,2021-03-07T13:46:00,2021-03-07T13:46:00,127,127,127,-127,127
+</pre></div>
+</div>
 </div>
 <div class="section" id="downloading">
 <h2>Downloading<a class="headerlink" href="#downloading" title="Permalink to this headline">¶</a></h2>

@@ -30,6 +30,7 @@ request for N measurements so it should be avoided if not required.
 Sample CSV file (without :code:`--detailed-status`):
 
 .. code-block:: csv
+
     id,station_id,location,date_start,date_end,date_creation,date_updated,hirelpp,cloudmask,elpp,elda,eldec,elic,elquick,is_processing
     20210307aky0930,Antikythera,aky,2021-03-07T09:30:00,2021-03-07T10:30:00,2021-03-07T13:46:00,2021-03-07T13:46:00,OK,OK,OK,ERROR,NO_RUN,NO_RUN,OK,OK
     20210307aky1030,Antikythera,aky,2021-03-07T10:30:00,2021-03-07T11:30:00,2021-03-07T13:46:00,2021-03-07T13:46:00,OK,OK,OK,ERROR,NO_RUN,NO_RUN,OK,OK
@@ -39,6 +40,7 @@ Sample CSV file (without :code:`--detailed-status`):
 Sample CSV file (with :code:`--detailed-status`):
 
 .. code-block:: csv
+
     station_id,location,date_start,date_end,date_creation,date_updated,upload,hirelpp,cloudmask,elpp,elic
     20210307aky0930,Antikythera,aky,2021-03-07T09:30:00,2021-03-07T10:30:00,2021-03-07T13:46:00,2021-03-07T13:46:00,127,127,127,-127,127
     20210307aky1030,Antikythera,aky,2021-03-07T10:30:00,2021-03-07T11:30:00,2021-03-07T13:46:00,2021-03-07T13:46:00,127,127,127,-127,127
