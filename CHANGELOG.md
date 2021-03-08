@@ -1,3 +1,7 @@
+# v1.7.0
+- ✨ `create-scc`: Add `--atmosphere=` option for selecting which atmosphere to use for molecular calculation. This replaces the old `--no-radiosonde` command.
+- 🛠 The default atmosphere is now standard atmosphere instead of collocated radiosonde.
+
 # v1.6.5
 - ✨ `search-scc`: Add `--detailed-status` option for fetching the processing status codes from SCC.
 - 🐜 Fix a couple of issues related to searching and downloading of products caused by the minor SCC website changes.
