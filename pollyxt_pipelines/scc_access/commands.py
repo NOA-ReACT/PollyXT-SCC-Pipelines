@@ -2,6 +2,7 @@ import logging
 import datetime
 import getpass
 from pathlib import Path
+from pollyxt_pipelines.scc_access.types import ProductStatus
 
 from cleo import Command
 import pandas as pd
@@ -556,11 +557,15 @@ class SearchDownloadSCC(Command):
                         for file in scc.download_products(
                             m.id,
                             download_path,
-                            hirelpp and m.has_hirelpp,
-                            cloudmask and m.has_cloudmask,
-                            elpp and m.has_elpp,
-                            optical and (m.has_elda or m.has_eldec),
-                            elic and m.has_elic,
+                            hirelpp and (m.has_hirelpp == ProductStatus.OK),
+                            cloudmask and (m.has_cloudmask == ProductStatus.OK),
+                            elpp and (m.has_elpp == ProductStatus.OK),
+                            optical
+                            and (
+                                (m.has_elda == ProductStatus.OK)
+                                or (m.has_eldec == ProductStatus.OK)
+                            ),
+                            elic and (m.has_elic == ProductStatus.OK),
                         ):
                             file_count += 1
                             console.log(f"[info]Downloaded[/info] {file}")
