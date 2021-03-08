@@ -18,7 +18,7 @@ Usage
 * :code:`location` :badge-blue:`required`: Where did the Polly measurement take place (i.e. station name)
 * :code:`output-path` :badge-blue:`required`: **Directory** to write the output files. It will be created if it does not exist
 * :code:`--interval=`: Set the interval (in minutes), in which to split PollyXT files.
-* :code:`--no-radiosonde`: Do not create sounding files
+* :code:`--atmosphere=`: Select what kind of atmosphere to use: standard (default), radiosonde, cloudnet, automatic
 * :code:`--no-calibration`: Do not create calibration files
 * :code:`--start-time`: When to start the first file (see below for format). If `end-hour` is defined, a file of the chosen length will be created. Otherwise the intervals will start from this time.
 * :code:`--end-time`: In combination with :code:`--start-time`, you can also set the end time. For example, you could generate a file from
@@ -64,12 +64,20 @@ you can optionally use :code:`--end-time=` to set exactly where the output file 
 start and end. When using both :code:`--start-time=` and :code:`--end-time=`, the
 application will create only one file. The datetime formats are the same for both options.
 
-Sounding
+Atmosphere
 ========
 
-By default, when a file is being converted to SCC format, the application will
-also create the corresponding Sounding file by reading WRF profiles. You can set
-the directory where the WRF files are:
+By default, when a file is being converted to SCC format, the generated file will have
+:code:`Molecular_Calc` set to 4 in order to use standard atmosphere. You can select which
+atmosphere you want to use using the :code:`--atmosphere=` option:
+
+* :code:`standard` :badge-blue:`default`: Use standard atmosphere
+* :code:`radiosonde`: Create and use a collocated sounding file
+* :code:`cloudnet`: Use Cloudnet NWP
+* :code:`automatic`: Let SCC decide
+
+If radiosonde is picked, the application will also create the corresponding Sounding file by reading
+WRF profiles. You can set the directory where the WRF files are:
 
 .. code-block:: sh
 
@@ -81,7 +89,7 @@ The WRF files should be named :code:`LOCATION_DDMMYYYY`, for example,
 .. caution::
   If you do not set the path to the WRF files using :code:`pollyxt_pipelines config`
   the command will fail! If you do not have access to profile files and want to skip
-  the creation of sounding files, use the :code:`--no-radiosonde` option.
+  the creation of sounding files, use another atmosphere!
 
 One sounding file will be created for each SCC file. For example, with
 :code:`20201001aky01.nc`, a corresponding :code:`rs_20201001aky01.nc` will
