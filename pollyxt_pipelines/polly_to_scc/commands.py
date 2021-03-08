@@ -26,13 +26,16 @@ class CreateSCC(Command):
         {--start-time= : When to start the first file (see description below for format). If `end-hour` is defined, a file of the chosen length will be created. Otherwise the intervals will start from this time.}
         {--end-time= : Set when the output file should end. This option MUST be used with `--start-hour`.}
         {--round : When set, output files will start on rounded down hours if possible (e.g. from 00:12 to 00:00, 01:42 to 01:00, etc)}
-        {--no-radiosonde : If set, no radiosonde files will be created}
+        {--atmosphere= : Select what kind of atmosphere to use: standard (default), radiosonde, cloudnet, automatic}
         {--no-calibration : Do not create calibration files}
         {--system-id-day= : Optionally *override* the day system ID with a custom value.}
         {--system-id-night= : Optionally *override* the night system ID with a custom value.}
     """
 
     help = """
+    Time selection
+    --------------
+
     The `--start-time=` and `--end-time=` options support the following datetime formats:
 
     - XX:MM (Only minutes, eg. XX:30)
@@ -54,6 +57,17 @@ class CreateSCC(Command):
     - 17:31 to 17:41
     - 21:31 to 21:41
     You can disable this with the `--no-calibration` option.
+
+    Atmosphere
+    ----------
+    Using the `--atmosphere=` option you can select which atmosphere to use on SCC:
+
+    - `standard` (Default): Use standard atmosphere (molecular_calc = 4)
+    - `radiosonde`: Use a co-located radiosonde (molecular_calc = 1)
+    - `cloudnet`: Use Cloudnet NWP (molecular_calc = 2)
+    - `automatic`: Let SCC decide
+
+    If you select `radiosonde`, you must have a functioning radiosonde provider to create the files.
     """
 
     def handle(self):
@@ -64,7 +78,11 @@ class CreateSCC(Command):
         # Parse other arguments
         should_round = self.option("round")
         interval = self.option("interval")
-        use_sounding = not self.option("no-radiosonde")
+        atmosphere = self.option("atmosphere")
+        if atmosphere is None:
+            atmosphere = scc_netcdf.Atmosphere.STANDARD_ATMOSPHERE
+        else:
+            atmosphere = scc_netcdf.Atmosphere.from_string(atmosphere)
         if interval is None:
             interval = 60  # Default duration is 1 hour/60 minutes
         interval = timedelta(minutes=int(interval))
@@ -122,7 +140,7 @@ class CreateSCC(Command):
             interval,
             should_round=should_round,
             calibration=(not skip_calibration),
-            use_sounding=use_sounding,
+            atmosphere=atmosphere,
             start_time=start_time,
             end_time=end_time,
         )
@@ -133,7 +151,7 @@ class CreateSCC(Command):
                 f"[info]Created file with measurement ID[/info] {id} [info]at[/info] {str(path)} [info]({start_str} - {end_str})[/info]"
             )
 
-            if use_sounding:
+            if atmosphere == scc_netcdf.Atmosphere.RADIOSONDE:
                 radiosondes.create_radiosonde_netcdf(
                     "wrf_noa",
                     location,
