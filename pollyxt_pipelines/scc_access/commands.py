@@ -425,14 +425,14 @@ class SearchSCC(Command):
                 m.location.name,
                 m.date_start.strftime("%Y-%m-%d %H:%M"),
                 m.date_end.strftime("%Y-%m-%d %H:%M"),
-                bool_to_emoji(m.has_hirelpp),
-                bool_to_emoji(m.has_cloudmask),
-                bool_to_emoji(m.has_elpp),
-                bool_to_emoji(m.has_elda),
-                bool_to_emoji(m.has_eldec),
-                bool_to_emoji(m.has_elic),
-                bool_to_emoji(m.has_elquick),
-                bool_to_emoji(m.is_processing),
+                m.has_hirelpp.to_emoji(),
+                m.has_cloudmask.to_emoji(),
+                m.has_elpp.to_emoji(),
+                m.has_elda.to_emoji(),
+                m.has_eldec.to_emoji(),
+                m.has_elic.to_emoji(),
+                m.has_elquick.to_emoji(),
+                m.is_processing.to_emoji(),
             )
 
         console.print(table)

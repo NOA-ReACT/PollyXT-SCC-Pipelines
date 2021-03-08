@@ -3,6 +3,7 @@ Various container classes and utility functions for handling SCC responses
 """
 
 from typing import Dict, Any, Union
+from enum import Enum, auto
 
 from datetime import datetime
 from dataclasses import dataclass, field
@@ -14,14 +15,59 @@ from pollyxt_pipelines.locations import Location, get_location_by_scc_code
 # ## Utility function for HTML parsing
 
 
+class ProductStatus(Enum):
+    """
+    Represents the status of a product (ie ELDA) on SCC
+    """
+
+    OK = auto()
+    ERROR = auto()
+    NO_RUN = auto()
+    UNKNOWN = auto()
+
+    def to_emoji(self):
+        """
+        Converts the given status to emoji.
+
+        Contains color tags for use with the `rich` library.
+        """
+
+        if self == ProductStatus.OK:
+            return "[green]✔[/green]"
+        if self == ProductStatus.ERROR:
+            return "[red]✘[/red]"
+        if self == ProductStatus.NO_RUN:
+            return "∅"
+        if self == ProductStatus.UNKNOWN:
+            return "❓"
+
+        raise ValueError("Enum has unknown value!")
+
+
 def scc_date(tag: Tag) -> datetime:
     """Convert a table cell to a date"""
     return datetime.strptime(tag.text, "%Y-%m-%d %H:%M")
 
 
-def scc_bool(node: Tag) -> bool:
+def scc_product_status(node: Tag) -> bool:
     """Convert a table cell to a bool"""
-    return node.img["alt"] == "True"
+
+    # Check tristate
+    alt = node.img["alt"]
+    if alt == "OK":
+        return ProductStatus.OK
+    elif alt == "Not Executed":
+        return ProductStatus.NO_RUN
+    elif alt == "Error":
+        return ProductStatus.ERROR
+
+    # Check bool
+    if alt == "True":
+        return ProductStatus.OK
+    elif alt == "False":
+        return ProductStatus.ERROR
+
+    return ProductStatus.UNKNOWN
 
 
 # ## Container classes
@@ -38,16 +84,16 @@ class Measurement:
     date_creation: datetime
     date_updated: datetime
 
-    is_uploaded: bool
-    has_hirelpp: bool
-    has_cloudmask: bool
-    has_elpp: bool
-    has_elda: bool
-    has_eldec: bool
-    has_elic: bool
-    has_elquick: bool
+    is_uploaded: ProductStatus
+    has_hirelpp: ProductStatus
+    has_cloudmask: ProductStatus
+    has_elpp: ProductStatus
+    has_elda: ProductStatus
+    has_eldec: ProductStatus
+    has_elic: ProductStatus
+    has_elquick: ProductStatus
 
-    is_processing: bool
+    is_processing: ProductStatus
 
     def __post_init__(self):
         super().__setattr__("location", get_location_by_scc_code(self.station_code))
@@ -71,15 +117,15 @@ class Measurement:
             date_end=scc_date(tr.find("td", class_="field-stop")),
             date_creation=scc_date(tr.find("td", class_="field-creation_date")),
             date_updated=scc_date(tr.find("td", class_="field-updated_date")),
-            is_uploaded=scc_bool(tr.find("td", class_="field-upload_ok")),
-            has_hirelpp=scc_bool(tr.find("td", class_="field-hirelpp_ok")),
-            has_cloudmask=scc_bool(tr.find("td", class_="field-cloudmask_ok")),
-            has_elpp=scc_bool(tr.find("td", class_="field-elpp_ok")),
-            has_elda=scc_bool(tr.find("td", class_="field-eldec_ok")),
-            has_eldec=scc_bool(tr.find("td", class_="field-eldec_ok")),
-            has_elic=scc_bool(tr.find("td", class_="field-elic_ok")),
-            has_elquick=scc_bool(tr.find("td", class_="field-elquick_ok")),
-            is_processing=scc_bool(tr.find("td", class_="field-is_being_processed")),
+            is_uploaded=scc_product_status(tr.find("td", class_="field-upload_ok_evo")),
+            has_hirelpp=scc_product_status(tr.find("td", class_="field-hirelpp_ok_evo")),
+            has_cloudmask=scc_product_status(tr.find("td", class_="field-cloudmask_ok_evo")),
+            has_elpp=scc_product_status(tr.find("td", class_="field-elpp_ok_evo")),
+            has_elda=scc_product_status(tr.find("td", class_="field-eldec_ok_evo")),
+            has_eldec=scc_product_status(tr.find("td", class_="field-eldec_ok_evo")),
+            has_elic=scc_product_status(tr.find("td", class_="field-elic_ok_evo")),
+            has_elquick=scc_product_status(tr.find("td", class_="field-elquick_ok_evo")),
+            is_processing=scc_product_status(tr.find("td", class_="field-is_being_processed")),
         )
 
     @staticmethod
