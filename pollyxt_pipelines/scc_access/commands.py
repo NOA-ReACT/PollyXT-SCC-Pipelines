@@ -339,6 +339,7 @@ class SearchSCC(Command):
         {date-start : First day to return (YYYY-MM-DD)}
         {date-end : Last day to return (YYYY-MM-DD)}
         {--location=? : Search for measurement from this station}
+        {--detailed-status : Get detailed status (exit codes) for each processing result. Must be used with --to-csv=}
         {--to-csv= : Optionally, write file list into a CSV file}
     """
 
@@ -364,6 +365,11 @@ class SearchSCC(Command):
             date_end = datetime.date.fromisoformat(date_end)
         except ValueError:
             logging.error("Could not parse date-start! Please use the ISO format (YYYY-MM-DD)")
+            return 1
+
+        detailed_status = self.option("detailed-status")
+        if detailed_status and (self.option("to-csv") is None):
+            console.print("[error]Cannot use --detailed-status without --to-csv=[/error]")
             return 1
 
         # Read application config
@@ -402,6 +408,14 @@ class SearchSCC(Command):
                 else:
                     progress.advance(task)
 
+                # Download details if requested
+                if detailed_status:
+                    details = []
+                    for m in progress.track(
+                        measurements, description="Fetching procesing status codes..."
+                    ):
+                        details.append(scc.get_measurement(m.id))
+
         # Render table
         table = Table(show_header=True, header_style="bold")
         for col in [
@@ -426,14 +440,14 @@ class SearchSCC(Command):
                 m.location.name,
                 m.date_start.strftime("%Y-%m-%d %H:%M"),
                 m.date_end.strftime("%Y-%m-%d %H:%M"),
-                m.has_hirelpp.to_emoji(),
-                m.has_cloudmask.to_emoji(),
-                m.has_elpp.to_emoji(),
-                m.has_elda.to_emoji(),
-                m.has_eldec.to_emoji(),
-                m.has_elic.to_emoji(),
-                m.has_elquick.to_emoji(),
-                m.is_processing.to_emoji(),
+                m.hirelpp.status.to_emoji(),
+                m.cloudmask.status.to_emoji(),
+                m.elpp.status.to_emoji(),
+                m.elda.status.to_emoji(),
+                m.eldec.status.to_emoji(),
+                m.elic.status.to_emoji(),
+                m.elquick.status.to_emoji(),
+                m.is_processing.status.to_emoji(),
             )
 
         console.print(table)
@@ -442,13 +456,24 @@ class SearchSCC(Command):
         csv_path = self.option("to-csv")
         if csv_path is not None:
             csv_path = Path(csv_path)
-            with open(csv_path, "w") as f:
-                f.write(
-                    "id,station_id,location,date_start,date_end,date_creation,date_updated,hirelpp,cloudmask,elpp,elda,eldec,elic,elquick,is_processing\n"
-                )
+            if not detailed_status:
+                with open(csv_path, "w") as f:
+                    f.write(
+                        "id,station_id,location,date_start,date_end,date_creation,date_updated,hirelpp,cloudmask,elpp,elda,eldec,elic,elquick,is_processing\n"
+                    )
 
-                for m in measurements:
-                    f.write(m.to_csv() + "\n")
+                    for m in measurements:
+                        f.write(m.to_csv() + "\n")
+            else:
+                with open(csv_path, "w") as f:
+                    f.write(
+                        "station_id,location,date_start,date_end,date_creation,date_updated,upload,hirelpp,cloudmask,elpp,elic\n"
+                    )
+
+                    for m1, m2 in zip(measurements, details):
+                        f.write(
+                            f"{m1.id},{m1.location.name},{m1.station_code},{m1.date_start.isoformat()},{m1.date_end.isoformat()},{m1.date_creation.isoformat()},{m1.date_updated.isoformat()},{m2.is_uploaded.code},{m2.hirelpp.code},{m2.cloudmask.code},{m2.elpp.code},{m2.elic.code}\n"
+                        )
 
             console.print(f"[info]Wrote .csv file[/info] {csv_path}")
 
@@ -557,15 +582,15 @@ class SearchDownloadSCC(Command):
                         for file in scc.download_products(
                             m.id,
                             download_path,
-                            hirelpp and (m.has_hirelpp == ProductStatus.OK),
-                            cloudmask and (m.has_cloudmask == ProductStatus.OK),
-                            elpp and (m.has_elpp == ProductStatus.OK),
+                            hirelpp and (m.hirelpp.status == ProductStatus.OK),
+                            cloudmask and (m.cloudmask.status == ProductStatus.OK),
+                            elpp and (m.elpp.status == ProductStatus.OK),
                             optical
                             and (
-                                (m.has_elda == ProductStatus.OK)
-                                or (m.has_eldec == ProductStatus.OK)
+                                (m.elda.status == ProductStatus.OK)
+                                or (m.eldec.status == ProductStatus.OK)
                             ),
-                            elic and (m.has_elic == ProductStatus.OK),
+                            elic and (m.elic.status == ProductStatus.OK),
                         ):
                             file_count += 1
                             console.log(f"[info]Downloaded[/info] {file}")

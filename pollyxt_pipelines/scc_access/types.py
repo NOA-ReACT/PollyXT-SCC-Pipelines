@@ -2,7 +2,7 @@
 Various container classes and utility functions for handling SCC responses
 """
 
-from typing import Dict, Any, Union
+from typing import Dict, Any, NamedTuple, Union
 from enum import Enum, auto
 
 from datetime import datetime
@@ -44,30 +44,49 @@ class ProductStatus(Enum):
         raise ValueError("Enum has unknown value!")
 
 
+class Product:
+    status: ProductStatus
+    code: Union[int, None]
+
+    def __init__(self, status: ProductStatus, code=None) -> None:
+        self.status = status
+        self.code = code
+
+    @staticmethod
+    def from_code(code: int):
+        return Product(code == 127, code)
+
+
 def scc_date(tag: Tag) -> datetime:
     """Convert a table cell to a date"""
     return datetime.strptime(tag.text, "%Y-%m-%d %H:%M")
 
 
-def scc_product_status(node: Tag) -> bool:
-    """Convert a table cell to a bool"""
+def scc_product_status(node: Tag) -> Product:
+    """Convert a table cell to a Product. Preserves all states (OK, NO_RUN, ERROR)."""
 
     # Check tristate
     alt = node.img["alt"]
     if alt == "OK":
-        return ProductStatus.OK
+        return Product(ProductStatus.OK)
     elif alt == "Not Executed":
-        return ProductStatus.NO_RUN
+        return Product(ProductStatus.NO_RUN)
     elif alt == "Error":
-        return ProductStatus.ERROR
+        return Product(ProductStatus.ERROR)
 
-    # Check bool
+    return Product(ProductStatus.UNKNOWN)
+
+
+def scc_bool(node: Tag) -> bool:
+    """Convert a table cell to a bool"""
+    alt = node.img["alt"]
+
     if alt == "True":
-        return ProductStatus.OK
+        return Product(ProductStatus.OK)
     elif alt == "False":
-        return ProductStatus.ERROR
+        return Product(ProductStatus.ERROR)
 
-    return ProductStatus.UNKNOWN
+    return Product(ProductStatus.UNKNOWN)
 
 
 # ## Container classes
@@ -84,22 +103,22 @@ class Measurement:
     date_creation: datetime
     date_updated: datetime
 
-    is_uploaded: ProductStatus
-    has_hirelpp: ProductStatus
-    has_cloudmask: ProductStatus
-    has_elpp: ProductStatus
-    has_elda: ProductStatus
-    has_eldec: ProductStatus
-    has_elic: ProductStatus
-    has_elquick: ProductStatus
+    is_uploaded: Product
+    hirelpp: Product
+    cloudmask: Product
+    elpp: Product
+    elda: Product
+    eldec: Product
+    elic: Product
+    elquick: Product
 
-    is_processing: ProductStatus
+    is_processing: bool
 
     def __post_init__(self):
         super().__setattr__("location", get_location_by_scc_code(self.station_code))
 
     def to_csv(self):
-        return f"{self.id},{self.location.name},{self.station_code},{self.date_start.isoformat()},{self.date_end.isoformat()},{self.date_creation.isoformat()},{self.date_updated.isoformat()},{self.is_uploaded},{self.has_hirelpp},{self.has_cloudmask},{self.has_elpp},{self.has_elda},{self.has_eldec},{self.has_elic},{self.has_elquick}"
+        return f"{self.id},{self.location.name},{self.station_code},{self.date_start.isoformat()},{self.date_end.isoformat()},{self.date_creation.isoformat()},{self.date_updated.isoformat()},{self.is_uploaded.status.name},{self.hirelpp.status.name},{self.cloudmask.status.name},{self.elpp.status.name},{self.elda.status.name},{self.eldec.status.name},{self.elic.status.name},{self.elquick.status.name}"
 
     @staticmethod
     def from_table_row(tr: Tag):
@@ -118,14 +137,14 @@ class Measurement:
             date_creation=scc_date(tr.find("td", class_="field-creation_date")),
             date_updated=scc_date(tr.find("td", class_="field-updated_date")),
             is_uploaded=scc_product_status(tr.find("td", class_="field-upload_ok_evo")),
-            has_hirelpp=scc_product_status(tr.find("td", class_="field-hirelpp_ok_evo")),
-            has_cloudmask=scc_product_status(tr.find("td", class_="field-cloudmask_ok_evo")),
-            has_elpp=scc_product_status(tr.find("td", class_="field-elpp_ok_evo")),
-            has_elda=scc_product_status(tr.find("td", class_="field-eldec_ok_evo")),
-            has_eldec=scc_product_status(tr.find("td", class_="field-eldec_ok_evo")),
-            has_elic=scc_product_status(tr.find("td", class_="field-elic_ok_evo")),
-            has_elquick=scc_product_status(tr.find("td", class_="field-elquick_ok_evo")),
-            is_processing=scc_product_status(tr.find("td", class_="field-is_being_processed")),
+            hirelpp=scc_product_status(tr.find("td", class_="field-hirelpp_ok_evo")),
+            cloudmask=scc_product_status(tr.find("td", class_="field-cloudmask_ok_evo")),
+            elpp=scc_product_status(tr.find("td", class_="field-elpp_ok_evo")),
+            elda=scc_product_status(tr.find("td", class_="field-eldec_ok_evo")),
+            eldec=scc_product_status(tr.find("td", class_="field-eldec_ok_evo")),
+            elic=scc_product_status(tr.find("td", class_="field-elic_ok_evo")),
+            elquick=scc_product_status(tr.find("td", class_="field-elquick_ok_evo")),
+            is_processing=scc_bool(tr.find("td", class_="field-is_being_processed")),
         )
 
     @staticmethod
@@ -137,14 +156,14 @@ class Measurement:
             date_end=datetime.fromisoformat(json["stop"]),
             date_creation=None,
             date_updated=None,
-            is_uploaded=json["upload"] == 127,
-            has_hirelpp=json["hirelpp"] == 127,
-            has_cloudmask=json["cloudmask"] == 127,
-            has_elpp=json["elpp"] == 127,
-            has_elda=None,
-            has_eldec=None,
-            has_elic=json["elic"] == 127,
-            has_elquick=None,
+            is_uploaded=Product.from_code(json["upload"]),
+            hirelpp=Product.from_code(json["hirelpp"]),
+            cloudmask=Product.from_code(json["cloudmask"]),
+            elpp=Product.from_code(json["elpp"]),
+            elda=None,
+            eldec=None,
+            elic=Product.from_code(json["elic"]),
+            elquick=None,
             is_processing=json["is_running"],
         )
 
