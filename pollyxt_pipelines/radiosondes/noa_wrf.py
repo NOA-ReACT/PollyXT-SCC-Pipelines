@@ -24,7 +24,7 @@ rs = read_wrf_daily_profile('ANTIKYTHERA', date.fromisoformat('2020-01-01'))
 ```
 """
 
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Tuple, Union
 from pathlib import Path
 
@@ -105,7 +105,7 @@ def read_wrf_daily_profile(
     )
 
     # Filter for the correct time
-    mask = (rs["timestamp"] >= time_start) & (rs["timestamp"] < time_end)
+    mask = (rs["timestamp"] >= time_start) & (rs["timestamp"] < time_start + timedelta(minutes=59))
     rs = rs.loc[mask]
 
     rs_timestamp = rs["timestamp"].iloc[0]
