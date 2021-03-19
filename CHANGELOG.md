@@ -1,3 +1,6 @@
+# v1.7.1
+- 🐜 Fix a bug that caused more than one atmospheric profile to be included in radiosonde files, which in turn caused the "Sounding File Error: Altitude should be in ascending order" error.
+
 # v1.7.0
 - ✨ `create-scc`: Add `--atmosphere=` option for selecting which atmosphere to use for molecular calculation. This replaces the old `--no-radiosonde` command.
 - 🛠 The default atmosphere is now standard atmosphere instead of collocated radiosonde.
