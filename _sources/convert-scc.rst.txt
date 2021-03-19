@@ -11,7 +11,7 @@ Usage
 
 .. code-block:: sh
 
-  pollyxt_pipelines create-scc [--interval <...>] [--round] [--no-radiosonde] [--no-calibration] [--start-time <...>] <input> <location> <output-path>
+  pollyxt_pipelines create-scc [--interval <...>] [--round] [--no-calibration] [--start-time <...>] <input> <location> <output-path>
 
 * :code:`input` :badge-blue:`required`: Path to PollyXT NetCDF files. Can either be a single file or a directory
 * :code:`--recursive`: If :code:`input` is a directory and this option is set, it will be searched recursively.
