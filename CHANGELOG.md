@@ -1,3 +1,6 @@
+# v1.7.2
+- 🐜 Fix a small bug in the measurement table parsing that prevented downloads of ELDA files.
+
 # v1.7.1
 - 🐜 Fix a bug that caused more than one atmospheric profile to be included in radiosonde files, which in turn caused the "Sounding File Error: Altitude should be in ascending order" error.
 
