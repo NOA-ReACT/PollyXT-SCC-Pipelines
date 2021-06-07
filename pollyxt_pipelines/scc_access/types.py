@@ -140,7 +140,7 @@ class Measurement:
             hirelpp=scc_product_status(tr.find("td", class_="field-hirelpp_ok_evo")),
             cloudmask=scc_product_status(tr.find("td", class_="field-cloudmask_ok_evo")),
             elpp=scc_product_status(tr.find("td", class_="field-elpp_ok_evo")),
-            elda=scc_product_status(tr.find("td", class_="field-eldec_ok_evo")),
+            elda=scc_product_status(tr.find("td", class_="field-elda_ok_evo")),
             eldec=scc_product_status(tr.find("td", class_="field-eldec_ok_evo")),
             elic=scc_product_status(tr.find("td", class_="field-elic_ok_evo")),
             elquick=scc_product_status(tr.find("td", class_="field-elquick_ok_evo")),
