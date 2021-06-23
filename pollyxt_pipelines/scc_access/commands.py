@@ -602,3 +602,89 @@ class SearchDownloadSCC(Command):
                     i += 1
 
         console.log(f"[info]Downloaded[/info] {file_count} [info]files![/info]")
+
+
+class LidarConstantsSCC(Command):
+    """
+    Downloads the table of lidar constants from SCC
+
+    lidar-constants-scc
+        {date-start : First day to return (YYYY-MM-DD)}
+        {date-end : Last day to return (YYYY-MM-DD)}
+        {csv : Where to write the table as a CSV file}
+        {--location=? : Search for measurement from this station}
+    """
+
+    def handle(self):
+        # Parse arguments
+        location_name = self.option("location")
+        location = None
+        if location_name is not None:
+            location = locations.LOCATIONS[location_name]
+            if location is None:
+                locations.unknown_location_error(location_name)
+                return 1
+
+        try:
+            date_start = self.argument("date-start")
+            date_start = datetime.date.fromisoformat(date_start)
+        except ValueError:
+            logging.error("Could not parse date-start! Please use the ISO format (YYYY-MM-DD)")
+            return 1
+
+        try:
+            date_end = self.argument("date-end")
+            date_end = datetime.date.fromisoformat(date_end)
+        except ValueError:
+            logging.error("Could not parse date-start! Please use the ISO format (YYYY-MM-DD)")
+            return 1
+
+        # Read application config
+        config = Config()
+        try:
+            credentials = SCC_Credentials(config)
+        except KeyError:
+            print_login_error()
+            return 1
+
+        # Login to SCC to make queries
+        with scc_session(credentials) as scc:
+            with Progress(console=console) as progress:
+                task = progress.add_task("Fetching results...", start=False, total=1)
+
+                # Query SCC for measurements
+                pages, lidar_constants = scc.get_lidar_consants(date_start, date_end, location)
+                if len(lidar_constants) == 0:
+                    progress.stop()
+                    console.print("[warn]No data found![/warn]")
+                    return 0
+
+                console.print(f"[info]Found {pages} pages[/info]")
+                progress.start_task(task)
+                if pages > 1:
+                    progress.update(task, total=pages, completed=1, start=True)
+
+                    current_page = 2
+                    while current_page <= pages:
+                        _, more = scc.get_lidar_consants(
+                            date_start, date_end, location, page=current_page
+                        )
+                        lidar_constants += more
+
+                        current_page += 1
+                        progress.advance(task)
+                else:
+                    progress.advance(task)
+
+        # Write to CSV
+        csv_path = self.argument("csv")
+        csv_path = Path(csv_path)
+        with open(csv_path, "w") as f:
+            f.write(
+                "measurement_id,channel_id,system_id,product_id,detection_wavelength,lidar_constant,lidar_constant_stat_err,profile_start_time,profile_end_time,calibration_window_bottom,calibration_window_top,creation_date,elda_version\n"
+            )
+
+            for c in lidar_constants:
+                f.write(c.to_csv() + "\n")
+
+            console.print(f"[info]Wrote .csv file[/info] {csv_path}")

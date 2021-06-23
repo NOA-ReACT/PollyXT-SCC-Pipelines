@@ -18,6 +18,9 @@ upload_url = urlparse.urljoin(BASE_URL, "data_processing/measurements/quick/")
 delete_measurement_pattern = urlparse.urljoin(BASE_URL, "admin/database/measurements/{0}/delete/")
 rerun_measurement_url = urlparse.urljoin(BASE_URL, "/admin/database/measurements/")
 
+# Lidar constants
+lidar_constants_url = urlparse.urljoin(BASE_URL, "admin/database/lidarconstant/")
+
 # Downloading of products
 download_hirelpp_pattern = urlparse.urljoin(
     BASE_URL, "data_processing/measurements/{0}/download-hirelpp/"

@@ -19,7 +19,7 @@ from pollyxt_pipelines.console import console
 from pollyxt_pipelines.locations import Location
 from pollyxt_pipelines.config import Config
 from pollyxt_pipelines.scc_access import constants, exceptions
-from pollyxt_pipelines.scc_access.types import APIObject, Measurement
+from pollyxt_pipelines.scc_access.types import APIObject, LidarConstant, Measurement
 
 
 class SCC_Credentials:
@@ -411,6 +411,53 @@ class SCC:
 
         if "The processing chain was restarted" not in messages_cookie:
             raise exceptions.UnexpectedResponse("Could not found restart message in cookie")
+
+    def get_lidar_consants(
+        self, date_start: date, date_end: date, location: Union[Location, None], page=1
+    ) -> Tuple[int, List[Measurement]]:
+        """
+        Fetches the Lidar constants from SCC
+
+        Parameters:
+            date_start: First day of results
+            date_end: Last day of results
+            location: Optionally, filter results by a location
+            page: Which page to return (starts from 1, default value is 1)
+
+        Returns:
+            The number of pages and the list of measurements
+        """
+
+        if page - 1 < 0:
+            raise ValueError("Page numbers start at 1!")
+
+        params = {
+            "profile_start_time__gte": date_start.strftime("%Y-%m-%d %H:%M:%S"),
+            "profile_start_time__lt": date_end.strftime("%Y-%m-%d %H:%M:%S"),
+            "p": page - 1,
+        }
+        if location is not None:
+            params["station"] = location.scc_code
+
+        results = self.session.get(constants.lidar_constants_url, params=params)
+        if not results.ok:
+            raise exceptions.UnexpectedResponse
+
+        # Parse body to find measurements and page count
+        body = BeautifulSoup(results.text, "html.parser")
+
+        pagination = body.find("nav", class_="grp-pagination")
+        last_page = pagination.find("a", class_="end")
+        if last_page is None:
+            pages = 1
+        else:
+            pages = int(last_page.text)
+
+        lidar_constants = [
+            LidarConstant.from_table_row(tr) for tr in body.findAll("tr", {"class": "grp-row"})
+        ]
+
+        return pages, lidar_constants
 
 
 @contextlib.contextmanager

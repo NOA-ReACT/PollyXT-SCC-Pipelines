@@ -168,6 +168,55 @@ class Measurement:
         )
 
 
+@dataclass(frozen=True)
+class LidarConstant:
+    measurement_id: str
+    channel_id: str
+    system_id: str
+    product_id: str
+
+    detection_wavelength: str
+    lidar_constant: str
+    lidar_constant_stat_err: str
+
+    profile_start_time: datetime
+    profile_end_time: datetime
+
+    calibration_window_bottom: str
+    calibration_window_top: str
+
+    creation_date: datetime
+    elda_version: str
+
+    def to_csv(self):
+        return f"{self.measurement_id},{self.channel_id},{self.system_id},{self.product_id},{self.detection_wavelength},{self.lidar_constant},{self.lidar_constant_stat_err},{self.profile_start_time},{self.profile_end_time},{self.calibration_window_bottom},{self.calibration_window_top},{self.creation_date},{self.elda_version}"
+
+    @staticmethod
+    def from_table_row(tr: Tag):
+        """
+        Create a measurement object from a table row.
+        Table rows are formatted like in https://scc.imaa.cnr.it/admin/database/lidarconstant/
+        """
+
+        # print(tr.prettify())
+
+        return LidarConstant(
+            measurement_id=tr.find("td", class_="field-measurement_id_display").text,
+            channel_id=tr.find("td", class_="field-channel_id_display").text,
+            system_id=tr.find("td", class_="field-system_id_display").text,
+            product_id=tr.find("td", class_="field-product_id_display").text,
+            detection_wavelength=tr.find("td", class_="field-detection_wavelength").text,
+            lidar_constant=tr.find("td", class_="field-lidar_constant").text,
+            lidar_constant_stat_err=tr.find("td", class_="field-lidar_constant_stat_err").text,
+            profile_start_time=scc_date(tr.find("td", class_="field-profile_start_time")),
+            profile_end_time=scc_date(tr.find("td", class_="field-profile_end_time")),
+            calibration_window_bottom=tr.find("td", class_="field-calibr_window_bottom").text,
+            calibration_window_top=tr.find("td", class_="field-calibr_window_top").text,
+            creation_date=scc_date(tr.find("td", class_="field-creation_date")),
+            elda_version=tr.find("td", class_="field-elda_version").text,
+        )
+
+
 class APIObject:
     """
     SCC generic API response object

@@ -18,6 +18,7 @@ from pollyxt_pipelines.scc_access.commands import (
     SearchDownloadSCC,
     SearchSCC,
     UploadFiles,
+    LidarConstantsSCC,
 )
 from pollyxt_pipelines.locations.commands import LocationPath, ShowLocations
 
@@ -50,6 +51,7 @@ def prepare_cli_application() -> Application:
     application.add(RerunSCC())
     application.add(SearchSCC())
     application.add(SearchDownloadSCC())
+    application.add(LidarConstantsSCC())
     application.add(ShowLocations())
     application.add(LocationPath())
 
