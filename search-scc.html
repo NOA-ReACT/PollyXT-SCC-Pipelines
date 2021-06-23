@@ -59,6 +59,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Searching and downloading historic data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#searching">Searching</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#downloading">Downloading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#lidar-constants">Lidar constants</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#api">API</a></li>
 </ul>
@@ -137,6 +138,19 @@ request for N measurements so it should be avoided if not required.</p>
 <p>By default, this command downloads all products but you can specifically excluse some using the
 <code class="code docutils literal notranslate"><span class="pre">--no-*</span></code> options.</p>
 </div>
+<div class="section" id="lidar-constants">
+<h2>Lidar constants<a class="headerlink" href="#lidar-constants" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference external" href="https://github.com/NOA-ReACT/PollyXT-SCC-Pipelines">lidar constants table</a>  can be downloaded as a CSV file using the <code class="code docutils literal notranslate"><span class="pre">lidar-constants-scc</span></code> command.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines scc-lidar-constants <span class="o">[</span>--location <span class="o">[</span>&lt;...&gt;<span class="o">]]</span> &lt;date-start&gt; &lt;date-end&gt; &lt;csv&gt;
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">date-start</span></code> <span class="badge badge-blue">required</span>: First day to search (inclusive)</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">date-end</span></code> <span class="badge badge-blue">required</span>: Last day to search (exclusive)</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">csv</span></code> <span class="badge badge-blue">required</span>: Where to save the CSV file.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">--location=</span></code>: Optionally filter by a measurement station</p></li>
+</ul>
+</div>
 <div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <p>Search for all files between 2020-01-01 and 2020-02-01 from Finokalia.</p>
@@ -149,6 +163,10 @@ request for N measurements so it should be avoided if not required.</p>
 </div>
 <p>Download all files, excluding optical products, between 2020-10-07 and 2020-10-10 from Antikythera:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines scc-search-download <span class="m">2020</span>-10-07 <span class="m">2020</span>-10-10 --no-optical --location<span class="o">=</span>Antikythera
+</pre></div>
+</div>
+<p>Download the Lidar constant table for a given date range.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines scc-lidar-constants <span class="m">2020</span>-10-01 <span class="m">2020</span>-11-01 lidar.csv
 </pre></div>
 </div>
 </div>

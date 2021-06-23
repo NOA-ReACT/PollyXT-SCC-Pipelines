@@ -190,6 +190,28 @@ This function is a generator, yielding the filename of each downloaded file.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="pollyxt_pipelines.scc_access.SCC.get_lidar_consants">
+<code class="sig-name descname">get_lidar_consants</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">date_start</span></em>, <em class="sig-param"><span class="n">date_end</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">page</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access.html#SCC.get_lidar_consants"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.SCC.get_lidar_consants" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetches the Lidar constants from SCC</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>date_start</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">date</span></code>) – First day of results</p></li>
+<li><p><strong>date_end</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">date</span></code>) – Last day of results</p></li>
+<li><p><strong>location</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="locations.html#pollyxt_pipelines.locations.Location" title="pollyxt_pipelines.locations.Location"><code class="xref py py-class docutils literal notranslate"><span class="pre">Location</span></code></a>]) – Optionally, filter results by a location</p></li>
+<li><p><strong>page</strong> – Which page to return (starts from 1, default value is 1)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="#pollyxt_pipelines.scc_access.types.Measurement" title="pollyxt_pipelines.scc_access.types.Measurement"><code class="xref py py-class docutils literal notranslate"><span class="pre">Measurement</span></code></a>]]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The number of pages and the list of measurements</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="pollyxt_pipelines.scc_access.SCC.get_measurement">
 <code class="sig-name descname">get_measurement</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">measurement_id</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access.html#SCC.get_measurement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.SCC.get_measurement" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetches information about one measurement from SCC.</p>
@@ -341,6 +363,19 @@ throw for potential errors.</p>
 <p>SCC generic API response object</p>
 <p>The only objects fetched from the API are Anchillary files, so this
 class doesn’t do much.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pollyxt_pipelines.scc_access.types.LidarConstant">
+<em class="property">class </em><code class="sig-prename descclassname">pollyxt_pipelines.scc_access.types.</code><code class="sig-name descname">LidarConstant</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">measurement_id</span></em>, <em class="sig-param"><span class="n">channel_id</span></em>, <em class="sig-param"><span class="n">system_id</span></em>, <em class="sig-param"><span class="n">product_id</span></em>, <em class="sig-param"><span class="n">detection_wavelength</span></em>, <em class="sig-param"><span class="n">lidar_constant</span></em>, <em class="sig-param"><span class="n">lidar_constant_stat_err</span></em>, <em class="sig-param"><span class="n">profile_start_time</span></em>, <em class="sig-param"><span class="n">profile_end_time</span></em>, <em class="sig-param"><span class="n">calibration_window_bottom</span></em>, <em class="sig-param"><span class="n">calibration_window_top</span></em>, <em class="sig-param"><span class="n">creation_date</span></em>, <em class="sig-param"><span class="n">elda_version</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access/types.html#LidarConstant"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.types.LidarConstant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="pollyxt_pipelines.scc_access.types.LidarConstant.from_table_row">
+<em class="property">static </em><code class="sig-name descname">from_table_row</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tr</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access/types.html#LidarConstant.from_table_row"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.types.LidarConstant.from_table_row" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a measurement object from a table row.
+Table rows are formatted like in <a class="reference external" href="https://scc.imaa.cnr.it/admin/database/lidarconstant/">https://scc.imaa.cnr.it/admin/database/lidarconstant/</a></p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">

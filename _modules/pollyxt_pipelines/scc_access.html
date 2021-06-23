@@ -98,7 +98,7 @@
 <span class="kn">from</span> <span class="nn">pollyxt_pipelines.locations</span> <span class="kn">import</span> <span class="n">Location</span>
 <span class="kn">from</span> <span class="nn">pollyxt_pipelines.config</span> <span class="kn">import</span> <span class="n">Config</span>
 <span class="kn">from</span> <span class="nn">pollyxt_pipelines.scc_access</span> <span class="kn">import</span> <span class="n">constants</span><span class="p">,</span> <span class="n">exceptions</span>
-<span class="kn">from</span> <span class="nn">pollyxt_pipelines.scc_access.types</span> <span class="kn">import</span> <span class="n">APIObject</span><span class="p">,</span> <span class="n">Measurement</span>
+<span class="kn">from</span> <span class="nn">pollyxt_pipelines.scc_access.types</span> <span class="kn">import</span> <span class="n">APIObject</span><span class="p">,</span> <span class="n">LidarConstant</span><span class="p">,</span> <span class="n">Measurement</span>
 
 
 <div class="viewcode-block" id="SCC_Credentials"><a class="viewcode-back" href="../../network-api.html#pollyxt_pipelines.scc_access.SCC_Credentials">[docs]</a><span class="k">class</span> <span class="nc">SCC_Credentials</span><span class="p">:</span>
@@ -489,7 +489,54 @@
             <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">UnexpectedResponse</span><span class="p">(</span><span class="s2">&quot;`Messages` cookie not found&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="s2">&quot;The processing chain was restarted&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">messages_cookie</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">UnexpectedResponse</span><span class="p">(</span><span class="s2">&quot;Could not found restart message in cookie&quot;</span><span class="p">)</span></div></div>
+            <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">UnexpectedResponse</span><span class="p">(</span><span class="s2">&quot;Could not found restart message in cookie&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SCC.get_lidar_consants"><a class="viewcode-back" href="../../network-api.html#pollyxt_pipelines.scc_access.SCC.get_lidar_consants">[docs]</a>    <span class="k">def</span> <span class="nf">get_lidar_consants</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">date_start</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span> <span class="n">date_end</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Location</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">page</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Measurement</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fetches the Lidar constants from SCC</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            date_start: First day of results</span>
+<span class="sd">            date_end: Last day of results</span>
+<span class="sd">            location: Optionally, filter results by a location</span>
+<span class="sd">            page: Which page to return (starts from 1, default value is 1)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The number of pages and the list of measurements</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">page</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Page numbers start at 1!&quot;</span><span class="p">)</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;profile_start_time__gte&quot;</span><span class="p">:</span> <span class="n">date_start</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;profile_start_time__lt&quot;</span><span class="p">:</span> <span class="n">date_end</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;p&quot;</span><span class="p">:</span> <span class="n">page</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">location</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;station&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">scc_code</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">lidar_constants_url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">results</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">UnexpectedResponse</span>
+
+        <span class="c1"># Parse body to find measurements and page count</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;html.parser&quot;</span><span class="p">)</span>
+
+        <span class="n">pagination</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;nav&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;grp-pagination&quot;</span><span class="p">)</span>
+        <span class="n">last_page</span> <span class="o">=</span> <span class="n">pagination</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;end&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">last_page</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pages</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pages</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">last_page</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+
+        <span class="n">lidar_constants</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">LidarConstant</span><span class="o">.</span><span class="n">from_table_row</span><span class="p">(</span><span class="n">tr</span><span class="p">)</span> <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">body</span><span class="o">.</span><span class="n">findAll</span><span class="p">(</span><span class="s2">&quot;tr&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;grp-row&quot;</span><span class="p">})</span>
+        <span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">pages</span><span class="p">,</span> <span class="n">lidar_constants</span></div></div>
 
 
 <div class="viewcode-block" id="scc_session"><a class="viewcode-back" href="../../network-api.html#pollyxt_pipelines.scc_access.scc_session">[docs]</a><span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
