@@ -1,3 +1,9 @@
+# v1.8.1
+- 🛠 Renamed `lidar-constants-scc` to `scc-lidar-constants`, which better matches the other scc-related commands.
+
+# v1.8.0
+- ✨ Add new command `lidar-constants-scc` for downloading the Lidar Constants table as a CSV file from SCC.
+
 # v1.7.2
 - 🐜 Fix a small bug in the measurement table parsing that prevented downloads of ELDA files.
 
