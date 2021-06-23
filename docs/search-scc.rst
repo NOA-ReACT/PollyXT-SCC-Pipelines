@@ -67,6 +67,19 @@ By default, this command downloads all products but you can specifically excluse
 :code:`--no-*` options.
 
 
+Lidar constants
+===============
+
+The `lidar constants table <https://github.com/NOA-ReACT/PollyXT-SCC-Pipelines>`_  can be downloaded as a CSV file using the :code:`lidar-constants-scc` command.
+
+.. code-block:: sh
+
+  pollyxt_pipelines scc-lidar-constants [--location [<...>]] <date-start> <date-end> <csv>
+
+* :code:`date-start` :badge-blue:`required`: First day to search (inclusive)
+* :code:`date-end` :badge-blue:`required`: Last day to search (exclusive)
+* :code:`csv` :badge-blue:`required`: Where to save the CSV file.
+* :code:`--location=`: Optionally filter by a measurement station
 
 Examples
 ========
@@ -89,6 +102,11 @@ Download all files, excluding optical products, between 2020-10-07 and 2020-10-1
 
   pollyxt_pipelines scc-search-download 2020-10-07 2020-10-10 --no-optical --location=Antikythera
 
+Download the Lidar constant table for a given date range.
+
+.. code-block:: sh
+
+  pollyxt_pipelines scc-lidar-constants 2020-10-01 2020-11-01 lidar.csv
 
 
 API
