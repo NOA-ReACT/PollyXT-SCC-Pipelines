@@ -608,7 +608,7 @@ class LidarConstantsSCC(Command):
     """
     Downloads the table of lidar constants from SCC
 
-    lidar-constants-scc
+    scc-lidar-constants
         {date-start : First day to return (YYYY-MM-DD)}
         {date-end : Last day to return (YYYY-MM-DD)}
         {csv : Where to write the table as a CSV file}
