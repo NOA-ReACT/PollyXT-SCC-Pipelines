@@ -492,7 +492,7 @@
 
         <span class="c1"># Open netCDF file and convert to SCC</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">pf</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">get_pollyxt_file</span><span class="p">(</span><span class="n">interval_start</span><span class="p">,</span> <span class="n">interval_end</span><span class="p">)</span>
+            <span class="n">pf</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">get_pollyxt_file</span><span class="p">(</span><span class="n">interval_start</span><span class="p">,</span> <span class="n">interval_end</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">30</span><span class="p">))</span>
             <span class="nb">id</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">create_scc_netcdf</span><span class="p">(</span><span class="n">pf</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">atmosphere</span><span class="p">)</span>
 
             <span class="k">yield</span> <span class="nb">id</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">start_date</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">end_date</span>
