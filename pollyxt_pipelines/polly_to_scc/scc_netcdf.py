@@ -413,7 +413,7 @@ def convert_pollyxt_file(
 
         # Open netCDF file and convert to SCC
         try:
-            pf = repo.get_pollyxt_file(interval_start, interval_end)
+            pf = repo.get_pollyxt_file(interval_start, interval_end + timedelta(seconds=30))
             id, path = create_scc_netcdf(pf, output_path, location, atmosphere)
 
             yield id, path, pf.start_date, pf.end_date
