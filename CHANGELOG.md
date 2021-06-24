@@ -1,3 +1,6 @@
+# v1.8.2
+- 🛠 Pad `end_time` of created SCC files a bit to avoid files ending in :29 instead of :30 (and :59 instead of :00).
+
 # v1.8.1
 - 🛠 Renamed `lidar-constants-scc` to `scc-lidar-constants`, which better matches the other scc-related commands.
 
