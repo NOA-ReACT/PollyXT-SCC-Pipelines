@@ -1,3 +1,6 @@
+# v1.8.3
+- ✨ `create-scc`: Generate calibration files for both 532nm and 355nm
+
 # v1.8.2
 - 🛠 Pad `end_time` of created SCC files a bit to avoid files ending in :29 instead of :30 (and :59 instead of :00).
 
