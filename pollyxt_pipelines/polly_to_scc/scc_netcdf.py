@@ -437,10 +437,15 @@ def convert_pollyxt_file(
             if start > measurement_start and end < measurement_end:
                 try:
                     pf = repo.get_pollyxt_file(start, end)
+
                     id, path = create_scc_calibration_netcdf(
                         pf, output_path, location, wavelength=Wavelength.NM_532
                     )
+                    yield id, path, start, end
 
+                    id, path = create_scc_calibration_netcdf(
+                        pf, output_path, location, wavelength=Wavelength.NM_355
+                    )
                     yield id, path, start, end
                 except NoMeasurementsInTimePeriod:
                     pass
