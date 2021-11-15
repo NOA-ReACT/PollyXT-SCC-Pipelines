@@ -8,8 +8,10 @@ Original code unlicensed but used with permission
 from datetime import datetime, timedelta
 import os
 from pathlib import Path
+from pollyxt_pipelines import config
 
 from pollyxt_pipelines.qc_eldec import constants
+from pollyxt_pipelines.locations import Location
 
 import numpy as np
 from netCDF4 import Dataset, date2num, num2date
@@ -44,7 +46,7 @@ class ELDECfile:
         #    return '%d' % (x*1e-3)
         return "%g" % (x * 1e-3)
 
-    def __init__(self, filename, timeseries_path: Path, plot_path=None):
+    def __init__(self, filename, location: Location, plot_path=None):
         """
         read an ELDEC file
 
@@ -53,8 +55,12 @@ class ELDECfile:
         """
 
         self.path = filename
-        self.timeseries_path = timeseries_path
         self.plot_path = plot_path
+
+        # Determine config path to store timeseries
+        config_path = config.config_paths()[-1] / "qc_eldec"
+        config_path.mkdir(parents=True, exist_ok=True)
+        self.timeseries_path = config_path / location.name + ".nc"
 
         # Read the file
         nc = Dataset(self.path, "r")
@@ -78,23 +84,34 @@ class ELDECfile:
         self.sys_id = nc.hoi_system_ID
         self.system = nc.system
         self.measurement_ID = nc.measurement_ID
-        self.wavelength = round(nc["polarization_calibration_ratio_emission_wavelength"][0])
+        self.wavelength = round(
+            nc["polarization_calibration_ratio_emission_wavelength"][0]
+        )
         self.ELDEC_version = nc.processor_version
         self.SCC_version = nc.scc_version
 
-        self.polcal_range_min = np.nanmin(nc["polarization_calibration_minimum_range"][:])
-        self.polcal_range_max = np.nanmax(nc["polarization_calibration_maximum_range"][:])
+        self.polcal_range_min = np.nanmin(
+            nc["polarization_calibration_minimum_range"][:]
+        )
+        self.polcal_range_max = np.nanmax(
+            nc["polarization_calibration_maximum_range"][:]
+        )
         self.polcal_max_idx = np.where(self.height > self.polcal_range_max)[0][0]
         self.polcal_min_idx = np.where(self.height > self.polcal_range_min)[0][0]
         self.max_alt = max(self.max_alt, self.polcal_range_max * 1.2)
 
-        self.ratio_profiles = self.mask(nc["polarization_calibration_ratio"][:, time_idx, :])
+        self.ratio_profiles = self.mask(
+            nc["polarization_calibration_ratio"][:, time_idx, :]
+        )
         self.ratio_profile_errors = self.mask(
             nc["polarization_calibration_ratio_statistical_error"][:, time_idx, :]
         )
 
         self.profile_stddev = np.nanmean(
-            np.nanstd(self.ratio_profiles[:, self.polcal_min_idx : self.polcal_max_idx], axis=1)
+            np.nanstd(
+                self.ratio_profiles[:, self.polcal_min_idx : self.polcal_max_idx],
+                axis=1,
+            )
         )
 
         if nc.getncattr("__file_format_version") <= "1.0":
@@ -120,7 +137,9 @@ class ELDECfile:
         time_idx = 0  # read only first calibration
 
         cal_values = nc["polarization_calibration_ratio_average"][:, time_idx]
-        cal_errors = nc["polarization_calibration_ratio_average_statistical_error"][:, time_idx]
+        cal_errors = nc["polarization_calibration_ratio_average_statistical_error"][
+            :, time_idx
+        ]
         self.calvalue = np.nanmean(cal_values)
         self.calvalue_error = np.nanmean(cal_errors)
 
@@ -138,7 +157,9 @@ class ELDECfile:
         cal_idx = 0  # read only first calibration
 
         self.calvalue = nc["polarization_gain_factor"][cal_idx, time_idx]
-        self.calvalue_error = nc["polarization_gain_factor_statistical_error"][cal_idx, time_idx]
+        self.calvalue_error = nc["polarization_gain_factor_statistical_error"][
+            cal_idx, time_idx
+        ]
 
     def mask(self, a_array):
         """
@@ -195,7 +216,9 @@ class ELDECfile:
         date_var = ts_file.createVariable("date", "i8", ("time",))
         mid_var = ts_file.createVariable("Measurement_ID", str, ("time",))
         pcal_var = ts_file.createVariable("polarization_calibration", "f8", ("time",))
-        pcale_var = ts_file.createVariable("polarization_calibration_error", "f8", ("time",))
+        pcale_var = ts_file.createVariable(
+            "polarization_calibration_error", "f8", ("time",)
+        )
         calver_var = ts_file.createVariable("ELDECVersion", str, ("time",))
         scc_var = ts_file.createVariable("SCCVersion", str, ("time",))
 
@@ -236,7 +259,11 @@ class ELDECfile:
 
         if ts.dimensions["time"].size > 0:
             if self.measurement_ID in ts.variables["Measurement_ID"]:
-                idx = int(np.where(ts.variables["Measurement_ID"][:] == self.measurement_ID)[0][0])
+                idx = int(
+                    np.where(ts.variables["Measurement_ID"][:] == self.measurement_ID)[
+                        0
+                    ][0]
+                )
             else:
                 ts.variables["Measurement_ID"][:] = np.ma.append(
                     ts.variables["Measurement_ID"], self.measurement_ID
@@ -251,7 +278,9 @@ class ELDECfile:
         ts.variables["polarization_calibration_error"][idx] = self.calvalue_error
         ts.variables["calibration_range_min"][idx] = self.polcal_range_min
         ts.variables["calibration_range_max"][idx] = self.polcal_range_max
-        ts.variables["date"][idx] = date2num(self.start_time, "seconds since 1970-01-01 00:00")
+        ts.variables["date"][idx] = date2num(
+            self.start_time, "seconds since 1970-01-01 00:00"
+        )
         ts.variables["ELDECVersion"][idx] = self.ELDEC_version
         ts.variables["SCCVersion"][idx] = self.SCC_version
 
@@ -326,7 +355,9 @@ class ELDECfile:
         colors = constants.COLORS[self.wavelength]
 
         title_1 = "{} {}nm".format(self.measurement_ID, self.wavelength)
-        title_2 = "{}, {}".format(self.station_id, self.start_time.strftime("%Y-%m-%d %H:%M"))
+        title_2 = "{}, {}".format(
+            self.station_id, self.start_time.strftime("%Y-%m-%d %H:%M")
+        )
         axes[0].set_title(title_1 + "\n" + title_2)
 
         # ----------------------------------------------------------------------
@@ -396,7 +427,11 @@ class ELDECfile:
 
         # plot previous and current gain factors
         axes[1].errorbar(
-            self.ts_values, self.ts_dates, xerr=self.ts_errors, fmt="o", color=colors["previous"]
+            self.ts_values,
+            self.ts_dates,
+            xerr=self.ts_errors,
+            fmt="o",
+            color=colors["previous"],
         )
         axes[1].errorbar(
             np.array([self.calvalue]),
@@ -430,8 +465,12 @@ class ELDECfile:
             max_idx = all_times.size
 
         if constants.AUTO_SCALE:
-            x_min = min(all_values[min_idx:max_idx]) - max(all_error[min_idx:max_idx]) * 0.8
-            x_max = max(all_values[min_idx:max_idx]) + max(all_error[min_idx:max_idx]) * 1.2
+            x_min = (
+                min(all_values[min_idx:max_idx]) - max(all_error[min_idx:max_idx]) * 0.8
+            )
+            x_max = (
+                max(all_values[min_idx:max_idx]) + max(all_error[min_idx:max_idx]) * 1.2
+            )
         else:
             x_min = constants.AXES_LIMITS[self.wavelength][0]
             x_max = constants.AXES_LIMITS[self.wavelength][1]
@@ -447,7 +486,9 @@ class ELDECfile:
         # adjust subplots and save to file
         # ----------------------------------------------------------------------
 
-        plt.subplots_adjust(hspace=0.0, wspace=0.5, bottom=0.13, left=0.08, top=0.9, right=0.97)
+        plt.subplots_adjust(
+            hspace=0.0, wspace=0.5, bottom=0.13, left=0.08, top=0.9, right=0.97
+        )
 
         plt.savefig(self.plot_path)
 
