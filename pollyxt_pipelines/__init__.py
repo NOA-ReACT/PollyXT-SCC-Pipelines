@@ -21,6 +21,7 @@ from pollyxt_pipelines.scc_access.commands import (
     LidarConstantsSCC,
 )
 from pollyxt_pipelines.locations.commands import LocationPath, ShowLocations
+from pollyxt_pipelines.qc_eldec.commands import QCEldec
 
 
 def get_package_version():
@@ -54,6 +55,7 @@ def prepare_cli_application() -> Application:
     application.add(LidarConstantsSCC())
     application.add(ShowLocations())
     application.add(LocationPath())
+    application.add(QCEldec())
 
     return application
 
