@@ -4,7 +4,7 @@ Commands for performing the QC check on ELDEC products
 
 from cleo import Command
 
-from pollyxt_pipelines import locations
+from pollyxt_pipelines import config, locations
 from pollyxt_pipelines.qc_eldec import qc_eldec_file
 
 
@@ -36,3 +36,16 @@ class QCEldec(Command):
 
         self.line("Calibration does not pass checked.")
         return 1
+
+
+class QCEldecDeleteHistory(Command):
+    """Delete history of qc-eldec command
+
+    qc-eldec-delete-history
+    """
+
+    def handle(self):
+        timeseries_dir = config.config_paths()[-1] / "qc_eldec"
+        for file in timeseries_dir.glob("*.nc"):
+            self.line(f"Deleting {file}")
+            file.unlink()
