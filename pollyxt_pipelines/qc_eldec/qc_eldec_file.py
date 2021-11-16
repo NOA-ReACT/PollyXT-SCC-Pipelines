@@ -57,11 +57,6 @@ class ELDECfile:
         self.path = filename
         self.plot_path = plot_path
 
-        # Determine config path to store timeseries
-        config_path = config.config_paths()[-1] / "qc_eldec"
-        config_path.mkdir(parents=True, exist_ok=True)
-        self.timeseries_path = config_path / (location.name + ".nc")
-
         # Read the file
         nc = Dataset(self.path, "r")
         nc.set_auto_mask(False)
@@ -120,6 +115,11 @@ class ELDECfile:
             self.read_eldec_file_v11(nc)
 
         nc.close()
+
+        # Determine config path to store timeseries
+        config_path = config.config_paths()[-1] / "qc_eldec"
+        config_path.mkdir(parents=True, exist_ok=True)
+        self.timeseries_path = config_path / f"{location.name}_{self.wavelength}nm.nc"
 
         self.is_ok = False
         self.analyze()
