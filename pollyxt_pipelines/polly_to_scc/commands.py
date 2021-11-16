@@ -89,21 +89,27 @@ class CreateSCC(Command):
         start_time = self.option("start-time")
         end_time = self.option("end-time")
         if start_time is None and end_time is not None:
-            console.print("`--end-time` [error]can't be used without[/error] `--start-time`.")
+            console.print(
+                "`--end-time` [error]can't be used without[/error] `--start-time`."
+            )
             return 1
         system_id_day = self.option("system-id-day")
         if system_id_day is not None:
             try:
                 system_id_day = int(system_id_day)
             except ValueError:
-                console.print("[error]Value for system-id-day is not convertable to int![/error]")
+                console.print(
+                    "[error]Value for system-id-day is not convertable to int![/error]"
+                )
                 return 1
         system_id_night = self.option("system-id-night")
         if system_id_night is not None:
             try:
                 system_id_night = int(system_id_night)
             except ValueError:
-                console.print("[error]Value for system-id-night is not convertable to int![/error]")
+                console.print(
+                    "[error]Value for system-id-night is not convertable to int![/error]"
+                )
                 return 1
 
         # Try to get location

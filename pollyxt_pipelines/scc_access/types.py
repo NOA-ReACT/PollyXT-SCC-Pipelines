@@ -138,7 +138,9 @@ class Measurement:
             date_updated=scc_date(tr.find("td", class_="field-updated_date")),
             is_uploaded=scc_product_status(tr.find("td", class_="field-upload_ok_evo")),
             hirelpp=scc_product_status(tr.find("td", class_="field-hirelpp_ok_evo")),
-            cloudmask=scc_product_status(tr.find("td", class_="field-cloudmask_ok_evo")),
+            cloudmask=scc_product_status(
+                tr.find("td", class_="field-cloudmask_ok_evo")
+            ),
             elpp=scc_product_status(tr.find("td", class_="field-elpp_ok_evo")),
             elda=scc_product_status(tr.find("td", class_="field-elda_ok_evo")),
             eldec=scc_product_status(tr.find("td", class_="field-eldec_ok_evo")),
@@ -205,12 +207,20 @@ class LidarConstant:
             channel_id=tr.find("td", class_="field-channel_id_display").text,
             system_id=tr.find("td", class_="field-system_id_display").text,
             product_id=tr.find("td", class_="field-product_id_display").text,
-            detection_wavelength=tr.find("td", class_="field-detection_wavelength").text,
+            detection_wavelength=tr.find(
+                "td", class_="field-detection_wavelength"
+            ).text,
             lidar_constant=tr.find("td", class_="field-lidar_constant").text,
-            lidar_constant_stat_err=tr.find("td", class_="field-lidar_constant_stat_err").text,
-            profile_start_time=scc_date(tr.find("td", class_="field-profile_start_time")),
+            lidar_constant_stat_err=tr.find(
+                "td", class_="field-lidar_constant_stat_err"
+            ).text,
+            profile_start_time=scc_date(
+                tr.find("td", class_="field-profile_start_time")
+            ),
             profile_end_time=scc_date(tr.find("td", class_="field-profile_end_time")),
-            calibration_window_bottom=tr.find("td", class_="field-calibr_window_bottom").text,
+            calibration_window_bottom=tr.find(
+                "td", class_="field-calibr_window_bottom"
+            ).text,
             calibration_window_top=tr.find("td", class_="field-calibr_window_top").text,
             creation_date=scc_date(tr.find("td", class_="field-creation_date")),
             elda_version=tr.find("td", class_="field-elda_version").text,

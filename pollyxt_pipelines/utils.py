@@ -78,7 +78,9 @@ def date_option_to_datetime(today: datetime, string: str) -> datetime:
     """
 
     # Try to determine the string's format
-    date_seconds_match = re.search(r"^\d{4}-[01]\d-[0123]\d_[012]\d:[0-5]\d:[0-5]\d", string)
+    date_seconds_match = re.search(
+        r"^\d{4}-[01]\d-[0123]\d_[012]\d:[0-5]\d:[0-5]\d", string
+    )
     if date_seconds_match is not None:
         # Strings seems to be in YYYY-mm-DD HH:MM:SS format
         return datetime.strptime(string, "%Y-%m-%d_%H:%M:%S")

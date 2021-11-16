@@ -11,13 +11,14 @@ class TestDateOptionToDatetime:
     """
 
     def test_full_date_seconds(self):
-        measurement_start = datetime.strptime("2020-01-01_01:23:24", "%Y-%m-%d_%H:%M:%S")
+        measurement_start = datetime.strptime(
+            "2020-01-01_01:23:24", "%Y-%m-%d_%H:%M:%S"
+        )
         string = "2020-01-01_01:23:24"
 
         result = date_option_to_datetime(measurement_start, string)
 
         assert result == datetime.strptime(string, "%Y-%m-%d_%H:%M:%S")
-
 
     def test_full_date(self):
         measurement_start = datetime.strptime("2020-01-01_01:23", "%Y-%m-%d_%H:%M")
@@ -27,9 +28,10 @@ class TestDateOptionToDatetime:
 
         assert result == datetime.strptime(string, "%Y-%m-%d_%H:%M")
 
-
     def test_hour_seconds(self):
-        measurement_start = datetime.strptime("2020-01-01_01:23:34", "%Y-%m-%d_%H:%M:%S")
+        measurement_start = datetime.strptime(
+            "2020-01-01_01:23:34", "%Y-%m-%d_%H:%M:%S"
+        )
         string = "12:00:34"
 
         result = date_option_to_datetime(measurement_start, string)

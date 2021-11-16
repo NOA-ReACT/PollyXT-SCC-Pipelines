@@ -15,7 +15,9 @@ logout_url = urlparse.urljoin(BASE_URL, "accounts/logout/")
 # Measurement mnagement
 list_measurements_url = urlparse.urljoin(BASE_URL, "admin/database/measurements/")
 upload_url = urlparse.urljoin(BASE_URL, "data_processing/measurements/quick/")
-delete_measurement_pattern = urlparse.urljoin(BASE_URL, "admin/database/measurements/{0}/delete/")
+delete_measurement_pattern = urlparse.urljoin(
+    BASE_URL, "admin/database/measurements/{0}/delete/"
+)
 rerun_measurement_url = urlparse.urljoin(BASE_URL, "/admin/database/measurements/")
 
 # Lidar constants
@@ -46,6 +48,12 @@ download_elic_pattern = urlparse.urljoin(
 api_base_url = urlparse.urljoin(BASE_URL, "api/v1/")
 api_measurement_pattern = urlparse.urljoin(api_base_url, "measurements/{0}/")
 api_measurements_url = urlparse.urljoin(api_base_url, "measurements")
-api_sounding_search_pattern = urlparse.urljoin(api_base_url, "sounding_files/?filename={0}")
-api_lidarratio_search_pattern = urlparse.urljoin(api_base_url, "lidarratio_files/?filename={0}")
-api_overlap_search_pattern = urlparse.urljoin(api_base_url, "overlap_files/?filename={0}")
+api_sounding_search_pattern = urlparse.urljoin(
+    api_base_url, "sounding_files/?filename={0}"
+)
+api_lidarratio_search_pattern = urlparse.urljoin(
+    api_base_url, "lidarratio_files/?filename={0}"
+)
+api_overlap_search_pattern = urlparse.urljoin(
+    api_base_url, "overlap_files/?filename={0}"
+)

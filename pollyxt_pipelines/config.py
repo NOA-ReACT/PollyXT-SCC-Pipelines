@@ -90,7 +90,9 @@ class ConfigCommand(Command):
                 value = config[group][name]
                 console.print(value)
             except KeyError:
-                console.print(f"[error]No config value with name[/error] {group}.{name}")
+                console.print(
+                    f"[error]No config value with name[/error] {group}.{name}"
+                )
                 console.print("Did you forget to define it?")
                 return 1
         else:

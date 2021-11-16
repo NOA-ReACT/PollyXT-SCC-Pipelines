@@ -29,7 +29,9 @@ class Login(Command):
     def handle(self):
         # Print warning!
         path = config_paths()[-1]
-        warning_md = "Your credentials will be stored as **PLAIN-TEXT** in the following file:\n"
+        warning_md = (
+            "Your credentials will be stored as **PLAIN-TEXT** in the following file:\n"
+        )
         warning_md += f"\n* {path}\n"
         warning_md += "\nPlease make sure you understand the security implications of this and keep the config files safe!"
         warning_md = Markdown(warning_md)
@@ -40,7 +42,9 @@ class Login(Command):
         console.print(
             "Please enter the HTTP authentication credentials (this is the first login popup when you access the website):"
         )
-        console.print("[warn]The password won't be visible while you are typing![/warn]")
+        console.print(
+            "[warn]The password won't be visible while you are typing![/warn]"
+        )
         http_username = input("Username: ")
         http_password = getpass.getpass("Password: ")
 
@@ -138,7 +142,9 @@ class UploadFiles(Command):
                         f"[error]Error while uploading[/error] {file}[error]:[/error] {str(ex)}"
                     )
                 except Exception:
-                    console.print(f"[error]Unknown error while uploading[/error] {file}")
+                    console.print(
+                        f"[error]Unknown error while uploading[/error] {file}"
+                    )
                     console.print_exception()
 
         successful_count = len(successful_ids)
@@ -185,7 +191,9 @@ class DownloadFiles(Command):
         if id_list_file is None:
             ids = self.option("id")
             if ids is None or len(ids) == 0:
-                self.line_error("Either a list file or some measurement IDs must be provided!")
+                self.line_error(
+                    "Either a list file or some measurement IDs must be provided!"
+                )
                 return 1
         else:
             id_frame = pd.read_csv(id_list_file, index_col="id")
@@ -205,7 +213,9 @@ class DownloadFiles(Command):
                 # Check if processing is done
                 measurement = scc.get_measurement(id)
                 if measurement.is_processing:
-                    console.print(f"[warn]File[/warn] {id} [warn]is still processing.[/warn]")
+                    console.print(
+                        f"[warn]File[/warn] {id} [warn]is still processing.[/warn]"
+                    )
                     continue
 
                 for file in scc.download_products(id, output_directory):
@@ -254,7 +264,9 @@ class DeleteSCC(Command):
                         console.print(f"[info]Deleted[/info] {id}")
                         successes.append(id)
                     except Exception as ex:
-                        console.print(f"-> [error]Could not delete:[/error] {id}", style="bold")
+                        console.print(
+                            f"-> [error]Could not delete:[/error] {id}", style="bold"
+                        )
                         console.print(f"[error]{type(ex).__name__}:[/error] {str(ex)}")
                         failures.append(id)
 
@@ -307,7 +319,8 @@ class RerunSCC(Command):
                         successes.append(id)
                     except Exception as ex:
                         console.print(
-                            f"-> [error]Could not make request:[/error] {id}", style="bold"
+                            f"-> [error]Could not make request:[/error] {id}",
+                            style="bold",
                         )
                         console.print(f"[error]{type(ex).__name__}:[/error] {str(ex)}")
                         failures.append(id)
@@ -354,19 +367,25 @@ class SearchSCC(Command):
             date_start = self.argument("date-start")
             date_start = datetime.date.fromisoformat(date_start)
         except ValueError:
-            logging.error("Could not parse date-start! Please use the ISO format (YYYY-MM-DD)")
+            logging.error(
+                "Could not parse date-start! Please use the ISO format (YYYY-MM-DD)"
+            )
             return 1
 
         try:
             date_end = self.argument("date-end")
             date_end = datetime.date.fromisoformat(date_end)
         except ValueError:
-            logging.error("Could not parse date-start! Please use the ISO format (YYYY-MM-DD)")
+            logging.error(
+                "Could not parse date-start! Please use the ISO format (YYYY-MM-DD)"
+            )
             return 1
 
         detailed_status = self.option("detailed-status")
         if detailed_status and (self.option("to-csv") is None):
-            console.print("[error]Cannot use --detailed-status without --to-csv=[/error]")
+            console.print(
+                "[error]Cannot use --detailed-status without --to-csv=[/error]"
+            )
             return 1
 
         # Read application config
@@ -383,7 +402,9 @@ class SearchSCC(Command):
                 task = progress.add_task("Fetching results...", start=False, total=1)
 
                 # Query SCC for measurements
-                pages, measurements = scc.query_measurements(date_start, date_end, location)
+                pages, measurements = scc.query_measurements(
+                    date_start, date_end, location
+                )
                 if len(measurements) == 0:
                     progress.stop()
                     console.print("[warn]No measurements found![/warn]")
@@ -506,14 +527,18 @@ class SearchDownloadSCC(Command):
             date_start = self.argument("date-start")
             date_start = datetime.date.fromisoformat(date_start)
         except ValueError:
-            logging.error("Could not parse date-start! Please use the ISO format (YYYY-MM-DD)")
+            logging.error(
+                "Could not parse date-start! Please use the ISO format (YYYY-MM-DD)"
+            )
             return 1
 
         try:
             date_end = self.argument("date-end")
             date_end = datetime.date.fromisoformat(date_end)
         except ValueError:
-            logging.error("Could not parse date-start! Please use the ISO format (YYYY-MM-DD)")
+            logging.error(
+                "Could not parse date-start! Please use the ISO format (YYYY-MM-DD)"
+            )
             return 1
 
         hirelpp = option_to_bool(self.option("no-hirelpp"), True)
@@ -540,7 +565,9 @@ class SearchDownloadSCC(Command):
                 task = progress.add_task("Fetching results...", start=False, total=1)
 
                 # Query SCC for measurements
-                pages, measurements = scc.query_measurements(date_start, date_end, location)
+                pages, measurements = scc.query_measurements(
+                    date_start, date_end, location
+                )
                 if len(measurements) == 0:
                     progress.stop()
                     console.print("[warn]No measurements found![/warn]")
@@ -560,7 +587,9 @@ class SearchDownloadSCC(Command):
                         current_page += 1
                         progress.advance(task)
 
-            console.log(f"[info]Found[/info] {len(measurements)} [info]measurements.[/info]")
+            console.log(
+                f"[info]Found[/info] {len(measurements)} [info]measurements.[/info]"
+            )
 
             # Download files
             measurement_count = len(measurements)
@@ -568,12 +597,14 @@ class SearchDownloadSCC(Command):
             i = 0
             with Progress(console=console) as progress:
                 task = progress.add_task(
-                    f"Downloading products (1/{measurement_count})...", total=measurement_count
+                    f"Downloading products (1/{measurement_count})...",
+                    total=measurement_count,
                 )
 
                 for m in measurements:
                     progress.update(
-                        task, description=f"Downloading products ({i}/{measurement_count})..."
+                        task,
+                        description=f"Downloading products ({i}/{measurement_count})...",
                     )
                     try:
                         for file in scc.download_products(
@@ -626,14 +657,18 @@ class LidarConstantsSCC(Command):
             date_start = self.argument("date-start")
             date_start = datetime.date.fromisoformat(date_start)
         except ValueError:
-            logging.error("Could not parse date-start! Please use the ISO format (YYYY-MM-DD)")
+            logging.error(
+                "Could not parse date-start! Please use the ISO format (YYYY-MM-DD)"
+            )
             return 1
 
         try:
             date_end = self.argument("date-end")
             date_end = datetime.date.fromisoformat(date_end)
         except ValueError:
-            logging.error("Could not parse date-start! Please use the ISO format (YYYY-MM-DD)")
+            logging.error(
+                "Could not parse date-start! Please use the ISO format (YYYY-MM-DD)"
+            )
             return 1
 
         # Read application config
@@ -650,7 +685,9 @@ class LidarConstantsSCC(Command):
                 task = progress.add_task("Fetching results...", start=False, total=1)
 
                 # Query SCC for measurements
-                pages, lidar_constants = scc.get_lidar_consants(date_start, date_end, location)
+                pages, lidar_constants = scc.get_lidar_consants(
+                    date_start, date_end, location
+                )
                 if len(lidar_constants) == 0:
                     progress.stop()
                     console.print("[warn]No data found![/warn]")

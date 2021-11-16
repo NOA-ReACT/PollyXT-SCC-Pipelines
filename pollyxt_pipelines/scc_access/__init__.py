@@ -66,12 +66,22 @@ class SCC:
         # Get login form (for csrf token)
         login_page = self.session.get(constants.login_url)
         if not login_page.ok:
-            raise exceptions.PageNotAccessible(constants.login_url, login_page.status_code)
+            raise exceptions.PageNotAccessible(
+                constants.login_url, login_page.status_code
+            )
 
         # Submit login form
-        body = {"username": self.credentials.username, "password": self.credentials.password}
-        headers = {"X-CSRFToken": login_page.cookies["csrftoken"], "referer": constants.login_url}
-        logon_request = self.session.post(constants.login_url, data=body, headers=headers)
+        body = {
+            "username": self.credentials.username,
+            "password": self.credentials.password,
+        }
+        headers = {
+            "X-CSRFToken": login_page.cookies["csrftoken"],
+            "referer": constants.login_url,
+        }
+        logon_request = self.session.post(
+            constants.login_url, data=body, headers=headers
+        )
 
         # Do some basic checking on the response
         if "Wrong username or password" in logon_request.text:
@@ -136,7 +146,8 @@ class SCC:
             pages = int(last_page.text)
 
         measurements = [
-            Measurement.from_table_row(tr) for tr in body.findAll("tr", {"class": "grp-row"})
+            Measurement.from_table_row(tr)
+            for tr in body.findAll("tr", {"class": "grp-row"})
         ]
 
         return pages, measurements
@@ -184,7 +195,9 @@ class SCC:
         if elpp:
             to_download.append(
                 {
-                    "url": constants.download_preprocessed_pattern.format(measurement_id),
+                    "url": constants.download_preprocessed_pattern.format(
+                        measurement_id
+                    ),
                     "path": download_path / f"preprocessed_{measurement_id}.zip",
                 }
             )
@@ -239,7 +252,9 @@ class SCC:
         elif file_type == "lidarratio":
             url = constants.api_lidarratio_search_pattern.format(file_id)
         else:
-            raise ValueError(f"File type should be one of: sounding, overlap, lidarratio")
+            raise ValueError(
+                f"File type should be one of: sounding, overlap, lidarratio"
+            )
 
         # Make request
         response = self.session.get(url)
@@ -311,7 +326,10 @@ class SCC:
         upload_page = self.session.get(constants.upload_url)
 
         body = {"system": system_id}
-        headers = {"X-CSRFToken": upload_page.cookies["csrftoken"], "referer": constants.upload_url}
+        headers = {
+            "X-CSRFToken": upload_page.cookies["csrftoken"],
+            "referer": constants.upload_url,
+        }
         upload_submit = self.session.post(
             constants.upload_url, data=body, files=files, headers=headers
         )
@@ -324,7 +342,10 @@ class SCC:
             raise exceptions.SCCError(errors)
 
         # console.print(upload_submit.text)
-        if upload_submit.status_code != 200 or upload_submit.url == constants.upload_url:
+        if (
+            upload_submit.status_code != 200
+            or upload_submit.url == constants.upload_url
+        ):
             raise exceptions.UnexpectedResponse("Upload to SCC failed")
 
     def get_measurement(self, measurement_id: str) -> Union[Measurement, None]:
@@ -363,7 +384,10 @@ class SCC:
 
         # Submit form
         url = constants.delete_measurement_pattern.format(measurement_id)
-        body = {"select_delete_related_measurements": "not_delete_related", "post": "yes"}
+        body = {
+            "select_delete_related_measurements": "not_delete_related",
+            "post": "yes",
+        }
         headers = {
             "referer": url,
             "X-CSRFToken": self.session.cookies["csrftoken"],
@@ -396,7 +420,9 @@ class SCC:
             "referer": url,
             "X-CSRFToken": self.session.cookies["csrftoken"],
         }
-        response = self.session.post(url, data=body, headers=headers, allow_redirects=False)
+        response = self.session.post(
+            url, data=body, headers=headers, allow_redirects=False
+        )
 
         # Look for success banner
         if response.status_code == 404:
@@ -410,7 +436,9 @@ class SCC:
             raise exceptions.UnexpectedResponse("`Messages` cookie not found")
 
         if "The processing chain was restarted" not in messages_cookie:
-            raise exceptions.UnexpectedResponse("Could not found restart message in cookie")
+            raise exceptions.UnexpectedResponse(
+                "Could not found restart message in cookie"
+            )
 
     def get_lidar_consants(
         self, date_start: date, date_end: date, location: Union[Location, None], page=1
@@ -454,7 +482,8 @@ class SCC:
             pages = int(last_page.text)
 
         lidar_constants = [
-            LidarConstant.from_table_row(tr) for tr in body.findAll("tr", {"class": "grp-row"})
+            LidarConstant.from_table_row(tr)
+            for tr in body.findAll("tr", {"class": "grp-row"})
         ]
 
         return pages, lidar_constants

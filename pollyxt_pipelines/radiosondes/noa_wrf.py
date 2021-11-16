@@ -53,7 +53,9 @@ def calculate_wrf_path(location: str, date: date) -> Path:
         config = Config()
         radiosonde_storage = config["wrf"]["path"]
     except KeyError:
-        raise ValueError(f"Config variable wrf.path is undefined. Can't locate radiosonde files")
+        raise ValueError(
+            f"Config variable wrf.path is undefined. Can't locate radiosonde files"
+        )
     radiosonde_storage = Path(radiosonde_storage)
 
     # Calculate file path
@@ -94,7 +96,9 @@ def read_wrf_daily_profile(
 
     rs = pd.read_csv(path, header=0, names=columns, dtype=dtype)
 
-    rs["timestamp"] = pd.to_datetime(rs["timestamp"].str.strip(), format="%Y-%m-%d_%H:%M:%S")
+    rs["timestamp"] = pd.to_datetime(
+        rs["timestamp"].str.strip(), format="%Y-%m-%d_%H:%M:%S"
+    )
     rs = rs.rename(
         columns={
             "altitude": "Altitude",
@@ -105,8 +109,13 @@ def read_wrf_daily_profile(
     )
 
     # Filter for the correct time
-    mask = (rs["timestamp"] >= time_start) & (rs["timestamp"] < time_start + timedelta(minutes=59))
+    mask = (rs["timestamp"] >= time_start) & (
+        rs["timestamp"] < time_start + timedelta(minutes=59)
+    )
     rs = rs.loc[mask]
 
     rs_timestamp = rs["timestamp"].iloc[0]
-    return rs_timestamp, rs.loc[:, ["Altitude", "Temperature", "Pressure", "RelativeHumidity"]]
+    return (
+        rs_timestamp,
+        rs.loc[:, ["Altitude", "Temperature", "Pressure", "RelativeHumidity"]],
+    )

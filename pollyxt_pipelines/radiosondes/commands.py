@@ -31,7 +31,9 @@ class GetRadiosonde(Command):
         # Get requested provider
         provider = RadiosondeProviders.get(self.argument("provider"), None)
         if provider is None:
-            console.print(f"[error]Unknown provider[/error] {self.argument('provider')}")
+            console.print(
+                f"[error]Unknown provider[/error] {self.argument('provider')}"
+            )
             known_providers = "List of supported providers:\n\n"
             for key in RadiosondeProviders.keys():
                 known_providers += f"- {key}\n"
@@ -73,5 +75,7 @@ class GetRadiosonde(Command):
 
         to_scc = self.option("to-scc")
         if to_scc is not None:
-            console.print(f"[info]Writing profile as SCC radiosonde file:[/info] {to_scc}")
+            console.print(
+                f"[info]Writing profile as SCC radiosonde file:[/info] {to_scc}"
+            )
             write_radiosonde_netcdf(profile, location, profile_time, to_scc)

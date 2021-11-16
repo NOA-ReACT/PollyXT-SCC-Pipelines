@@ -13,7 +13,10 @@ import numpy as np
 from pollyxt_pipelines.polly_to_scc import pollyxt
 from pollyxt_pipelines.locations import Location
 from pollyxt_pipelines import utils
-from pollyxt_pipelines.polly_to_scc.exceptions import NoMeasurementsInTimePeriod, TimeOutsideFile
+from pollyxt_pipelines.polly_to_scc.exceptions import (
+    NoMeasurementsInTimePeriod,
+    TimeOutsideFile,
+)
 
 
 class Wavelength(Enum):
@@ -141,8 +144,12 @@ def create_scc_netcdf(
     raw_lidar_data = nc.createVariable(
         "Raw_Lidar_Data", "f8", dimensions=("time", "channels", "points"), zlib=True
     )
-    channel_id = nc.createVariable("channel_ID", "i4", dimensions=("channels"), zlib=True)
-    id_timescale = nc.createVariable("id_timescale", "i4", dimensions=("channels"), zlib=True)
+    channel_id = nc.createVariable(
+        "channel_ID", "i4", dimensions=("channels"), zlib=True
+    )
+    id_timescale = nc.createVariable(
+        "id_timescale", "i4", dimensions=("channels"), zlib=True
+    )
     laser_pointing_angle = nc.createVariable(
         "Laser_Pointing_Angle", "f8", dimensions=("scan_angles"), zlib=True
     )
@@ -152,9 +159,15 @@ def create_scc_netcdf(
         dimensions=("time", "nb_of_time_scales"),
         zlib=True,
     )
-    laser_shots = nc.createVariable("Laser_Shots", "i4", dimensions=("time", "channels"), zlib=True)
-    background_low = nc.createVariable("Background_Low", "f8", dimensions=("channels"), zlib=True)
-    background_high = nc.createVariable("Background_High", "f8", dimensions=("channels"), zlib=True)
+    laser_shots = nc.createVariable(
+        "Laser_Shots", "i4", dimensions=("time", "channels"), zlib=True
+    )
+    background_low = nc.createVariable(
+        "Background_Low", "f8", dimensions=("channels"), zlib=True
+    )
+    background_high = nc.createVariable(
+        "Background_High", "f8", dimensions=("channels"), zlib=True
+    )
     molecular_calc = nc.createVariable("Molecular_Calc", "i4", dimensions=(), zlib=True)
     nc.createVariable("Pol_Calib_Range_Min", "f8", dimensions=("channels"), zlib=True)
     nc.createVariable("Pol_Calib_Range_Max", "f8", dimensions=("channels"), zlib=True)
@@ -256,8 +269,12 @@ def create_scc_calibration_netcdf(
     raw_lidar_data = nc.createVariable(
         "Raw_Lidar_Data", "f8", dimensions=("time", "channels", "points"), zlib=True
     )
-    channel_id = nc.createVariable("channel_ID", "i4", dimensions=("channels"), zlib=True)
-    id_timescale = nc.createVariable("id_timescale", "i4", dimensions=("channels"), zlib=True)
+    channel_id = nc.createVariable(
+        "channel_ID", "i4", dimensions=("channels"), zlib=True
+    )
+    id_timescale = nc.createVariable(
+        "id_timescale", "i4", dimensions=("channels"), zlib=True
+    )
     laser_pointing_angle = nc.createVariable(
         "Laser_Pointing_Angle", "f8", dimensions=("scan_angles"), zlib=True
     )
@@ -267,9 +284,15 @@ def create_scc_calibration_netcdf(
         dimensions=("time", "nb_of_time_scales"),
         zlib=True,
     )
-    laser_shots = nc.createVariable("Laser_Shots", "i4", dimensions=("time", "channels"), zlib=True)
-    background_low = nc.createVariable("Background_Low", "f8", dimensions=("channels"), zlib=True)
-    background_high = nc.createVariable("Background_High", "f8", dimensions=("channels"), zlib=True)
+    laser_shots = nc.createVariable(
+        "Laser_Shots", "i4", dimensions=("time", "channels"), zlib=True
+    )
+    background_low = nc.createVariable(
+        "Background_Low", "f8", dimensions=("channels"), zlib=True
+    )
+    background_high = nc.createVariable(
+        "Background_High", "f8", dimensions=("channels"), zlib=True
+    )
     molecular_calc = nc.createVariable("Molecular_Calc", "i4", dimensions=(), zlib=True)
     pol_calib_range_min_var = nc.createVariable(
         "Pol_Calib_Range_Min", "f8", dimensions=("channels"), zlib=True
@@ -415,7 +438,9 @@ def convert_pollyxt_file(
 
         # Open netCDF file and convert to SCC
         try:
-            pf = repo.get_pollyxt_file(interval_start, interval_end + timedelta(seconds=30))
+            pf = repo.get_pollyxt_file(
+                interval_start, interval_end + timedelta(seconds=30)
+            )
             id, path = create_scc_netcdf(pf, output_path, location, atmosphere)
 
             yield id, path, pf.start_date, pf.end_date

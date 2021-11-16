@@ -34,7 +34,9 @@ def polly_date_to_datetime(timestamp: Tuple[int, int]) -> datetime:
     return date + timedelta(seconds=int(seconds))
 
 
-def get_measurement_period(input: Union[Path, Dataset, np.ndarray]) -> Tuple[datetime, datetime]:
+def get_measurement_period(
+    input: Union[Path, Dataset, np.ndarray]
+) -> Tuple[datetime, datetime]:
     """
     Return the measurement time (i.e. start and end times) from a PollyXT file.
 
@@ -129,7 +131,9 @@ class PollyXTRepository:
         elif self.path.is_file():
             self.files = [self.path]
         else:
-            raise ValueError(f"Path {self.path} doesn't seem to be either a file or a directory")
+            raise ValueError(
+                f"Path {self.path} doesn't seem to be either a file or a directory"
+            )
 
         if len(self.files) == 0:
             raise NoFilesFound(self.path)
@@ -177,7 +181,9 @@ class PollyXTRepository:
         """
 
         # Filter index for given time range
-        mask = (self.index["timestamp"] >= time_start) & (self.index["timestamp"] <= time_end)
+        mask = (self.index["timestamp"] >= time_start) & (
+            self.index["timestamp"] <= time_end
+        )
         targets = self.index[mask]
         if targets.shape[0] == 0:
             raise NoMeasurementsInTimePeriod()
@@ -195,15 +201,25 @@ class PollyXTRepository:
         # Concatenate data into one file
         pollyxt_file = polly_files[0]
         pollyxt_file.raw_signal = np.concatenate([x.raw_signal for x in polly_files])
-        pollyxt_file.raw_signal_swap = np.concatenate([x.raw_signal_swap for x in polly_files])
-        pollyxt_file.measurement_time = np.concatenate([x.measurement_time for x in polly_files])
-        pollyxt_file.measurement_shots = np.concatenate([x.measurement_shots for x in polly_files])
+        pollyxt_file.raw_signal_swap = np.concatenate(
+            [x.raw_signal_swap for x in polly_files]
+        )
+        pollyxt_file.measurement_time = np.concatenate(
+            [x.measurement_time for x in polly_files]
+        )
+        pollyxt_file.measurement_shots = np.concatenate(
+            [x.measurement_shots for x in polly_files]
+        )
         try:
-            pollyxt_file.zenith_angle = np.concatenate([x.zenith_angle for x in polly_files])
+            pollyxt_file.zenith_angle = np.concatenate(
+                [x.zenith_angle for x in polly_files]
+            )
         except ValueError:
             # Sometimes these arrays are empty, this is not a problem
             pass
-        pollyxt_file.depol_cal_angle = np.concatenate([x.depol_cal_angle for x in polly_files])
+        pollyxt_file.depol_cal_angle = np.concatenate(
+            [x.depol_cal_angle for x in polly_files]
+        )
 
         pollyxt_file.end_date = polly_files[-1].end_date
 
@@ -229,7 +245,9 @@ class PollyXTFile:
     location_coordinates: np.ndarray
     depol_cal_angle: np.ndarray
 
-    def __init__(self, input_path: Path, start: int = None, end: int = None, nan_calibration=True):
+    def __init__(
+        self, input_path: Path, start: int = None, end: int = None, nan_calibration=True
+    ):
         """
         Read a PollyXT netcdf file
 

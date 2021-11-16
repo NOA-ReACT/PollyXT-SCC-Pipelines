@@ -53,6 +53,4 @@ class BadMeasurementTime(Exception):
         self.value = value
 
     def __str__(self) -> str:
-        return (
-            f"Bad measurement time value was encountered in file {self.filename}: {str(self.value)}"
-        )
+        return f"Bad measurement time value was encountered in file {self.filename}: {str(self.value)}"
