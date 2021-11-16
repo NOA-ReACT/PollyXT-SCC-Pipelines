@@ -123,7 +123,7 @@ class UploadFiles(Command):
                 except AttributeError:
                     radiosonde_path = None
                 dataset_id = nc.Measurement_ID
-                configuration_id = nc.NOAReACT_Configuration_ID
+                configuration_id = nc.X_PollyXTPipelines_Configuration_ID
                 nc.close()
 
                 if radiosonde_path is not None and not radiosonde_path.exists():
