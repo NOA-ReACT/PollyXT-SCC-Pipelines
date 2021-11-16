@@ -28,6 +28,7 @@ User Guide
    usage
    locations
    convert-scc
+   calibration-qc
    auth
    scc-upload-download
    search-scc

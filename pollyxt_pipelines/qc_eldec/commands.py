@@ -17,6 +17,20 @@ class QCEldec(Command):
         {plot? : Optionally, a path to store the plot}
     """
 
+    help = """
+    This command performs quality checks on ELDEC files produced by calibration uploads. Specifically:
+
+    * is relative error of the gain factor below threshold?
+    * is relative standard deviation of ratio profiles below threshold?
+    * is there an overlap between uncertainty range of gain factor and standard deviation of time series * factor ?
+
+    Every time this command is executed, the history of calibration results are stored in a file (per-location), which is used for the last criteria. To delete this file, use the `qc-eldec-clear-history` command.
+
+    The history files are stored at the config directory. For Linux, that should be `~/.config/pollyxt_pipelines/` and for Windows `%APPDATA%/PollyXT_Pipelines/`.
+
+    Original code by Ina Mattis (@imattis on GitLab): https://gitlab.com/imattis/qc_eldec_file
+    """
+
     def handle(self):
         # Get arguments
         input_file = self.argument("input")
