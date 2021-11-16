@@ -309,11 +309,13 @@ def create_scc_calibration_netcdf(
         cross_channel = location.cross_channel_355_nm
         channel_id[:] = np.array(location.calibration_355nm_channel_ids)
         nc.Measurement_ID = measurement_id + "35"
+        nc.NOAReACT_Configuration_ID = location.calibration_configuration_355nm
     elif wavelength == Wavelength.NM_532:
         total_channel = location.total_channel_532_nm
         cross_channel = location.cross_channel_532_nm
         channel_id[:] = np.array(location.calibration_532nm_channel_ids)
         nc.Measurement_ID = measurement_id + "53"
+        nc.NOAReACT_Configuration_ID = location.calibration_configuration_532nm
     else:
         raise ValueError(f"Unknown wavelength {wavelength}")
 

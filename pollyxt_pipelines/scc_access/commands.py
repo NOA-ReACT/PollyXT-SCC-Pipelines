@@ -91,9 +91,6 @@ class UploadFiles(Command):
         if path.is_dir:
             files = path.glob("*.nc")
             files = filter(lambda x: not x.name.startswith("rs_"), files)
-            files = filter(
-                lambda x: not x.name.startswith("calibration_"), files
-            )  # TODO Handle calibration files
         else:
             files = [path]
 
