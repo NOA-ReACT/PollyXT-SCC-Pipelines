@@ -15,7 +15,8 @@ The :code:`scc-upload` command is used to upload one or more files to SCC.
 
   pollyxt_pipelines scc-upload <path> [<list>]
 
-* :code:`path` :badge-blue:`required`: Directory containing SCC files to upload
+* :code:`path` :badge-blue:`required`: Path to upload. If a direcctory, the program will upload all SCC files inside.
+* :code:`--no-calibration`: If uploading a directory, do not upload calibration files.
 * :code:`list`: Optionally, write the list of uploaded measurement IDs to a CSV file to later download the products.
 
 .. attention:: This command required :doc:`Authentication <auth>`!

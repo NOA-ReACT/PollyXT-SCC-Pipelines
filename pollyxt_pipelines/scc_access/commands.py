@@ -86,6 +86,7 @@ class UploadFiles(Command):
 
     scc-upload
         {path : Path to SCC files. If it is a directory, all netCDF files inside will be uploaded.}
+        {--no-calibration : If uploading a directory, do not upload calibration files.}
         {list? : Optionally, store the uploaded file IDs in order to later download the products using scc-download}
     """
 
@@ -95,6 +96,8 @@ class UploadFiles(Command):
         if path.is_dir:
             files = path.glob("*.nc")
             files = filter(lambda x: not x.name.startswith("rs_"), files)
+            if self.option("no-calibration"):
+                files = filter(lambda x: not x.name.startswith("calibration_"), files)
         else:
             files = [path]
 
