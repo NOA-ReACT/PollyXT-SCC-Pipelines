@@ -50,6 +50,12 @@ class Location(NamedTuple):
     nighttime_configuration: int
     """SCC Lidar Configuration ID - Nightime"""
 
+    calibration_configuration_355nm: int
+    """SCC Lidar Configuration ID - Calibration (355 nm)"""
+
+    calibration_configuration_532nm: int
+    """SCC Lidar Configuration ID - Calibration (532 nm)"""
+
     channel_id: List[int]
     """List of channel IDs (for SCC `channel_ID` variable)"""
 
@@ -112,6 +118,12 @@ class Location(NamedTuple):
         table.add_row("lon", str(self.lon))
         table.add_row("daytime_configuration", str(self.daytime_configuration))
         table.add_row("nighttime_configuration", str(self.nighttime_configuration))
+        table.add_row(
+            "calibration_configuration_355nm", str(self.calibration_configuration_355nm)
+        )
+        table.add_row(
+            "calibration_configuration_532nm", str(self.calibration_configuration_532nm)
+        )
         table.add_row("channel_id", ints_to_csv(self.channel_id))
         table.add_row("background_low", ints_to_csv(self.background_low))
         table.add_row("background_high", ints_to_csv(self.background_high))
@@ -123,10 +135,12 @@ class Location(NamedTuple):
         table.add_row("total_channel_532_nm", str(self.total_channel_532_nm))
         table.add_row("cross_channel_532_nm", str(self.cross_channel_532_nm))
         table.add_row(
-            "calibration_355nm_channel_ids", ints_to_csv(self.calibration_355nm_channel_ids)
+            "calibration_355nm_channel_ids",
+            ints_to_csv(self.calibration_355nm_channel_ids),
         )
         table.add_row(
-            "calibration_532nm_channel_ids", ints_to_csv(self.calibration_532nm_channel_ids)
+            "calibration_532nm_channel_ids",
+            ints_to_csv(self.calibration_532nm_channel_ids),
         )
         table.add_row("profile_name", self.profile_name)
         table.add_row("sounding_provider", self.sounding_provider)
@@ -141,7 +155,9 @@ def location_from_section(name: str, section: SectionProxy) -> Location:
 
     channel_id = [int(x.strip()) for x in section.get("channel_id").split(",")]
     background_low = [int(x.strip()) for x in section.get("background_low").split(",")]
-    background_high = [int(x.strip()) for x in section.get("background_high").split(",")]
+    background_high = [
+        int(x.strip()) for x in section.get("background_high").split(",")
+    ]
     lr_input = [int(x.strip()) for x in section.get("lr_input").split(",")]
 
     calibration_355nm_channel_ids = [
@@ -159,6 +175,12 @@ def location_from_section(name: str, section: SectionProxy) -> Location:
         altitude_asl=section.getfloat("altitude_asl"),
         daytime_configuration=section.getint("daytime_configuration"),
         nighttime_configuration=section.getint("nighttime_configuration"),
+        calibration_configuration_355nm=section.getint(
+            "calibration_configuration_355nm"
+        ),
+        calibration_configuration_532nm=section.getint(
+            "calibration_configuration_532nm"
+        ),
         channel_id=channel_id,
         background_low=background_low,
         background_high=background_high,
@@ -184,7 +206,9 @@ def read_locations() -> Dict[str, Location]:
     locations = {}
 
     # Read built-in locations
-    locations_buffer = io.StringIO(read_text("pollyxt_pipelines.locations", "locations.ini"))
+    locations_buffer = io.StringIO(
+        read_text("pollyxt_pipelines.locations", "locations.ini")
+    )
     locations_config = ConfigParser()
     locations_config.read_file(locations_buffer)
 
@@ -224,7 +248,9 @@ def unknown_location_error(name: str):
     Prints an error message that the given location is not found, along with a
     list of known locations
     """
-    error = f"[error]Could not find location[/error]{name}[error]\nKnown locations:\n\n."
+    error = (
+        f"[error]Could not find location[/error]{name}[error]\nKnown locations:\n\n."
+    )
     for l in LOCATIONS:
         error += f"* {l.name}"
 
