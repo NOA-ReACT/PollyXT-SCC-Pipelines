@@ -51,27 +51,6 @@ class Atmosphere(IntEnum):
         raise ValueError(f"Unknown atmosphere {x}")
 
 
-"""When calibration takes place each day, in HH:MM-HH:MM format"""
-CALIBRATION_PERIODS = ["02:31-02:41", "17:31-17:41", "21:31-21:41"]
-
-
-def calibration_to_datetime(base: datetime, period: str) -> Tuple[datetime, datetime]:
-    """
-    Given a calibrarion period in HH:MM-HH:MM format (start-end), it converts it to a pair of `datetime`, the same day
-    as the given `base`.
-    """
-    base = base.replace(hour=0, minute=0, second=0)
-
-    start, end = period.split("-")
-    start = [int(x) for x in start.split(":")]
-    end = [int(x) for x in end.split(":")]
-
-    start = base + timedelta(hours=start[0], minutes=start[1])
-    end = base + timedelta(hours=end[0], minutes=end[1])
-
-    return start, end
-
-
 def create_scc_netcdf(
     pf: pollyxt.PollyXTFile,
     output_path: Path,
@@ -457,26 +436,18 @@ def convert_pollyxt_file(
         interval_start = interval_end
 
     # Generate calibration files
-    # - 02:31 to 02:41
-    # - 17:31 to 17:41
-    # - 21:31 to 21:41
     if calibration:
         # Check for any valid calibration intervals
-        for period in CALIBRATION_PERIODS:
-            start, end = calibration_to_datetime(measurement_start, period)
-
+        for start, end in repo.get_calibration_periods():
             if start > measurement_start and end < measurement_end:
-                try:
-                    pf = repo.get_pollyxt_file(start, end)
+                pf = repo.get_pollyxt_file(start, end)
 
-                    id, path = create_scc_calibration_netcdf(
-                        pf, output_path, location, wavelength=Wavelength.NM_532
-                    )
-                    yield id, path, start, end
+                id, path = create_scc_calibration_netcdf(
+                    pf, output_path, location, wavelength=Wavelength.NM_532
+                )
+                yield id, path, start, end
 
-                    id, path = create_scc_calibration_netcdf(
-                        pf, output_path, location, wavelength=Wavelength.NM_355
-                    )
-                    yield id, path, start, end
-                except NoMeasurementsInTimePeriod:
-                    pass
+                id, path = create_scc_calibration_netcdf(
+                    pf, output_path, location, wavelength=Wavelength.NM_355
+                )
+                yield id, path, start, end

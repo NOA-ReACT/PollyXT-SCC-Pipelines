@@ -3,7 +3,7 @@ Routines related to PollyXT files
 """
 
 from pathlib import Path
-from typing import Tuple, Union
+from typing import Iterable, Tuple, Union
 from datetime import datetime, timedelta
 
 import numpy as np
@@ -143,17 +143,28 @@ class PollyXTRepository:
         for path in self.files:
             with Dataset(path, "r") as nc:
                 measurement_time = nc["measurement_time"][:]
-                for i, timestamp in enumerate(measurement_time):
+                depol_cal_angle = nc["depol_cal_angle"][:]
+                for i, (timestamp, dcv) in enumerate(
+                    zip(measurement_time, depol_cal_angle)
+                ):
                     # Parse date
                     try:
                         timestamp = polly_date_to_datetime(timestamp)
                     except ValueError:
                         raise BadMeasurementTime(path, timestamp)
 
-                    rows.append({"timestamp": timestamp, "index": i, "path": path})
+                    rows.append(
+                        {
+                            "timestamp": timestamp,
+                            "index": i,
+                            "path": path,
+                            "depol_cal_angle": dcv,
+                        }
+                    )
 
         self.index = pd.DataFrame(rows)
         self.index = self.index.sort_values("timestamp", ascending=True)
+        self.index["calibration"] = self.index["depol_cal_angle"] != 0
 
     def get_time_period(self) -> Tuple[datetime, datetime]:
         """
@@ -167,6 +178,23 @@ class PollyXTRepository:
         end = self.index.iloc[-1]["timestamp"]
 
         return start, end
+
+    def get_calibration_periods(self) -> Iterable[Tuple[datetime, datetime]]:
+        """
+        Returns a list of periods that refer to calibration times.
+
+        This function checks when the `depol_cal_angle` variable is not 0 and returns
+        the time periods that this occures.
+
+        Returns:
+            List[Tuple[datetime, datetime]]: A list containing periods (ie. tuples of start-time and end-time)
+        """
+
+        groups = (self.index.calibration != self.index.calibration.shift()).cumsum()
+
+        for i, g in self.index.groupby(groups):
+            if g.depol_cal_angle.sum() != 0:
+                yield g.iloc[0]["timestamp"], g.iloc[-1]["timestamp"]
 
     def get_pollyxt_file(self, time_start: datetime, time_end: datetime):
         """
