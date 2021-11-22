@@ -254,6 +254,20 @@ class PollyXTRepository:
         return pollyxt_file
 
 
+def make_nan_during_calibration(depol_cal_angle: np.ndarray, raw_signal: np.ndarray):
+    """
+    Given the depol_cal_angle and raw_signal arrays, set raw_signal to NaN during
+    calibrations. The raw_signal array is mutated.
+
+    Args:
+        depol_cal_angle: The depol_cal_angle array from a `PollyXTFile`
+        raw_signal: The raw_signal array from a `PollyXTFile`
+    """
+    depol_cal_time = np.where(depol_cal_angle != 0.0)[0]
+    if depol_cal_time.size != 0:
+        raw_signal[depol_cal_time[0] : depol_cal_time[-1], :, :] == np.nan
+
+
 class PollyXTFile:
     """
     Reads the variables of interest from a PollyXT netCDF file.
@@ -311,9 +325,7 @@ class PollyXTFile:
 
         # Optionally set calibration times to nan
         if nan_calibration:
-            depol_cal_time = np.where(self.depol_cal_angle != 0.0)[0]
-            if depol_cal_time.size != 0:
-                self.raw_signal[depol_cal_time[0] : depol_cal_time[-1], :, :] == np.nan
+            make_nan_during_calibration(self.depol_cal_angle, self.raw_signal)
 
         # Store some variables for easy access
         self.start_index = start
