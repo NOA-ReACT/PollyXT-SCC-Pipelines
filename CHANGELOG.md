@@ -1,3 +1,12 @@
+# 1.9.0
+- ✨ Add new `qc-eldec` command for performing quality checks on calibration, based on the ELDEC file.
+- ✨ Add new `qc-eldec-clean-history` command for clearing the history of `qc-eldec`.
+- ✨ Add calibration file (`calibration_*.nc`) uploading. Added calibration system IDs to locations.
+- ✨ Calibration files are generated based on `depol_cal_angle` being non-zero and not on fixed times.
+- 🛠⚠️ Renamed the `NOAReACT_Configuration_ID` attribute that the application put in SCC files to `X_PollyXTPipelines_Configuration_ID`. SCC files created by older versions cannot be uploaded.
+- 🛠 Updated dependencies
+- 🐜 Fix data (`raw_signal`) not being set to NaN during calibration times (based on `depol_cal_angle`).
+
 # v1.8.3
 - ✨ `create-scc`: Generate calibration files for both 532nm and 355nm
 
