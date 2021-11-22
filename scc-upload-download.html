@@ -17,7 +17,6 @@
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="PollyXT-Pipelines">
   <meta property="og:title" content="Uploading to SCC and downloading products">
@@ -54,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="locations.html">Locations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="convert-scc.html">Converting to SCC Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration-qc.html">Calibration QC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="auth.html">Authentication</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Uploading to SCC and downloading products</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#uploading">Uploading</a></li>
@@ -94,7 +94,8 @@ the processing products afterwards.</p>
 </pre></div>
 </div>
 <ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">path</span></code> <span class="badge badge-blue">required</span>: Directory containing SCC files to upload</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">path</span></code> <span class="badge badge-blue">required</span>: Path to upload. If a direcctory, the program will upload all SCC files inside.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">--no-calibration</span></code>: If uploading a directory, do not upload calibration files.</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">list</span></code>: Optionally, write the list of uploaded measurement IDs to a CSV file to later download the products.</p></li>
 </ul>
 <div class="admonition attention">

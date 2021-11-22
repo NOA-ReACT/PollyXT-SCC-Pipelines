@@ -16,7 +16,6 @@
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/language_data.js"></script>
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="PollyXT-Pipelines">
   <meta property="og:title" content="pollyxt_pipelines.polly_to_scc.scc_netcdf">
@@ -53,6 +52,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../locations.html">Locations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../convert-scc.html">Converting to SCC Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration-qc.html">Calibration QC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../auth.html">Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../scc-upload-download.html">Uploading to SCC and downloading products</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../search-scc.html">Searching and downloading historic data</a></li>
@@ -92,7 +92,10 @@
 <span class="kn">from</span> <span class="nn">pollyxt_pipelines.polly_to_scc</span> <span class="kn">import</span> <span class="n">pollyxt</span>
 <span class="kn">from</span> <span class="nn">pollyxt_pipelines.locations</span> <span class="kn">import</span> <span class="n">Location</span>
 <span class="kn">from</span> <span class="nn">pollyxt_pipelines</span> <span class="kn">import</span> <span class="n">utils</span>
-<span class="kn">from</span> <span class="nn">pollyxt_pipelines.polly_to_scc.exceptions</span> <span class="kn">import</span> <span class="n">NoMeasurementsInTimePeriod</span><span class="p">,</span> <span class="n">TimeOutsideFile</span>
+<span class="kn">from</span> <span class="nn">pollyxt_pipelines.polly_to_scc.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">NoMeasurementsInTimePeriod</span><span class="p">,</span>
+    <span class="n">TimeOutsideFile</span><span class="p">,</span>
+<span class="p">)</span>
 
 
 <div class="viewcode-block" id="Wavelength"><a class="viewcode-back" href="../../../convert-scc.html#pollyxt_pipelines.polly_to_scc.scc_netcdf.Wavelength">[docs]</a><span class="k">class</span> <span class="nc">Wavelength</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
@@ -125,27 +128,6 @@
             <span class="k">return</span> <span class="n">Atmosphere</span><span class="o">.</span><span class="n">STANDARD_ATMOSPHERE</span>
 
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown atmosphere </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
-
-
-<span class="sd">&quot;&quot;&quot;When calibration takes place each day, in HH:MM-HH:MM format&quot;&quot;&quot;</span>
-<span class="n">CALIBRATION_PERIODS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;02:31-02:41&quot;</span><span class="p">,</span> <span class="s2">&quot;17:31-17:41&quot;</span><span class="p">,</span> <span class="s2">&quot;21:31-21:41&quot;</span><span class="p">]</span>
-
-
-<div class="viewcode-block" id="calibration_to_datetime"><a class="viewcode-back" href="../../../convert-scc.html#pollyxt_pipelines.polly_to_scc.scc_netcdf.calibration_to_datetime">[docs]</a><span class="k">def</span> <span class="nf">calibration_to_datetime</span><span class="p">(</span><span class="n">base</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">period</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Given a calibrarion period in HH:MM-HH:MM format (start-end), it converts it to a pair of `datetime`, the same day</span>
-<span class="sd">    as the given `base`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">base</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">hour</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">minute</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">second</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-    <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">period</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
-    <span class="n">start</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">start</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)]</span>
-    <span class="n">end</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">end</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)]</span>
-
-    <span class="n">start</span> <span class="o">=</span> <span class="n">base</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">minutes</span><span class="o">=</span><span class="n">start</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">end</span> <span class="o">=</span> <span class="n">base</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="n">end</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">minutes</span><span class="o">=</span><span class="n">end</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-
-    <span class="k">return</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span></div>
 
 
 <div class="viewcode-block" id="create_scc_netcdf"><a class="viewcode-back" href="../../../convert-scc.html#pollyxt_pipelines.polly_to_scc.scc_netcdf.create_scc_netcdf">[docs]</a><span class="k">def</span> <span class="nf">create_scc_netcdf</span><span class="p">(</span>
@@ -206,9 +188,9 @@
     <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">start_date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
         <span class="n">hour</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">minute</span><span class="o">=</span><span class="mi">0</span>
     <span class="p">)</span> <span class="o">&lt;</span> <span class="n">pf</span><span class="o">.</span><span class="n">start_date</span> <span class="ow">and</span> <span class="n">pf</span><span class="o">.</span><span class="n">start_date</span> <span class="o">&lt;</span> <span class="n">pf</span><span class="o">.</span><span class="n">start_date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">hour</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">minute</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-        <span class="n">nc</span><span class="o">.</span><span class="n">NOAReACT_Configuration_ID</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">daytime_configuration</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">X_PollyXTPipelines_Configuration_ID</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">daytime_configuration</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">nc</span><span class="o">.</span><span class="n">NOAReACT_Configuration_ID</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">nighttime_configuration</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">X_PollyXTPipelines_Configuration_ID</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">nighttime_configuration</span>
 
     <span class="c1"># Create Variables. (mandatory)</span>
     <span class="n">raw_data_start_time</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span>
@@ -220,8 +202,12 @@
     <span class="n">raw_lidar_data</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span>
         <span class="s2">&quot;Raw_Lidar_Data&quot;</span><span class="p">,</span> <span class="s2">&quot;f8&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;channels&quot;</span><span class="p">,</span> <span class="s2">&quot;points&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
-    <span class="n">channel_id</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s2">&quot;channel_ID&quot;</span><span class="p">,</span> <span class="s2">&quot;i4&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">id_timescale</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s2">&quot;id_timescale&quot;</span><span class="p">,</span> <span class="s2">&quot;i4&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">channel_id</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span>
+        <span class="s2">&quot;channel_ID&quot;</span><span class="p">,</span> <span class="s2">&quot;i4&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">id_timescale</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span>
+        <span class="s2">&quot;id_timescale&quot;</span><span class="p">,</span> <span class="s2">&quot;i4&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
     <span class="n">laser_pointing_angle</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span>
         <span class="s2">&quot;Laser_Pointing_Angle&quot;</span><span class="p">,</span> <span class="s2">&quot;f8&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;scan_angles&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
@@ -231,9 +217,15 @@
         <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;nb_of_time_scales&quot;</span><span class="p">),</span>
         <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">laser_shots</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s2">&quot;Laser_Shots&quot;</span><span class="p">,</span> <span class="s2">&quot;i4&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">background_low</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s2">&quot;Background_Low&quot;</span><span class="p">,</span> <span class="s2">&quot;f8&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">background_high</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s2">&quot;Background_High&quot;</span><span class="p">,</span> <span class="s2">&quot;f8&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">laser_shots</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span>
+        <span class="s2">&quot;Laser_Shots&quot;</span><span class="p">,</span> <span class="s2">&quot;i4&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">background_low</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span>
+        <span class="s2">&quot;Background_Low&quot;</span><span class="p">,</span> <span class="s2">&quot;f8&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">background_high</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span>
+        <span class="s2">&quot;Background_High&quot;</span><span class="p">,</span> <span class="s2">&quot;f8&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
     <span class="n">molecular_calc</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s2">&quot;Molecular_Calc&quot;</span><span class="p">,</span> <span class="s2">&quot;i4&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s2">&quot;Pol_Calib_Range_Min&quot;</span><span class="p">,</span> <span class="s2">&quot;f8&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s2">&quot;Pol_Calib_Range_Max&quot;</span><span class="p">,</span> <span class="s2">&quot;f8&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -335,8 +327,12 @@
     <span class="n">raw_lidar_data</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span>
         <span class="s2">&quot;Raw_Lidar_Data&quot;</span><span class="p">,</span> <span class="s2">&quot;f8&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;channels&quot;</span><span class="p">,</span> <span class="s2">&quot;points&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
-    <span class="n">channel_id</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s2">&quot;channel_ID&quot;</span><span class="p">,</span> <span class="s2">&quot;i4&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">id_timescale</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s2">&quot;id_timescale&quot;</span><span class="p">,</span> <span class="s2">&quot;i4&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">channel_id</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span>
+        <span class="s2">&quot;channel_ID&quot;</span><span class="p">,</span> <span class="s2">&quot;i4&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">id_timescale</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span>
+        <span class="s2">&quot;id_timescale&quot;</span><span class="p">,</span> <span class="s2">&quot;i4&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
     <span class="n">laser_pointing_angle</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span>
         <span class="s2">&quot;Laser_Pointing_Angle&quot;</span><span class="p">,</span> <span class="s2">&quot;f8&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;scan_angles&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
@@ -346,9 +342,15 @@
         <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;nb_of_time_scales&quot;</span><span class="p">),</span>
         <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">laser_shots</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s2">&quot;Laser_Shots&quot;</span><span class="p">,</span> <span class="s2">&quot;i4&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">background_low</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s2">&quot;Background_Low&quot;</span><span class="p">,</span> <span class="s2">&quot;f8&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">background_high</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s2">&quot;Background_High&quot;</span><span class="p">,</span> <span class="s2">&quot;f8&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">laser_shots</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span>
+        <span class="s2">&quot;Laser_Shots&quot;</span><span class="p">,</span> <span class="s2">&quot;i4&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">background_low</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span>
+        <span class="s2">&quot;Background_Low&quot;</span><span class="p">,</span> <span class="s2">&quot;f8&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">background_high</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span>
+        <span class="s2">&quot;Background_High&quot;</span><span class="p">,</span> <span class="s2">&quot;f8&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
     <span class="n">molecular_calc</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s2">&quot;Molecular_Calc&quot;</span><span class="p">,</span> <span class="s2">&quot;i4&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">pol_calib_range_min_var</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span>
         <span class="s2">&quot;Pol_Calib_Range_Min&quot;</span><span class="p">,</span> <span class="s2">&quot;f8&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span>
@@ -388,11 +390,17 @@
         <span class="n">cross_channel</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">cross_channel_355_nm</span>
         <span class="n">channel_id</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">location</span><span class="o">.</span><span class="n">calibration_355nm_channel_ids</span><span class="p">)</span>
         <span class="n">nc</span><span class="o">.</span><span class="n">Measurement_ID</span> <span class="o">=</span> <span class="n">measurement_id</span> <span class="o">+</span> <span class="s2">&quot;35&quot;</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">X_PollyXTPipelines_Configuration_ID</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">location</span><span class="o">.</span><span class="n">calibration_configuration_355nm</span>
+        <span class="p">)</span>
     <span class="k">elif</span> <span class="n">wavelength</span> <span class="o">==</span> <span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_532</span><span class="p">:</span>
         <span class="n">total_channel</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">total_channel_532_nm</span>
         <span class="n">cross_channel</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">cross_channel_532_nm</span>
         <span class="n">channel_id</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">location</span><span class="o">.</span><span class="n">calibration_532nm_channel_ids</span><span class="p">)</span>
         <span class="n">nc</span><span class="o">.</span><span class="n">Measurement_ID</span> <span class="o">=</span> <span class="n">measurement_id</span> <span class="o">+</span> <span class="s2">&quot;53&quot;</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">X_PollyXTPipelines_Configuration_ID</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">location</span><span class="o">.</span><span class="n">calibration_configuration_532nm</span>
+        <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown wavelength </span><span class="si">{</span><span class="n">wavelength</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -492,7 +500,9 @@
 
         <span class="c1"># Open netCDF file and convert to SCC</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">pf</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">get_pollyxt_file</span><span class="p">(</span><span class="n">interval_start</span><span class="p">,</span> <span class="n">interval_end</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">30</span><span class="p">))</span>
+            <span class="n">pf</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">get_pollyxt_file</span><span class="p">(</span>
+                <span class="n">interval_start</span><span class="p">,</span> <span class="n">interval_end</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+            <span class="p">)</span>
             <span class="nb">id</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">create_scc_netcdf</span><span class="p">(</span><span class="n">pf</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">atmosphere</span><span class="p">)</span>
 
             <span class="k">yield</span> <span class="nb">id</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">start_date</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">end_date</span>
@@ -505,29 +515,21 @@
         <span class="n">interval_start</span> <span class="o">=</span> <span class="n">interval_end</span>
 
     <span class="c1"># Generate calibration files</span>
-    <span class="c1"># - 02:31 to 02:41</span>
-    <span class="c1"># - 17:31 to 17:41</span>
-    <span class="c1"># - 21:31 to 21:41</span>
     <span class="k">if</span> <span class="n">calibration</span><span class="p">:</span>
         <span class="c1"># Check for any valid calibration intervals</span>
-        <span class="k">for</span> <span class="n">period</span> <span class="ow">in</span> <span class="n">CALIBRATION_PERIODS</span><span class="p">:</span>
-            <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">calibration_to_datetime</span><span class="p">(</span><span class="n">measurement_start</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
-
+        <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">repo</span><span class="o">.</span><span class="n">get_calibration_periods</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">start</span> <span class="o">&gt;</span> <span class="n">measurement_start</span> <span class="ow">and</span> <span class="n">end</span> <span class="o">&lt;</span> <span class="n">measurement_end</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">pf</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">get_pollyxt_file</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+                <span class="n">pf</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">get_pollyxt_file</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
 
-                    <span class="nb">id</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">create_scc_calibration_netcdf</span><span class="p">(</span>
-                        <span class="n">pf</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_532</span>
-                    <span class="p">)</span>
-                    <span class="k">yield</span> <span class="nb">id</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span>
+                <span class="nb">id</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">create_scc_calibration_netcdf</span><span class="p">(</span>
+                    <span class="n">pf</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_532</span>
+                <span class="p">)</span>
+                <span class="k">yield</span> <span class="nb">id</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span>
 
-                    <span class="nb">id</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">create_scc_calibration_netcdf</span><span class="p">(</span>
-                        <span class="n">pf</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_355</span>
-                    <span class="p">)</span>
-                    <span class="k">yield</span> <span class="nb">id</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span>
-                <span class="k">except</span> <span class="n">NoMeasurementsInTimePeriod</span><span class="p">:</span>
-                    <span class="k">pass</span></div>
+                <span class="nb">id</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">create_scc_calibration_netcdf</span><span class="p">(</span>
+                    <span class="n">pf</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_355</span>
+                <span class="p">)</span>
+                <span class="k">yield</span> <span class="nb">id</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span></div>
 </pre></div>
   <div class="t-pagination clearfix">
   </div>

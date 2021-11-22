@@ -16,7 +16,6 @@
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/language_data.js"></script>
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="PollyXT-Pipelines">
   <meta property="og:title" content="pollyxt_pipelines.scc_access">
@@ -53,6 +52,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../locations.html">Locations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../convert-scc.html">Converting to SCC Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../calibration-qc.html">Calibration QC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../auth.html">Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../scc-upload-download.html">Uploading to SCC and downloading products</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../search-scc.html">Searching and downloading historic data</a></li>
@@ -145,12 +145,22 @@
         <span class="c1"># Get login form (for csrf token)</span>
         <span class="n">login_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">login_url</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">login_page</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PageNotAccessible</span><span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">login_url</span><span class="p">,</span> <span class="n">login_page</span><span class="o">.</span><span class="n">status_code</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PageNotAccessible</span><span class="p">(</span>
+                <span class="n">constants</span><span class="o">.</span><span class="n">login_url</span><span class="p">,</span> <span class="n">login_page</span><span class="o">.</span><span class="n">status_code</span>
+            <span class="p">)</span>
 
         <span class="c1"># Submit login form</span>
-        <span class="n">body</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">credentials</span><span class="o">.</span><span class="n">username</span><span class="p">,</span> <span class="s2">&quot;password&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">credentials</span><span class="o">.</span><span class="n">password</span><span class="p">}</span>
-        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;X-CSRFToken&quot;</span><span class="p">:</span> <span class="n">login_page</span><span class="o">.</span><span class="n">cookies</span><span class="p">[</span><span class="s2">&quot;csrftoken&quot;</span><span class="p">],</span> <span class="s2">&quot;referer&quot;</span><span class="p">:</span> <span class="n">constants</span><span class="o">.</span><span class="n">login_url</span><span class="p">}</span>
-        <span class="n">logon_request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">login_url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">body</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">credentials</span><span class="o">.</span><span class="n">username</span><span class="p">,</span>
+            <span class="s2">&quot;password&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">credentials</span><span class="o">.</span><span class="n">password</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;X-CSRFToken&quot;</span><span class="p">:</span> <span class="n">login_page</span><span class="o">.</span><span class="n">cookies</span><span class="p">[</span><span class="s2">&quot;csrftoken&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;referer&quot;</span><span class="p">:</span> <span class="n">constants</span><span class="o">.</span><span class="n">login_url</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">logon_request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+            <span class="n">constants</span><span class="o">.</span><span class="n">login_url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">body</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span>
+        <span class="p">)</span>
 
         <span class="c1"># Do some basic checking on the response</span>
         <span class="k">if</span> <span class="s2">&quot;Wrong username or password&quot;</span> <span class="ow">in</span> <span class="n">logon_request</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
@@ -215,7 +225,8 @@
             <span class="n">pages</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">last_page</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
 
         <span class="n">measurements</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">Measurement</span><span class="o">.</span><span class="n">from_table_row</span><span class="p">(</span><span class="n">tr</span><span class="p">)</span> <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">body</span><span class="o">.</span><span class="n">findAll</span><span class="p">(</span><span class="s2">&quot;tr&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;grp-row&quot;</span><span class="p">})</span>
+            <span class="n">Measurement</span><span class="o">.</span><span class="n">from_table_row</span><span class="p">(</span><span class="n">tr</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">body</span><span class="o">.</span><span class="n">findAll</span><span class="p">(</span><span class="s2">&quot;tr&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;grp-row&quot;</span><span class="p">})</span>
         <span class="p">]</span>
 
         <span class="k">return</span> <span class="n">pages</span><span class="p">,</span> <span class="n">measurements</span></div>
@@ -263,7 +274,9 @@
         <span class="k">if</span> <span class="n">elpp</span><span class="p">:</span>
             <span class="n">to_download</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">constants</span><span class="o">.</span><span class="n">download_preprocessed_pattern</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">measurement_id</span><span class="p">),</span>
+                    <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">constants</span><span class="o">.</span><span class="n">download_preprocessed_pattern</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">measurement_id</span>
+                    <span class="p">),</span>
                     <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">download_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;preprocessed_</span><span class="si">{</span><span class="n">measurement_id</span><span class="si">}</span><span class="s2">.zip&quot;</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
@@ -318,7 +331,9 @@
         <span class="k">elif</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s2">&quot;lidarratio&quot;</span><span class="p">:</span>
             <span class="n">url</span> <span class="o">=</span> <span class="n">constants</span><span class="o">.</span><span class="n">api_lidarratio_search_pattern</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file_id</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File type should be one of: sounding, overlap, lidarratio&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;File type should be one of: sounding, overlap, lidarratio&quot;</span>
+            <span class="p">)</span>
 
         <span class="c1"># Make request</span>
         <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
@@ -390,7 +405,10 @@
         <span class="n">upload_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">upload_url</span><span class="p">)</span>
 
         <span class="n">body</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;system&quot;</span><span class="p">:</span> <span class="n">system_id</span><span class="p">}</span>
-        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;X-CSRFToken&quot;</span><span class="p">:</span> <span class="n">upload_page</span><span class="o">.</span><span class="n">cookies</span><span class="p">[</span><span class="s2">&quot;csrftoken&quot;</span><span class="p">],</span> <span class="s2">&quot;referer&quot;</span><span class="p">:</span> <span class="n">constants</span><span class="o">.</span><span class="n">upload_url</span><span class="p">}</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;X-CSRFToken&quot;</span><span class="p">:</span> <span class="n">upload_page</span><span class="o">.</span><span class="n">cookies</span><span class="p">[</span><span class="s2">&quot;csrftoken&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;referer&quot;</span><span class="p">:</span> <span class="n">constants</span><span class="o">.</span><span class="n">upload_url</span><span class="p">,</span>
+        <span class="p">}</span>
         <span class="n">upload_submit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
             <span class="n">constants</span><span class="o">.</span><span class="n">upload_url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">body</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span>
         <span class="p">)</span>
@@ -403,7 +421,10 @@
             <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">SCCError</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
 
         <span class="c1"># console.print(upload_submit.text)</span>
-        <span class="k">if</span> <span class="n">upload_submit</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span> <span class="ow">or</span> <span class="n">upload_submit</span><span class="o">.</span><span class="n">url</span> <span class="o">==</span> <span class="n">constants</span><span class="o">.</span><span class="n">upload_url</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">upload_submit</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span>
+            <span class="ow">or</span> <span class="n">upload_submit</span><span class="o">.</span><span class="n">url</span> <span class="o">==</span> <span class="n">constants</span><span class="o">.</span><span class="n">upload_url</span>
+        <span class="p">):</span>
             <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">UnexpectedResponse</span><span class="p">(</span><span class="s2">&quot;Upload to SCC failed&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SCC.get_measurement"><a class="viewcode-back" href="../../network-api.html#pollyxt_pipelines.scc_access.SCC.get_measurement">[docs]</a>    <span class="k">def</span> <span class="nf">get_measurement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">measurement_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Measurement</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
@@ -442,7 +463,10 @@
 
         <span class="c1"># Submit form</span>
         <span class="n">url</span> <span class="o">=</span> <span class="n">constants</span><span class="o">.</span><span class="n">delete_measurement_pattern</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">measurement_id</span><span class="p">)</span>
-        <span class="n">body</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;select_delete_related_measurements&quot;</span><span class="p">:</span> <span class="s2">&quot;not_delete_related&quot;</span><span class="p">,</span> <span class="s2">&quot;post&quot;</span><span class="p">:</span> <span class="s2">&quot;yes&quot;</span><span class="p">}</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;select_delete_related_measurements&quot;</span><span class="p">:</span> <span class="s2">&quot;not_delete_related&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;post&quot;</span><span class="p">:</span> <span class="s2">&quot;yes&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;referer&quot;</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span>
             <span class="s2">&quot;X-CSRFToken&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">cookies</span><span class="p">[</span><span class="s2">&quot;csrftoken&quot;</span><span class="p">],</span>
@@ -475,7 +499,9 @@
             <span class="s2">&quot;referer&quot;</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span>
             <span class="s2">&quot;X-CSRFToken&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">cookies</span><span class="p">[</span><span class="s2">&quot;csrftoken&quot;</span><span class="p">],</span>
         <span class="p">}</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">body</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">allow_redirects</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+            <span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">body</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">allow_redirects</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
 
         <span class="c1"># Look for success banner</span>
         <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
@@ -489,7 +515,9 @@
             <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">UnexpectedResponse</span><span class="p">(</span><span class="s2">&quot;`Messages` cookie not found&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="s2">&quot;The processing chain was restarted&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">messages_cookie</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">UnexpectedResponse</span><span class="p">(</span><span class="s2">&quot;Could not found restart message in cookie&quot;</span><span class="p">)</span></div>
+            <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">UnexpectedResponse</span><span class="p">(</span>
+                <span class="s2">&quot;Could not found restart message in cookie&quot;</span>
+            <span class="p">)</span></div>
 
 <div class="viewcode-block" id="SCC.get_lidar_consants"><a class="viewcode-back" href="../../network-api.html#pollyxt_pipelines.scc_access.SCC.get_lidar_consants">[docs]</a>    <span class="k">def</span> <span class="nf">get_lidar_consants</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">date_start</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span> <span class="n">date_end</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Location</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">page</span><span class="o">=</span><span class="mi">1</span>
@@ -533,7 +561,8 @@
             <span class="n">pages</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">last_page</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
 
         <span class="n">lidar_constants</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">LidarConstant</span><span class="o">.</span><span class="n">from_table_row</span><span class="p">(</span><span class="n">tr</span><span class="p">)</span> <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">body</span><span class="o">.</span><span class="n">findAll</span><span class="p">(</span><span class="s2">&quot;tr&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;grp-row&quot;</span><span class="p">})</span>
+            <span class="n">LidarConstant</span><span class="o">.</span><span class="n">from_table_row</span><span class="p">(</span><span class="n">tr</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">body</span><span class="o">.</span><span class="n">findAll</span><span class="p">(</span><span class="s2">&quot;tr&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;grp-row&quot;</span><span class="p">})</span>
         <span class="p">]</span>
 
         <span class="k">return</span> <span class="n">pages</span><span class="p">,</span> <span class="n">lidar_constants</span></div></div>

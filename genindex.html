@@ -15,7 +15,6 @@
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
 </head>
 <body role="document" data-page="genindex">
   <header class="t-head">
@@ -47,6 +46,7 @@
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="locations.html">Locations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="convert-scc.html">Converting to SCC Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration-qc.html">Calibration QC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="auth.html">Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scc-upload-download.html">Uploading to SCC and downloading products</a></li>
 <li class="toctree-l1"><a class="reference internal" href="search-scc.html">Searching and downloading historic data</a></li>
@@ -125,7 +125,9 @@
 </li>
       <li><a href="locations.html#pollyxt_pipelines.locations.Location.calibration_532nm_channel_ids">calibration_532nm_channel_ids (pollyxt_pipelines.locations.Location attribute)</a>
 </li>
-      <li><a href="convert-scc.html#pollyxt_pipelines.polly_to_scc.scc_netcdf.calibration_to_datetime">calibration_to_datetime() (in module pollyxt_pipelines.polly_to_scc.scc_netcdf)</a>
+      <li><a href="locations.html#pollyxt_pipelines.locations.Location.calibration_configuration_355nm">calibration_configuration_355nm (pollyxt_pipelines.locations.Location attribute)</a>
+</li>
+      <li><a href="locations.html#pollyxt_pipelines.locations.Location.calibration_configuration_532nm">calibration_configuration_532nm (pollyxt_pipelines.locations.Location attribute)</a>
 </li>
       <li><a href="locations.html#pollyxt_pipelines.locations.Location.channel_id">channel_id (pollyxt_pipelines.locations.Location attribute)</a>
 </li>
@@ -181,6 +183,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="network-api.html#pollyxt_pipelines.scc_access.SCC.get_anchillary">get_anchillary() (pollyxt_pipelines.scc_access.SCC method)</a>
 </li>
+      <li><a href="convert-scc.html#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository.get_calibration_periods">get_calibration_periods() (pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository method)</a>
+</li>
       <li><a href="network-api.html#pollyxt_pipelines.scc_access.SCC.get_lidar_consants">get_lidar_consants() (pollyxt_pipelines.scc_access.SCC method)</a>
 </li>
       <li><a href="locations.html#pollyxt_pipelines.locations.get_location_by_scc_code">get_location_by_scc_code() (in module pollyxt_pipelines.locations)</a>
@@ -227,6 +231,8 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="convert-scc.html#pollyxt_pipelines.polly_to_scc.pollyxt.make_nan_during_calibration">make_nan_during_calibration() (in module pollyxt_pipelines.polly_to_scc.pollyxt)</a>
+</li>
       <li><a href="network-api.html#pollyxt_pipelines.scc_access.types.Measurement">Measurement (class in pollyxt_pipelines.scc_access.types)</a>
 </li>
       <li><a href="network-api.html#pollyxt_pipelines.scc_access.exceptions.MeasurementNotFound">MeasurementNotFound</a>

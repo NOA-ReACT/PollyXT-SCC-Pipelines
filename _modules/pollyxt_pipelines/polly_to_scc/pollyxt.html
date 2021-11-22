@@ -16,7 +16,6 @@
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/language_data.js"></script>
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="PollyXT-Pipelines">
   <meta property="og:title" content="pollyxt_pipelines.polly_to_scc.pollyxt">
@@ -53,6 +52,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../locations.html">Locations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../convert-scc.html">Converting to SCC Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../calibration-qc.html">Calibration QC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../auth.html">Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../scc-upload-download.html">Uploading to SCC and downloading products</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../search-scc.html">Searching and downloading historic data</a></li>
@@ -82,7 +82,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -113,7 +113,9 @@
     <span class="k">return</span> <span class="n">date</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">seconds</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="get_measurement_period"><a class="viewcode-back" href="../../../convert-scc.html#pollyxt_pipelines.polly_to_scc.pollyxt.get_measurement_period">[docs]</a><span class="k">def</span> <span class="nf">get_measurement_period</span><span class="p">(</span><span class="nb">input</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]:</span>
+<div class="viewcode-block" id="get_measurement_period"><a class="viewcode-back" href="../../../convert-scc.html#pollyxt_pipelines.polly_to_scc.pollyxt.get_measurement_period">[docs]</a><span class="k">def</span> <span class="nf">get_measurement_period</span><span class="p">(</span>
+    <span class="nb">input</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return the measurement time (i.e. start and end times) from a PollyXT file.</span>
 
@@ -208,7 +210,9 @@
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Path </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2"> doesn&#39;t seem to be either a file or a directory&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Path </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2"> doesn&#39;t seem to be either a file or a directory&quot;</span>
+            <span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">NoFilesFound</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
@@ -218,17 +222,28 @@
         <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">nc</span><span class="p">:</span>
                 <span class="n">measurement_time</span> <span class="o">=</span> <span class="n">nc</span><span class="p">[</span><span class="s2">&quot;measurement_time&quot;</span><span class="p">][:]</span>
-                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">timestamp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">measurement_time</span><span class="p">):</span>
+                <span class="n">depol_cal_angle</span> <span class="o">=</span> <span class="n">nc</span><span class="p">[</span><span class="s2">&quot;depol_cal_angle&quot;</span><span class="p">][:]</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">dcv</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+                    <span class="nb">zip</span><span class="p">(</span><span class="n">measurement_time</span><span class="p">,</span> <span class="n">depol_cal_angle</span><span class="p">)</span>
+                <span class="p">):</span>
                     <span class="c1"># Parse date</span>
                     <span class="k">try</span><span class="p">:</span>
                         <span class="n">timestamp</span> <span class="o">=</span> <span class="n">polly_date_to_datetime</span><span class="p">(</span><span class="n">timestamp</span><span class="p">)</span>
                     <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="n">BadMeasurementTime</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">)</span>
 
-                    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">timestamp</span><span class="p">,</span> <span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">path</span><span class="p">})</span>
+                    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">timestamp</span><span class="p">,</span>
+                            <span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span>
+                            <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">path</span><span class="p">,</span>
+                            <span class="s2">&quot;depol_cal_angle&quot;</span><span class="p">:</span> <span class="n">dcv</span><span class="p">,</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="s2">&quot;calibration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="s2">&quot;depol_cal_angle&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span>
 
 <div class="viewcode-block" id="PollyXTRepository.get_time_period"><a class="viewcode-back" href="../../../convert-scc.html#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository.get_time_period">[docs]</a>    <span class="k">def</span> <span class="nf">get_time_period</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -243,6 +258,23 @@
 
         <span class="k">return</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span></div>
 
+<div class="viewcode-block" id="PollyXTRepository.get_calibration_periods"><a class="viewcode-back" href="../../../convert-scc.html#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository.get_calibration_periods">[docs]</a>    <span class="k">def</span> <span class="nf">get_calibration_periods</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a list of periods that refer to calibration times.</span>
+
+<span class="sd">        This function checks when the `depol_cal_angle` variable is not 0 and returns</span>
+<span class="sd">        the time periods that this occures.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[Tuple[datetime, datetime]]: A list containing periods (ie. tuples of start-time and end-time)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">groups</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">calibration</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">calibration</span><span class="o">.</span><span class="n">shift</span><span class="p">())</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">g</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">groups</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">depol_cal_angle</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">g</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;timestamp&quot;</span><span class="p">],</span> <span class="n">g</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;timestamp&quot;</span><span class="p">]</span></div>
+
 <div class="viewcode-block" id="PollyXTRepository.get_pollyxt_file"><a class="viewcode-back" href="../../../convert-scc.html#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository.get_pollyxt_file">[docs]</a>    <span class="k">def</span> <span class="nf">get_pollyxt_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_start</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">time_end</span><span class="p">:</span> <span class="n">datetime</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a PollyXTFile for the given time range.</span>
@@ -256,7 +288,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Filter index for given time range</span>
-        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="s2">&quot;timestamp&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">time_start</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="s2">&quot;timestamp&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">time_end</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="s2">&quot;timestamp&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">time_start</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="s2">&quot;timestamp&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">time_end</span>
+        <span class="p">)</span>
         <span class="n">targets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">targets</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">NoMeasurementsInTimePeriod</span><span class="p">()</span>
@@ -274,19 +308,42 @@
         <span class="c1"># Concatenate data into one file</span>
         <span class="n">pollyxt_file</span> <span class="o">=</span> <span class="n">polly_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">pollyxt_file</span><span class="o">.</span><span class="n">raw_signal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">raw_signal</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">polly_files</span><span class="p">])</span>
-        <span class="n">pollyxt_file</span><span class="o">.</span><span class="n">raw_signal_swap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">raw_signal_swap</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">polly_files</span><span class="p">])</span>
-        <span class="n">pollyxt_file</span><span class="o">.</span><span class="n">measurement_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">measurement_time</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">polly_files</span><span class="p">])</span>
-        <span class="n">pollyxt_file</span><span class="o">.</span><span class="n">measurement_shots</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">measurement_shots</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">polly_files</span><span class="p">])</span>
+        <span class="n">pollyxt_file</span><span class="o">.</span><span class="n">raw_signal_swap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">raw_signal_swap</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">polly_files</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">pollyxt_file</span><span class="o">.</span><span class="n">measurement_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">measurement_time</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">polly_files</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">pollyxt_file</span><span class="o">.</span><span class="n">measurement_shots</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">measurement_shots</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">polly_files</span><span class="p">]</span>
+        <span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">pollyxt_file</span><span class="o">.</span><span class="n">zenith_angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">zenith_angle</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">polly_files</span><span class="p">])</span>
+            <span class="n">pollyxt_file</span><span class="o">.</span><span class="n">zenith_angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">zenith_angle</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">polly_files</span><span class="p">]</span>
+            <span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
             <span class="c1"># Sometimes these arrays are empty, this is not a problem</span>
             <span class="k">pass</span>
-        <span class="n">pollyxt_file</span><span class="o">.</span><span class="n">depol_cal_angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">depol_cal_angle</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">polly_files</span><span class="p">])</span>
+        <span class="n">pollyxt_file</span><span class="o">.</span><span class="n">depol_cal_angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">depol_cal_angle</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">polly_files</span><span class="p">]</span>
+        <span class="p">)</span>
 
         <span class="n">pollyxt_file</span><span class="o">.</span><span class="n">end_date</span> <span class="o">=</span> <span class="n">polly_files</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">end_date</span>
 
         <span class="k">return</span> <span class="n">pollyxt_file</span></div></div>
+
+
+<div class="viewcode-block" id="make_nan_during_calibration"><a class="viewcode-back" href="../../../convert-scc.html#pollyxt_pipelines.polly_to_scc.pollyxt.make_nan_during_calibration">[docs]</a><span class="k">def</span> <span class="nf">make_nan_during_calibration</span><span class="p">(</span><span class="n">depol_cal_angle</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">raw_signal</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given the depol_cal_angle and raw_signal arrays, set raw_signal to NaN during</span>
+<span class="sd">    calibrations. The raw_signal array is mutated.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        depol_cal_angle: The depol_cal_angle array from a `PollyXTFile`</span>
+<span class="sd">        raw_signal: The raw_signal array from a `PollyXTFile`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">depol_cal_time</span> <span class="o">=</span> <span class="n">depol_cal_angle</span> <span class="o">!=</span> <span class="mf">0.0</span>
+    <span class="n">raw_signal</span><span class="p">[</span><span class="n">depol_cal_time</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span></div>
 
 
 <div class="viewcode-block" id="PollyXTFile"><a class="viewcode-back" href="../../../convert-scc.html#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile">[docs]</a><span class="k">class</span> <span class="nc">PollyXTFile</span><span class="p">:</span>
@@ -308,7 +365,9 @@
     <span class="n">location_coordinates</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="n">depol_cal_angle</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">nan_calibration</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">input_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">nan_calibration</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read a PollyXT netcdf file</span>
 
@@ -332,21 +391,23 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">measurement_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement_time</span><span class="p">[</span><span class="n">start</span> <span class="p">:</span> <span class="n">end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
 
         <span class="c1"># Read the rest of the variables</span>
+        <span class="c1"># raw_signal is converted to float64 for two reasons:</span>
+        <span class="c1"># 1. SCC requires it as float64</span>
+        <span class="c1"># 2. So we can set it to NaN during calibration</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">raw_signal</span> <span class="o">=</span> <span class="n">nc</span><span class="p">[</span><span class="s2">&quot;raw_signal&quot;</span><span class="p">][</span><span class="n">start</span> <span class="p">:</span> <span class="n">end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw_signal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_signal</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">raw_signal_swap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_signal</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">measurement_shots</span> <span class="o">=</span> <span class="n">nc</span><span class="p">[</span><span class="s2">&quot;measurement_shots&quot;</span><span class="p">][</span><span class="n">start</span> <span class="p">:</span> <span class="n">end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">zenith_angle</span> <span class="o">=</span> <span class="n">nc</span><span class="p">[</span><span class="s2">&quot;zenithangle&quot;</span><span class="p">][:]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">location_coordinates</span> <span class="o">=</span> <span class="n">nc</span><span class="p">[</span><span class="s2">&quot;location_coordinates&quot;</span><span class="p">][:]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">depol_cal_angle</span> <span class="o">=</span> <span class="n">nc</span><span class="p">[</span><span class="s2">&quot;depol_cal_angle&quot;</span><span class="p">][:]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depol_cal_angle</span> <span class="o">=</span> <span class="n">nc</span><span class="p">[</span><span class="s2">&quot;depol_cal_angle&quot;</span><span class="p">][</span><span class="n">start</span> <span class="p">:</span> <span class="n">end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
 
         <span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
         <span class="c1"># Optionally set calibration times to nan</span>
         <span class="k">if</span> <span class="n">nan_calibration</span><span class="p">:</span>
-            <span class="n">depol_cal_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">depol_cal_angle</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">depol_cal_time</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">raw_signal</span><span class="p">[</span><span class="n">depol_cal_time</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">:</span> <span class="n">depol_cal_time</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="n">make_nan_during_calibration</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">depol_cal_angle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_signal</span><span class="p">)</span>
 
         <span class="c1"># Store some variables for easy access</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">start_index</span> <span class="o">=</span> <span class="n">start</span>
