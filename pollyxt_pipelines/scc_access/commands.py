@@ -1,8 +1,12 @@
 import logging
 import datetime
 import getpass
+import os
+import shutil
+import tempfile
+import zipfile
 from pathlib import Path
-from pollyxt_pipelines.scc_access.types import ProductStatus
+import time
 
 from cleo import Command
 import pandas as pd
@@ -16,7 +20,9 @@ from pollyxt_pipelines.console import console
 from pollyxt_pipelines import locations
 from pollyxt_pipelines.scc_access import scc_session, SCC, SCC_Credentials, exceptions
 from pollyxt_pipelines.config import Config, config_paths, print_login_error
-from pollyxt_pipelines.utils import bool_to_emoji, option_to_bool
+from pollyxt_pipelines.utils import option_to_bool
+from pollyxt_pipelines.qc_eldec import qc_eldec_file
+from pollyxt_pipelines.scc_access.types import ProductStatus
 
 
 class Login(Command):
@@ -725,3 +731,172 @@ class LidarConstantsSCC(Command):
                 f.write(c.to_csv() + "\n")
 
             console.print(f"[info]Wrote .csv file[/info] {csv_path}")
+
+
+class AutoUploadCalibration(Command):
+    """
+    Uploads a calibration file to SCC, checks results with qc-eldec and if the QC checks do not pass, deletes the file
+
+    scc-auto-upload-calibration
+        {path : Path to calibration file}
+        {location : Location to use for QC-ELDEC history}
+        {--plot= : Where to store the calibration plots}
+    """
+
+    help = """
+    Use this command for automatic the upload of QC-checked calibration files to SCC. It
+    performs the following actions:
+
+    - Uploads the given calibration file to SCC
+    - Waits for SCC to produce the ELDEC product
+    - Downloads the ELDEC product
+    - Runs QC check
+    - If the QC check fails, deletes the calibration file from SCC
+
+    The program will wait up to 5 minutes for the ELDEC product to be produced. If SCC
+    takes longer, it will timeout and the program will exit.
+    """
+
+    def handle(self):
+        # Parse arguments
+        path = self.argument("path")
+        path = Path(path)
+        if not path.exists() and not path.is_file():
+            console.print(f"[error]{path} does not exist![/error]")
+            return 1
+
+        location_name = self.argument("location")
+        location = locations.LOCATIONS.get(location_name, None)
+        if location is None:
+            locations.unknown_location_error(location_name)
+            return 1
+
+        temp_path = Path(tempfile.gettempdir()) / f"pollyxt_pipelines-{os.getpid()}"
+        try:
+            temp_path.mkdir(parents=True, exist_ok=True)
+            console.print(
+                f"[info]Using directory for temporary files: [/info]{temp_path}"
+            )
+        except:
+            console.print(
+                "[error]Could not create temporary directory: [/error]{temp_path}"
+            )
+            console.print_exception()
+
+        # Read application config
+        config = Config()
+        try:
+            credentials = SCC_Credentials(config)
+        except KeyError:
+            print_login_error()
+            return 1
+
+        # Read configuration and measurement IDs from netCDF file
+        try:
+            with Dataset(path, "r") as nc:
+                configuration_id = nc.X_PollyXTPipelines_Configuration_ID
+                measurement_id = nc.Measurement_ID
+        except Exception as ex:
+            console.print("[error]Could not read configuration ID from file![/error]")
+            console.print_exception(ex)
+            return 1
+
+        with scc_session(credentials) as scc:
+            # Upload calibration file
+            try:
+                scc.upload_file(path, system_id=configuration_id)
+                console.print(
+                    f"Uploaded [info]{measurement_id}[/info] with configuration ID [info]{configuration_id}[/info]"
+                )
+            except Exception:
+                console.print(
+                    f"[error]Could not upload calibration file {path}:[/error]"
+                )
+                console.print_exception()
+                return 1
+
+            with console.status(
+                "[bold green] Waiting for SCC to create ELDEC product..."
+            ) as status:
+                # Check calibration file
+                timeout_timer = 0
+                while True:
+                    measurement = scc.get_measurement(measurement_id)
+                    # If the file is not waiting for processing and is not currently processing,
+                    # the products should be ready.
+                    if not measurement.is_processing and not measurement.is_queued:
+                        if measurement.eldec.status == ProductStatus.OK:
+                            break
+                        else:
+                            status.stop()
+                            console.print(
+                                f"[error]SCC could not process uploaded file."
+                            )
+                            return 1
+
+                    elif timeout_timer >= 60 * 5:
+                        status.stop()
+                        console.print(
+                            f"[error]ELDEC product timed out after 5 minutes![/error]"
+                        )
+                        console.print(
+                            f"You should check what happened to the file manually."
+                        )
+                        return 1
+
+                    time.sleep(30)
+                    timeout_timer += 30
+
+            # Download EDLEC file
+            console.print("Downloading ELDEC product...")
+            try:
+                eldec_zip_path = list(
+                    scc.download_products(
+                        measurement_id,
+                        temp_path,
+                        hirelpp=False,
+                        cloudmask=False,
+                        elpp=False,
+                        optical=True,
+                        elic=False,
+                    )
+                )[0]
+            except Exception:
+                status.stop()
+                console.print("[error]Error in ELDEC product download[/error]")
+                console.print_exception()
+                return 1
+
+            # Unzip ELDEC product
+            console.print("Unzipping ELDEC product...")
+            with zipfile.ZipFile(eldec_zip_path, "r") as zip_ref:
+                zip_ref.extractall(temp_path)
+
+            # Run QC check
+            eldec_files = list((temp_path / measurement_id).glob("*_eldec_v*.nc"))
+            console.print(f"[info]Found {len(eldec_files)} ELDEC files[/info]")
+            for eldec_file in eldec_files:
+                console.print(f"Running QC check on {eldec_file.name}...")
+                eldec = qc_eldec_file.ELDECfile(
+                    eldec_file, location, plot_path=self.option("plot")
+                )
+
+                # Delete calibration file in case of bad QC check
+                if not eldec.calibration_ok():
+                    console.print(
+                        f"[bold red] File {eldec_file.name} did not pass QC check! Deleting {measurement_id}"
+                    )
+                    try:
+                        scc.delete_measurement(measurement_id)
+                        console.print("Deleted!")
+                    except Exception:
+                        console.print(
+                            f"[error]Error in deleting measurement[/error] {measurement_id}"
+                        )
+                        console.print_exception()
+                    return 1
+
+                console.print(f"[info]{eldec_file.name} passed QC check![/info]")
+
+        # Clean up temp files
+        shutil.rmtree(temp_path)

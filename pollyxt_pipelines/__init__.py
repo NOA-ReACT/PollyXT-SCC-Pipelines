@@ -11,6 +11,7 @@ from pollyxt_pipelines.radiosondes.commands import GetRadiosonde
 from pollyxt_pipelines.polly_to_scc.commands import CreateSCC
 from pollyxt_pipelines.config import ConfigCommand
 from pollyxt_pipelines.scc_access.commands import (
+    AutoUploadCalibration,
     DeleteSCC,
     DownloadFiles,
     Login,
@@ -57,6 +58,7 @@ def prepare_cli_application() -> Application:
     application.add(LocationPath())
     application.add(QCEldec())
     application.add(QCEldecDeleteHistory())
+    application.add(AutoUploadCalibration())
 
     return application
 
