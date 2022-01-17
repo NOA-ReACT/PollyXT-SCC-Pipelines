@@ -54,7 +54,13 @@ class Product:
 
     @staticmethod
     def from_code(code: int):
-        return Product(code == 127, code)
+        if code == 127:
+            status = ProductStatus.OK
+        elif code == 0:
+            status = ProductStatus.NO_RUN
+        else:
+            status = ProductStatus.ERROR
+        return Product(status, code)
 
 
 def scc_date(tag: Tag) -> datetime:
@@ -112,6 +118,7 @@ class Measurement:
     elic: Product
     elquick: Product
 
+    is_queued: bool
     is_processing: bool
 
     def __post_init__(self):
@@ -162,11 +169,12 @@ class Measurement:
             hirelpp=Product.from_code(json["hirelpp"]),
             cloudmask=Product.from_code(json["cloudmask"]),
             elpp=Product.from_code(json["elpp"]),
-            elda=None,
-            eldec=None,
+            elda=Product.from_code(json["elda"]),
+            eldec=Product.from_code(json["eldec"]),
             elic=Product.from_code(json["elic"]),
-            elquick=None,
+            elquick=Product.from_code(json["elquick"]),
             is_processing=json["is_running"],
+            is_queued=json["is_queued"],
         )
 
 
