@@ -358,6 +358,7 @@
 
     <span class="n">raw_signal</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="n">raw_signal_swap</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">raw_signal_swap_no_nan</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 
     <span class="n">measurement_time</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="n">measurement_shots</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
@@ -397,6 +398,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">raw_signal</span> <span class="o">=</span> <span class="n">nc</span><span class="p">[</span><span class="s2">&quot;raw_signal&quot;</span><span class="p">][</span><span class="n">start</span> <span class="p">:</span> <span class="n">end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">raw_signal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_signal</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">raw_signal_swap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_signal</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw_signal_swap_no_nan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_signal_swap</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">measurement_shots</span> <span class="o">=</span> <span class="n">nc</span><span class="p">[</span><span class="s2">&quot;measurement_shots&quot;</span><span class="p">][</span><span class="n">start</span> <span class="p">:</span> <span class="n">end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">zenith_angle</span> <span class="o">=</span> <span class="n">nc</span><span class="p">[</span><span class="s2">&quot;zenithangle&quot;</span><span class="p">][:]</span>
