@@ -279,6 +279,7 @@ class PollyXTFile:
 
     raw_signal: np.ndarray
     raw_signal_swap: np.ndarray
+    raw_signal_swap_no_nan: np.ndarray
 
     measurement_time: np.ndarray
     measurement_shots: np.ndarray
@@ -318,6 +319,7 @@ class PollyXTFile:
         self.raw_signal = nc["raw_signal"][start : end + 1, :, :]
         self.raw_signal = np.array(self.raw_signal, dtype=np.float64)
         self.raw_signal_swap = np.swapaxes(self.raw_signal, 1, 2)
+        self.raw_signal_swap_no_nan = self.raw_signal_swap.copy()
 
         self.measurement_shots = nc["measurement_shots"][start : end + 1, :]
         self.zenith_angle = nc["zenithangle"][:]
