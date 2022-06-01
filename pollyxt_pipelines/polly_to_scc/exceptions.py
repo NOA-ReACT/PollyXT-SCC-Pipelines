@@ -34,7 +34,7 @@ class NoFilesFound(Exception):
     """
 
     def __init__(self, path: Path):
-        super(self)
+        super(Exception, self)
         self.path = path
 
     def __str__(self) -> str:
