@@ -99,7 +99,7 @@ class UploadFiles(Command):
     def handle(self):
         # Parse arguments
         path = Path(self.argument("path"))
-        if path.is_dir:
+        if path.is_dir():
             files = path.glob("*.nc")
             files = filter(lambda x: not x.name.startswith("rs_"), files)
             if self.option("no-calibration"):
