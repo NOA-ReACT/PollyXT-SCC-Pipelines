@@ -1,3 +1,8 @@
+# 1.11.0
+
+- 🛠 Data during depolarization calibration are now removed from the SCC files. This replaces the old behaviour that set this period to NaN.
+- 🐜 Fix `scc-download`, `scc-search` and `scc-search-download` not working due to an issue in creating `Measurement()` internally. Fixes regression introduced in 1.10.0.
+
 # 1.10.0
 
 - ✨ Add new `scc-auto-upload-calibration` command which uploads a depol calibration file, waits for results and downloads the ELDEC file. If the eldec file does not pass the QC check (see. `qc-eldec`), the calibration file is deleted from SCC.
