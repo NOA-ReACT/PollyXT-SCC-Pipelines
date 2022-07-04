@@ -115,8 +115,7 @@ will be created:
 - 17:31 to 17:41
 - 21:31 to 21:41
 
-During these time periods, the corresponding points in the output SCC file will
-be set to :code:`NaN`. To disable the generation of calibration files (and :code:`NaN`),
+During these time periods, the corresponding data points will not be copied to the output file. To disable the generation of calibration files (and :code:`NaN`),
 use the :code:`--no-calibration` option.
 
 
