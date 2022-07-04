@@ -249,22 +249,13 @@ class PollyXTRepository:
             [x.depol_cal_angle for x in polly_files]
         )
 
+        pollyxt_file.calibration_mask = np.concatenate(
+            [x.calibration_mask for x in polly_files]
+        )
+
         pollyxt_file.end_date = polly_files[-1].end_date
 
         return pollyxt_file
-
-
-def make_nan_during_calibration(depol_cal_angle: np.ndarray, raw_signal: np.ndarray):
-    """
-    Given the depol_cal_angle and raw_signal arrays, set raw_signal to NaN during
-    calibrations. The raw_signal array is mutated.
-
-    Args:
-        depol_cal_angle: The depol_cal_angle array from a `PollyXTFile`
-        raw_signal: The raw_signal array from a `PollyXTFile`
-    """
-    depol_cal_time = depol_cal_angle != 0.0
-    raw_signal[depol_cal_time, :, :] = np.nan
 
 
 class PollyXTFile:
@@ -279,7 +270,6 @@ class PollyXTFile:
 
     raw_signal: np.ndarray
     raw_signal_swap: np.ndarray
-    raw_signal_swap_no_nan: np.ndarray
 
     measurement_time: np.ndarray
     measurement_shots: np.ndarray
@@ -287,9 +277,11 @@ class PollyXTFile:
     location_coordinates: np.ndarray
     depol_cal_angle: np.ndarray
 
-    def __init__(
-        self, input_path: Path, start: int = None, end: int = None, nan_calibration=True
-    ):
+    # True where the depol_cal_angle is not 0, ie. where the system is doing a calibration
+    # Same size as `raw_signal*`, `measurement_time` and `measurement_shots`
+    calibration_mask: np.ndarray
+
+    def __init__(self, input_path: Path, start: int = None, end: int = None):
         """
         Read a PollyXT netcdf file
 
@@ -297,7 +289,6 @@ class PollyXTFile:
             input_path: Which file to read
             start: Optionally, trim the file from this index
             end: Optionally, trim file until this index
-            nan_calibration: If true, at calibration times the raw signal will be set to `np.nan`
         """
 
         # Read the file
@@ -313,13 +304,10 @@ class PollyXTFile:
         self.measurement_time = self.measurement_time[start : end + 1]
 
         # Read the rest of the variables
-        # raw_signal is converted to float64 for two reasons:
-        # 1. SCC requires it as float64
-        # 2. So we can set it to NaN during calibration
+        # raw_signal is converted to float64 because it is required by SCC
         self.raw_signal = nc["raw_signal"][start : end + 1, :, :]
         self.raw_signal = np.array(self.raw_signal, dtype=np.float64)
         self.raw_signal_swap = np.swapaxes(self.raw_signal, 1, 2)
-        self.raw_signal_swap_no_nan = self.raw_signal_swap.copy()
 
         self.measurement_shots = nc["measurement_shots"][start : end + 1, :]
         self.zenith_angle = nc["zenithangle"][:]
@@ -328,9 +316,7 @@ class PollyXTFile:
 
         nc.close()
 
-        # Optionally set calibration times to nan
-        if nan_calibration:
-            make_nan_during_calibration(self.depol_cal_angle, self.raw_signal)
+        self.calibration_mask = self.depol_cal_angle != 0.0
 
         # Store some variables for easy access
         self.start_index = start

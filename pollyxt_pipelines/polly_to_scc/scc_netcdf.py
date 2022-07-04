@@ -159,14 +159,20 @@ def create_scc_netcdf(
     lr_input = nc.createVariable("LR_Input", "i4", dimensions=("channels"), zlib=True)
 
     # Fill Variables with Data. (mandatory)
-    raw_data_start_time[:] = pf.measurement_time[:, 1] - pf.measurement_time[0, 1]
-    raw_data_stop_time[:] = (pf.measurement_time[:, 1] - pf.measurement_time[0, 1]) + 30
-    raw_lidar_data[:] = pf.raw_signal_swap
+    raw_data_start_time[:] = (
+        pf.measurement_time[~pf.calibration_mask, 1] - pf.measurement_time[0, 1]
+    )
+    raw_data_stop_time[:] = (
+        pf.measurement_time[~pf.calibration_mask, 1] - pf.measurement_time[0, 1]
+    ) + 30
+    raw_lidar_data[:] = pf.raw_signal_swap[~pf.calibration_mask]
     channel_id[:] = np.array(location.channel_id)
-    id_timescale[:] = np.zeros(np.size(pf.raw_signal, axis=2))
+    id_timescale[:] = np.zeros(np.size(pf.raw_signal[~pf.calibration_mask], axis=2))
     laser_pointing_angle[:] = int(pf.zenith_angle.item(0))
-    laser_pointing_angle_of_profiles[:] = np.zeros(np.size(pf.raw_signal, axis=0))
-    laser_shots[:] = pf.measurement_shots[:]
+    laser_pointing_angle_of_profiles[:] = np.zeros(
+        np.size(pf.raw_signal[~pf.calibration_mask], axis=0)
+    )
+    laser_shots[:] = pf.measurement_shots[~pf.calibration_mask]
     background_low[:] = np.array(location.background_low)
     background_high[:] = np.array(location.background_high)
     molecular_calc[:] = int(atmosphere)
@@ -332,16 +338,16 @@ def create_scc_calibration_netcdf(
         raw_data_start_time[meas_cycle, 0] = start_first_measurement + meas_cycle
         raw_data_stop_time[meas_cycle, 0] = stop_first_measurement + meas_cycle
 
-        raw_lidar_data[meas_cycle, 0, :] = pf.raw_signal_swap_no_nan[
+        raw_lidar_data[meas_cycle, 0, :] = pf.raw_signal_swap[
             start_first_measurement + meas_cycle, cross_channel, :
         ]
-        raw_lidar_data[meas_cycle, 1, :] = pf.raw_signal_swap_no_nan[
+        raw_lidar_data[meas_cycle, 1, :] = pf.raw_signal_swap[
             start_first_measurement + meas_cycle, total_channel, :
         ]
-        raw_lidar_data[meas_cycle, 2, :] = pf.raw_signal_swap_no_nan[
+        raw_lidar_data[meas_cycle, 2, :] = pf.raw_signal_swap[
             stop_first_measurement + meas_cycle, cross_channel, :
         ]
-        raw_lidar_data[meas_cycle, 3, :] = pf.raw_signal_swap_no_nan[
+        raw_lidar_data[meas_cycle, 3, :] = pf.raw_signal_swap[
             stop_first_measurement + meas_cycle, total_channel, :
         ]
 
