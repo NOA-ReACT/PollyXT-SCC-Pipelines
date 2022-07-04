@@ -190,8 +190,7 @@ will be created:</p>
 <li><p>17:31 to 17:41</p></li>
 <li><p>21:31 to 21:41</p></li>
 </ul>
-<p>During these time periods, the corresponding points in the output SCC file will
-be set to <code class="code docutils literal notranslate"><span class="pre">NaN</span></code>. To disable the generation of calibration files (and <code class="code docutils literal notranslate"><span class="pre">NaN</span></code>),
+<p>During these time periods, the corresponding data points will not be copied to the output file. To disable the generation of calibration files (and <code class="code docutils literal notranslate"><span class="pre">NaN</span></code>),
 use the <code class="code docutils literal notranslate"><span class="pre">--no-calibration</span></code> option.</p>
 </div>
 <div class="section" id="examples">
@@ -240,7 +239,7 @@ are inside <code class="code docutils literal notranslate"><span class="pre">pol
 <p>Routines related to PollyXT files</p>
 <dl class="py class">
 <dt id="pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pollyxt_pipelines.polly_to_scc.pollyxt.</span></code><code class="sig-name descname"><span class="pre">PollyXTFile</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nan_calibration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#PollyXTFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pollyxt_pipelines.polly_to_scc.pollyxt.</span></code><code class="sig-name descname"><span class="pre">PollyXTFile</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#PollyXTFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Reads the variables of interest from a PollyXT netCDF file.</p>
 </dd></dl>
@@ -328,21 +327,6 @@ and the second column contains each measurement’s delta from the date, in seco
 </dd>
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>A tuple containing the start and end dates.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="pollyxt_pipelines.polly_to_scc.pollyxt.make_nan_during_calibration">
-<code class="sig-prename descclassname"><span class="pre">pollyxt_pipelines.polly_to_scc.pollyxt.</span></code><code class="sig-name descname"><span class="pre">make_nan_during_calibration</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">depol_cal_angle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_signal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#make_nan_during_calibration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.make_nan_during_calibration" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given the depol_cal_angle and raw_signal arrays, set raw_signal to NaN during
-calibrations. The raw_signal array is mutated.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>depol_cal_angle</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The depol_cal_angle array from a <a class="reference internal" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile" title="pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PollyXTFile</span></code></a></p></li>
-<li><p><strong>raw_signal</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The raw_signal array from a <a class="reference internal" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile" title="pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PollyXTFile</span></code></a></p></li>
-</ul>
 </dd>
 </dl>
 </dd></dl>
