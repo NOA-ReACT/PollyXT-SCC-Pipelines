@@ -154,6 +154,7 @@ class Measurement:
             elic=scc_product_status(tr.find("td", class_="field-elic_ok_evo")),
             elquick=scc_product_status(tr.find("td", class_="field-elquick_ok_evo")),
             is_processing=scc_bool(tr.find("td", class_="field-is_being_processed")),
+            is_queued=None,
         )
 
     @staticmethod
