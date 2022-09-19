@@ -15,6 +15,7 @@ from pollyxt_pipelines.polly_to_scc.exceptions import (
     NoMeasurementsInTimePeriod,
     BadMeasurementTime,
 )
+from pollyxt_pipelines.locations import Location
 
 
 def polly_date_to_datetime(timestamp: Tuple[int, int]) -> datetime:
@@ -115,7 +116,7 @@ class PollyXTRepository:
     files, even across single-file boundaries.
     """
 
-    def __init__(self, path: Path):
+    def __init__(self, path: Path, location: Location):
         """
         Create a repository
 
@@ -125,6 +126,9 @@ class PollyXTRepository:
 
         # Create a list of files to include in the repository
         self.path = path
+
+        # Keep location for later use
+        self.location = location
 
         if self.path.is_dir():
             self.files = list(self.path.glob("*.nc"))
@@ -164,7 +168,9 @@ class PollyXTRepository:
 
         self.index = pd.DataFrame(rows)
         self.index = self.index.sort_values("timestamp", ascending=True)
-        self.index["calibration"] = self.index["depol_cal_angle"] != 0
+        self.index["calibration"] = (
+            self.index["depol_cal_angle"] != location.depol_calibration_zero_state
+        )
 
     def get_time_period(self) -> Tuple[datetime, datetime]:
         """
@@ -193,7 +199,7 @@ class PollyXTRepository:
         groups = (self.index.calibration != self.index.calibration.shift()).cumsum()
 
         for i, g in self.index.groupby(groups):
-            if g.depol_cal_angle.sum() != 0:
+            if (g.depol_cal_angle != self.location.depol_calibration_zero_state).all():
                 yield g.iloc[0]["timestamp"], g.iloc[-1]["timestamp"]
 
     def get_pollyxt_file(self, time_start: datetime, time_end: datetime):

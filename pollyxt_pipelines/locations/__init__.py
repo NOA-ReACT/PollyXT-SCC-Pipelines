@@ -56,6 +56,9 @@ class Location(NamedTuple):
     calibration_configuration_532nm: int
     """SCC Lidar Configuration ID - Calibration (532 nm)"""
 
+    depol_calibration_zero_state: int
+    """Value of `depol_cal_angle` when there is *no* calibration taking place"""
+
     channel_id: List[int]
     """List of channel IDs (for SCC `channel_ID` variable)"""
 
@@ -124,6 +127,9 @@ class Location(NamedTuple):
         table.add_row(
             "calibration_configuration_532nm", str(self.calibration_configuration_532nm)
         )
+        table.add_row(
+            "depol_calibration_zero_state", str(self.depol_calibration_zero_state)
+        )
         table.add_row("channel_id", ints_to_csv(self.channel_id))
         table.add_row("background_low", ints_to_csv(self.background_low))
         table.add_row("background_high", ints_to_csv(self.background_high))
@@ -180,6 +186,9 @@ def location_from_section(name: str, section: SectionProxy) -> Location:
         ),
         calibration_configuration_532nm=section.getint(
             "calibration_configuration_532nm"
+        ),
+        depol_calibration_zero_state=section.getint(
+            "depol_calibration_zero_state",
         ),
         channel_id=channel_id,
         background_low=background_low,
