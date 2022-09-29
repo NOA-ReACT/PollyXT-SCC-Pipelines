@@ -2,17 +2,17 @@
 Routines for converting PollyXT files to SCC files
 """
 
-from datetime import datetime, timedelta
+from datetime import timedelta
+from enum import Enum, IntEnum
 from pathlib import Path
 from typing import Tuple
-from enum import Enum, IntEnum
 
-from netCDF4 import Dataset
 import numpy as np
+from netCDF4 import Dataset
 
-from pollyxt_pipelines.polly_to_scc import pollyxt
-from pollyxt_pipelines.locations import Location
 from pollyxt_pipelines import utils
+from pollyxt_pipelines.locations import Location
+from pollyxt_pipelines.polly_to_scc import pollyxt
 from pollyxt_pipelines.polly_to_scc.exceptions import (
     NoMeasurementsInTimePeriod,
     TimeOutsideFile,
@@ -227,10 +227,22 @@ def create_scc_calibration_netcdf(
         raise ValueError(f"Unknown wavelength {wavelength}")
     nc = Dataset(output_filename, "w")
 
+    # Find start/end indices for the +45 and -45 degree calibration cycles in Polly file
+    idx = list(np.where(np.diff(pf.depol_cal_angle))[0])
+    start_positive = 2
+    idx = list(filter(lambda x: x >= start_positive + 4, idx))
+    end_positive = idx[0] - 1
+    positive_length = end_positive - start_positive
+
+    start_negative = idx[0] + 3
+    idx = list(filter(lambda x: x >= start_negative + 4, idx))
+    end_negative = pf.depol_cal_angle.shape[0] - 4
+    negative_length = end_negative - start_negative
+
     # Create Dimensions. (mandatory)
     nc.createDimension("points", np.size(pf.raw_signal, axis=1))
     nc.createDimension("channels", 4)
-    nc.createDimension("time", 3)
+    nc.createDimension("time", max(positive_length, negative_length))
     nc.createDimension("nb_of_time_scales", 1)
     nc.createDimension("scan_angles", 1)
 
@@ -292,17 +304,11 @@ def create_scc_calibration_netcdf(
         "Temperature_at_Lidar_Station", "f8", dimensions=(), zlib=True
     )
 
-    # define measurement_cycles
-    start_first_measurement = 0
-    stop_first_measurement = 12
-
     # Fill Variables with Data. (mandatory)
     id_timescale[:] = np.array([0, 0, 0, 0])
     laser_pointing_angle[:] = 5
     laser_pointing_angle_of_profiles[:, :] = 0.0
-    laser_shots[0, :] = np.array([600, 600, 600, 600])
-    laser_shots[1, :] = np.array([600, 600, 600, 600])
-    laser_shots[2, :] = np.array([600, 600, 600, 600])
+    laser_shots[:] = 600
     background_low[:] = np.array([0, 0, 0, 0])
     background_high[:] = np.array([249, 249, 249, 249])
     molecular_calc[:] = 0
@@ -313,17 +319,23 @@ def create_scc_calibration_netcdf(
 
     # Define total and cross channels IDs from Polly
     if wavelength == Wavelength.NM_355:
-        total_channel = location.total_channel_355_nm
-        cross_channel = location.cross_channel_355_nm
-        channel_id[:] = np.array(location.calibration_355nm_channel_ids)
+        total_channel_idx = location.total_channel_355_nm_idx
+        cross_channel_idx = location.cross_channel_355_nm_idx
+        channel_id[:] = np.array(
+            location.calibration_355nm_total_channel_ids
+            + location.calibration_355nm_cross_channel_ids
+        )
         nc.Measurement_ID = measurement_id + "35"
         nc.X_PollyXTPipelines_Configuration_ID = (
             location.calibration_configuration_355nm
         )
     elif wavelength == Wavelength.NM_532:
-        total_channel = location.total_channel_532_nm
-        cross_channel = location.cross_channel_532_nm
-        channel_id[:] = np.array(location.calibration_532nm_channel_ids)
+        total_channel_idx = location.total_channel_532_nm_idx
+        cross_channel_idx = location.cross_channel_532_nm_idx
+        channel_id[:] = np.array(
+            location.calibration_532nm_total_channel_ids
+            + location.calibration_532nm_cross_channel_ids
+        )
         nc.Measurement_ID = measurement_id + "53"
         nc.X_PollyXTPipelines_Configuration_ID = (
             location.calibration_configuration_532nm
@@ -331,25 +343,22 @@ def create_scc_calibration_netcdf(
     else:
         raise ValueError(f"Unknown wavelength {wavelength}")
 
-    # Copy calibration cycles
-    for meas_cycle in range(0, 3, 1):
-        laser_shots[meas_cycle, :] = np.array([600, 600, 600, 600])
-
-        raw_data_start_time[meas_cycle, 0] = start_first_measurement + meas_cycle
-        raw_data_stop_time[meas_cycle, 0] = stop_first_measurement + meas_cycle
-
-        raw_lidar_data[meas_cycle, 0, :] = pf.raw_signal_swap[
-            start_first_measurement + meas_cycle, cross_channel, :
-        ]
-        raw_lidar_data[meas_cycle, 1, :] = pf.raw_signal_swap[
-            start_first_measurement + meas_cycle, total_channel, :
-        ]
-        raw_lidar_data[meas_cycle, 2, :] = pf.raw_signal_swap[
-            stop_first_measurement + meas_cycle, cross_channel, :
-        ]
-        raw_lidar_data[meas_cycle, 3, :] = pf.raw_signal_swap[
-            stop_first_measurement + meas_cycle, total_channel, :
-        ]
+    # Total channel, +45°
+    raw_lidar_data[:positive_length, 0, :] = pf.raw_signal_swap[
+        start_positive:end_positive, total_channel_idx, :
+    ]
+    # Total channel, -45°
+    raw_lidar_data[:negative_length, 1, :] = pf.raw_signal_swap[
+        start_negative:end_negative, total_channel_idx, :
+    ]
+    # Cross channel, +45°
+    raw_lidar_data[:positive_length, 2, :] = pf.raw_signal_swap[
+        start_positive:end_positive, cross_channel_idx, :
+    ]
+    # Cross channel, -45°
+    raw_lidar_data[:negative_length, 3, :] = pf.raw_signal_swap[
+        start_negative:end_negative, cross_channel_idx, :
+    ]
 
     # Close the netCDF file.
     nc.close()

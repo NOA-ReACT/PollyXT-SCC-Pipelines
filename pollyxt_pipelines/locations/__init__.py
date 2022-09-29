@@ -6,15 +6,16 @@ the .ini files are included with the software but custom locations can be define
 """
 
 import io
-from importlib.resources import read_text
+import sys
 from configparser import ConfigParser, SectionProxy
-from typing import NamedTuple, Union, Dict, List
+from importlib.resources import read_text
+from typing import Dict, List, NamedTuple, Union
 
 from rich.markdown import Markdown
 from rich.table import Table
 
-from pollyxt_pipelines.console import console
 from pollyxt_pipelines import config
+from pollyxt_pipelines.console import console
 from pollyxt_pipelines.utils import ints_to_csv
 
 
@@ -60,7 +61,10 @@ class Location(NamedTuple):
     """Value of `depol_cal_angle` when there is *no* calibration taking place"""
 
     channel_id: List[int]
-    """List of channel IDs (for SCC `channel_ID` variable)"""
+    """Mapping of PollyXT Channels to SCC Channels
+    Comma-separated list. The order of the list is the order of the channels in the
+    PollyXT netCDF file.
+    """
 
     background_low: List[int]
     """Value for the `Background_Low` variable"""
@@ -77,34 +81,40 @@ class Location(NamedTuple):
     pressure: int
     """Pressure at the lidar station (`Pressure_at_Lidar_Station` variable)"""
 
-    total_channel_355_nm: int
-    """Index for the total channel (355nm)"""
+    total_channel_355_nm_idx: int
+    """Index in Polly netCDF file for the total channel (355nm)"""
 
-    cross_channel_355_nm: int
-    """Index for the cross channel (355nm)"""
+    cross_channel_355_nm_idx: int
+    """Index in Polly netCDF file for the cross channel (355nm)"""
 
-    total_channel_532_nm: int
-    """Index for the total channel (532nm)"""
+    total_channel_532_nm_idx: int
+    """Index in Polly netCDF file for the total channel (532nm)"""
 
-    cross_channel_532_nm: int
-    """Index for the cross channel (532nm)"""
+    cross_channel_532_nm_idx: int
+    """Index in Polly netCDF file for the cross channel (532nm)"""
 
-    calibration_355nm_channel_ids: List[int]
+    calibration_355nm_total_channel_ids: List[int]
     """
-    Calibration channel IDs for 355nm in this order:
-    - 355_plus_45_transmitted
-    - 355_plus_45_reflected
-    - 355_minus_45_transmitted
-    - 355_minus_45_reflected
+    Calibration channel SCC IDs for 355nm. Comma separated list. First value must be the
+    +45° channel, second value must be the -45° channel.
     """
 
-    calibration_532nm_channel_ids: List[int]
+    calibration_355nm_cross_channel_ids: List[int]
     """
-    Calibration channel IDs for 532nm in this order:
-    - 532_plus_45_transmitted
-    - 532_plus_45_reflected
-    - 532_minus_45_transmitted
-    - 532_minus_45_reflected
+    Calibration channel SCC IDs for 355nm. Comma separated list. First value must be the
+    +45° channel, second value must be the -45° channel.
+    """
+
+    calibration_532nm_total_channel_ids: List[int]
+    """
+    Calibration channel SCC IDs for 532nm. Comma separated list. First value must be the
+    +45° channel, second value must be the -45° channel.
+    """
+
+    calibration_532nm_cross_channel_ids: List[int]
+    """
+    Calibration channel SCC IDs for 532nm. Comma separated list. First value must be the
+    +45° channel, second value must be the -45° channel.
     """
 
     def print(self):
@@ -116,40 +126,10 @@ class Location(NamedTuple):
         table.add_column("Key")
         table.add_column("Value")
 
-        table.add_row("scc_code", self.scc_code)
-        table.add_row("lat", str(self.lat))
-        table.add_row("lon", str(self.lon))
-        table.add_row("daytime_configuration", str(self.daytime_configuration))
-        table.add_row("nighttime_configuration", str(self.nighttime_configuration))
-        table.add_row(
-            "calibration_configuration_355nm", str(self.calibration_configuration_355nm)
-        )
-        table.add_row(
-            "calibration_configuration_532nm", str(self.calibration_configuration_532nm)
-        )
-        table.add_row(
-            "depol_calibration_zero_state", str(self.depol_calibration_zero_state)
-        )
-        table.add_row("channel_id", ints_to_csv(self.channel_id))
-        table.add_row("background_low", ints_to_csv(self.background_low))
-        table.add_row("background_high", ints_to_csv(self.background_high))
-        table.add_row("lr_input", ints_to_csv(self.lr_input))
-        table.add_row("temperature", str(self.temperature))
-        table.add_row("altitude_asl", str(self.altitude_asl))
-        table.add_row("total_channel_355_nm", str(self.total_channel_355_nm))
-        table.add_row("cross_channel_355_nm", str(self.cross_channel_355_nm))
-        table.add_row("total_channel_532_nm", str(self.total_channel_532_nm))
-        table.add_row("cross_channel_532_nm", str(self.cross_channel_532_nm))
-        table.add_row(
-            "calibration_355nm_channel_ids",
-            ints_to_csv(self.calibration_355nm_channel_ids),
-        )
-        table.add_row(
-            "calibration_532nm_channel_ids",
-            ints_to_csv(self.calibration_532nm_channel_ids),
-        )
-        table.add_row("profile_name", self.profile_name)
-        table.add_row("sounding_provider", self.sounding_provider)
+        for key, value in self._asdict().items():
+            if isinstance(value, list):
+                value = ints_to_csv(value)
+            table.add_row(key, str(value))
 
         console.print(table)
 
@@ -166,11 +146,21 @@ def location_from_section(name: str, section: SectionProxy) -> Location:
     ]
     lr_input = [int(x.strip()) for x in section.get("lr_input").split(",")]
 
-    calibration_355nm_channel_ids = [
-        int(x.strip()) for x in section.get("calibration_355nm_channel_ids").split(",")
+    calibration_355nm_total_channel_ids = [
+        int(x.strip())
+        for x in section.get("calibration_355nm_total_channel_ids").split(",")
     ]
-    calibration_532nm_channel_ids = [
-        int(x.strip()) for x in section.get("calibration_532nm_channel_ids").split(",")
+    calibration_355nm_cross_channel_ids = [
+        int(x.strip())
+        for x in section.get("calibration_355nm_cross_channel_ids").split(",")
+    ]
+    calibration_532nm_total_channel_ids = [
+        int(x.strip())
+        for x in section.get("calibration_532nm_total_channel_ids").split(",")
+    ]
+    calibration_532nm_cross_channel_ids = [
+        int(x.strip())
+        for x in section.get("calibration_532nm_cross_channel_ids").split(",")
     ]
 
     return Location(
@@ -196,12 +186,14 @@ def location_from_section(name: str, section: SectionProxy) -> Location:
         lr_input=lr_input,
         temperature=section.getint("temperature"),
         pressure=section.getint("pressure"),
-        total_channel_355_nm=section.getint("total_channel_355_nm"),
-        cross_channel_355_nm=section.getint("cross_channel_355_nm"),
-        total_channel_532_nm=section.getint("total_channel_532_nm"),
-        cross_channel_532_nm=section.getint("cross_channel_532_nm"),
-        calibration_355nm_channel_ids=calibration_355nm_channel_ids,
-        calibration_532nm_channel_ids=calibration_532nm_channel_ids,
+        total_channel_355_nm_idx=section.getint("total_channel_355_nm_idx"),
+        cross_channel_355_nm_idx=section.getint("cross_channel_355_nm_idx"),
+        total_channel_532_nm_idx=section.getint("total_channel_532_nm_idx"),
+        cross_channel_532_nm_idx=section.getint("cross_channel_532_nm_idx"),
+        calibration_355nm_total_channel_ids=calibration_355nm_total_channel_ids,
+        calibration_355nm_cross_channel_ids=calibration_355nm_cross_channel_ids,
+        calibration_532nm_total_channel_ids=calibration_532nm_total_channel_ids,
+        calibration_532nm_cross_channel_ids=calibration_532nm_cross_channel_ids,
         sounding_provider=section["sounding_provider"],
         profile_name=section["profile_name"],
     )
@@ -232,7 +224,17 @@ def read_locations() -> Dict[str, Location]:
 
     for name in locations_config.sections():
         section = locations_config[name]
-        locations[name] = location_from_section(name, section)
+        try:
+            locations[name] = location_from_section(name, section)
+        except Exception:
+            console.print(
+                f"Could not load locations from config file, problem occured in section [{name}]."
+            )
+            console.print("Check the following files:")
+            for path in location_paths:
+                if path.is_file():
+                    console.print(f"\t-{path}")
+            sys.exit(1)
 
     return locations
 

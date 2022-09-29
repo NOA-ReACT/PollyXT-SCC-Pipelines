@@ -7,9 +7,9 @@ from pathlib import Path
 
 from cleo import Command
 
+from pollyxt_pipelines import locations, radiosondes
 from pollyxt_pipelines.console import console
 from pollyxt_pipelines.polly_to_scc import pollyxt, scc_netcdf
-from pollyxt_pipelines import locations, radiosondes
 from pollyxt_pipelines.polly_to_scc.exceptions import BadMeasurementTime
 
 
@@ -128,7 +128,9 @@ class CreateSCC(Command):
         # Create a repository for the given path
         try:
             console.print("Building repository...")
-            repository = pollyxt.PollyXTRepository(Path(self.argument("input")))
+            repository = pollyxt.PollyXTRepository(
+                Path(self.argument("input")), location
+            )
         except BadMeasurementTime as ex:
             console.print(
                 f"[error]While reading file[/error] {ex.filename} [error]an invalid measurement_time value was encountered:[/error] {ex.value}"
