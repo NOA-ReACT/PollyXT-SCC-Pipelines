@@ -305,6 +305,12 @@ def create_scc_calibration_netcdf(
     )
 
     # Fill Variables with Data. (mandatory)
+    raw_data_start_time[:] = (
+        pf.measurement_time[:positive_length, 1] - pf.measurement_time[0, 1]
+    )
+    raw_data_stop_time[:] = (
+        pf.measurement_time[:positive_length, 1] - pf.measurement_time[0, 1]
+    ) + 30
     id_timescale[:] = np.array([0, 0, 0, 0])
     laser_pointing_angle[:] = 5
     laser_pointing_angle_of_profiles[:, :] = 0.0
