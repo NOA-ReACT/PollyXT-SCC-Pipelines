@@ -196,10 +196,7 @@ def create_scc_calibration_netcdf(
 ) -> Tuple[str, Path]:
     """
     From a PollyXT netCDF file, create the corresponding calibration SCC file.
-    Calibration times are:
-    - 02:31 to 02:41
-    - 17:31 to 17:41
-    - 21:31 to 21:41
+    Calibration only occures when `depol_cal_angle` is not equal to the default state value.
     Take care to create the `PollyXTFile` with these intervals.
 
     Parameters:
@@ -242,7 +239,7 @@ def create_scc_calibration_netcdf(
     # Create Dimensions. (mandatory)
     nc.createDimension("points", np.size(pf.raw_signal, axis=1))
     nc.createDimension("channels", 4)
-    nc.createDimension("time", max(positive_length, negative_length))
+    nc.createDimension("time", positive_length + negative_length)
     nc.createDimension("nb_of_time_scales", 1)
     nc.createDimension("scan_angles", 1)
 
@@ -306,10 +303,12 @@ def create_scc_calibration_netcdf(
 
     # Fill Variables with Data. (mandatory)
     raw_data_start_time[:] = (
-        pf.measurement_time[:positive_length, 1] - pf.measurement_time[0, 1]
+        pf.measurement_time[: positive_length + negative_length, 1]
+        - pf.measurement_time[0, 1]
     )
     raw_data_stop_time[:] = (
-        pf.measurement_time[:positive_length, 1] - pf.measurement_time[0, 1]
+        pf.measurement_time[: positive_length + negative_length, 1]
+        - pf.measurement_time[0, 1]
     ) + 30
     id_timescale[:] = np.array([0, 0, 0, 0])
     laser_pointing_angle[:] = 5
@@ -349,20 +348,21 @@ def create_scc_calibration_netcdf(
     else:
         raise ValueError(f"Unknown wavelength {wavelength}")
 
+    raw_lidar_data[:] = 0
     # Total channel, +45°
     raw_lidar_data[:positive_length, 0, :] = pf.raw_signal_swap[
         start_positive:end_positive, total_channel_idx, :
-    ]
-    # Total channel, -45°
-    raw_lidar_data[:negative_length, 1, :] = pf.raw_signal_swap[
-        start_negative:end_negative, total_channel_idx, :
     ]
     # Cross channel, +45°
     raw_lidar_data[:positive_length, 2, :] = pf.raw_signal_swap[
         start_positive:end_positive, cross_channel_idx, :
     ]
+    # Total channel, -45°
+    raw_lidar_data[positive_length:, 1, :] = pf.raw_signal_swap[
+        start_negative:end_negative, total_channel_idx, :
+    ]
     # Cross channel, -45°
-    raw_lidar_data[:negative_length, 3, :] = pf.raw_signal_swap[
+    raw_lidar_data[positive_length:, 3, :] = pf.raw_signal_swap[
         start_negative:end_negative, cross_channel_idx, :
     ]
 
