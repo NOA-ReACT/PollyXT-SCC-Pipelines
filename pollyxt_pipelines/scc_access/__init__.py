@@ -341,12 +341,16 @@ class SCC:
             errors = ", ".join([alert.p.text.strip() for alert in alerts])
             raise exceptions.SCCError(errors)
 
-        # console.print(upload_submit.text)
+        data_input_field = response_body.find("input", id="id_data")
+        data_text = data_input_field.parent.find("p").text.strip().replace("\n", " ")
+        if "Error:" in data_text:
+            raise exceptions.SCCError(data_text)
+
         if (
             upload_submit.status_code != 200
             or upload_submit.url == constants.upload_url
         ):
-            raise exceptions.UnexpectedResponse("Upload to SCC failed")
+            raise exceptions.UnexpectedResponse("Upload to SCC failed, unknown reason")
 
     def get_measurement(self, measurement_id: str) -> Union[Measurement, None]:
         """
