@@ -228,12 +228,12 @@ def create_scc_calibration_netcdf(
     idx = list(np.where(np.diff(pf.depol_cal_angle))[0])
     start_positive = 2
     idx = list(filter(lambda x: x >= start_positive + 4, idx))
-    end_positive = idx[0] - 1
+    end_positive = idx[0]
     positive_length = end_positive - start_positive
 
     start_negative = idx[0] + 3
     idx = list(filter(lambda x: x >= start_negative + 4, idx))
-    end_negative = pf.depol_cal_angle.shape[0] - 4
+    end_negative = pf.depol_cal_angle.shape[0] - 3
     negative_length = end_negative - start_negative
 
     # Create Dimensions. (mandatory)
