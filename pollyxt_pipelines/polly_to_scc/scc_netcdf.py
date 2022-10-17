@@ -236,16 +236,24 @@ def create_scc_calibration_netcdf(
     end_negative = pf.depol_cal_angle.shape[0] - 3
     negative_length = end_negative - start_negative
 
+    if positive_length != negative_length:
+        raise ValueError(
+            f"Positive and negative calibration cycles have different lengths: {positive_length} vs {negative_length}"
+        )
+
     # Create Dimensions. (mandatory)
     nc.createDimension("points", np.size(pf.raw_signal, axis=1))
     nc.createDimension("channels", 4)
-    nc.createDimension("time", positive_length + negative_length)
+    nc.createDimension("time", positive_length)
     nc.createDimension("nb_of_time_scales", 1)
     nc.createDimension("scan_angles", 1)
 
     # Create Global Attributes. (mandatory)
-    nc.RawData_Start_Date = pf.start_date.strftime("%Y%m%d")
-    nc.RawData_Start_Time_UT = pf.start_date.strftime("%H%M%S")
+    # Move start date a couple of profiles forward to accomodate the fact that we skip
+    # some profiles at the beginning of the file.
+    start_date = pf.start_date + timedelta(seconds=(start_positive * 30))
+    nc.RawData_Start_Date = start_date.strftime("%Y%m%d")
+    nc.RawData_Start_Time_UT = start_date.strftime("%H%M%S")
     nc.RawData_Stop_Time_UT = pf.end_date.strftime("%H%M%S")
 
     # Create Global Attributes (optional)
@@ -303,13 +311,13 @@ def create_scc_calibration_netcdf(
 
     # Fill Variables with Data. (mandatory)
     raw_data_start_time[:] = (
-        pf.measurement_time[: positive_length + negative_length, 1]
-        - pf.measurement_time[0, 1]
+        pf.measurement_time[start_positive: end_positive, 1]
+        - pf.measurement_time[start_positive, 1]
     )
     raw_data_stop_time[:] = (
-        pf.measurement_time[: positive_length + negative_length, 1]
-        - pf.measurement_time[0, 1]
-    ) + 30
+        pf.measurement_time[start_negative: end_negative, 1]
+        - pf.measurement_time[start_positive, 1]
+    )
     id_timescale[:] = np.array([0, 0, 0, 0])
     laser_pointing_angle[:] = 5
     laser_pointing_angle_of_profiles[:, :] = 0.0
@@ -350,19 +358,19 @@ def create_scc_calibration_netcdf(
 
     raw_lidar_data[:] = 0
     # Total channel, +45°
-    raw_lidar_data[:positive_length, 0, :] = pf.raw_signal_swap[
+    raw_lidar_data[:, 0, :] = pf.raw_signal_swap[
         start_positive:end_positive, total_channel_idx, :
     ]
     # Cross channel, +45°
-    raw_lidar_data[:positive_length, 2, :] = pf.raw_signal_swap[
+    raw_lidar_data[:, 2, :] = pf.raw_signal_swap[
         start_positive:end_positive, cross_channel_idx, :
     ]
     # Total channel, -45°
-    raw_lidar_data[positive_length:, 1, :] = pf.raw_signal_swap[
+    raw_lidar_data[:, 1, :] = pf.raw_signal_swap[
         start_negative:end_negative, total_channel_idx, :
     ]
     # Cross channel, -45°
-    raw_lidar_data[positive_length:, 3, :] = pf.raw_signal_swap[
+    raw_lidar_data[:, 3, :] = pf.raw_signal_swap[
         start_negative:end_negative, cross_channel_idx, :
     ]
 
