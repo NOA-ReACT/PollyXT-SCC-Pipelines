@@ -342,9 +342,10 @@ class SCC:
             raise exceptions.SCCError(errors)
 
         data_input_field = response_body.find("input", id="id_data")
-        data_text = data_input_field.parent.find("p").text.strip().replace("\n", " ")
-        if "Error:" in data_text:
-            raise exceptions.SCCError(data_text)
+        if data_input_field is not None:
+            data_text = data_input_field.parent.find("p").text.strip().replace("\n", " ")
+            if "Error:" in data_text:
+                raise exceptions.SCCError(data_text)
 
         if (
             upload_submit.status_code != 200
