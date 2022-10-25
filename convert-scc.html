@@ -3,10 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Converting to SCC Format &mdash; PollyXT-Pipelines  documentation</title>
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<title>Converting to SCC Format &mdash; PollyXT-Pipelines  documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono"><link rel="stylesheet" href="_static/typlog.css?v=0.7.3" type="text/css" />
-  <link rel="stylesheet" href="_static/theme.css?v=0.7.3" type="text/css" />
+  <link rel="stylesheet" href="_static/theme.css?v=0.7.3" type="text/css" /><link rel="stylesheet" href="_static/pygments.css" type="text/css" /><link rel="stylesheet" href="_static/typlog.css" type="text/css" />
       <link rel="index" title="Index" href="genindex.html"/>
       <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="PollyXT-Pipelines  documentation" href="index.html"/>
@@ -14,9 +15,12 @@
       <link rel="prev" title="Locations" href="locations.html"/>
   <script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');ga('create', '');ga('send', 'pageview');</script>
   <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="PollyXT-Pipelines">
   <meta property="og:title" content="Converting to SCC Format">
@@ -90,12 +94,12 @@
   <div class="t-content">
     <div class="t-body yue">
       
-  <div class="section" id="converting-to-scc-format">
-<h1>Converting to SCC Format<a class="headerlink" href="#converting-to-scc-format" title="Permalink to this headline">¶</a></h1>
+  <section id="converting-to-scc-format">
+<h1>Converting to SCC Format<a class="headerlink" href="#converting-to-scc-format" title="Permalink to this heading">¶</a></h1>
 <p>PollyXT netCDF files can be converted to SCC netCDF files using the <code class="code docutils literal notranslate"><span class="pre">create-scc</span></code>
 command. It can operate on single files or whole directories.</p>
-<div class="section" id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines create-scc <span class="o">[</span>--interval &lt;...&gt;<span class="o">]</span> <span class="o">[</span>--round<span class="o">]</span> <span class="o">[</span>--no-calibration<span class="o">]</span> <span class="o">[</span>--start-time &lt;...&gt;<span class="o">]</span> &lt;input&gt; &lt;location&gt; &lt;output-path&gt;
 </pre></div>
 </div>
@@ -116,9 +120,9 @@ command. It can operate on single files or whole directories.</p>
 <p>The files are by default split in 1 hour files when they are converted to SCC files.
 This interval can be changed with the <code class="code docutils literal notranslate"><span class="pre">--interval=</span></code> option.</p>
 <p>The location is required to determine the measurement ID, as well as the SCC system ID.</p>
-</div>
-<div class="section" id="merging-of-raw-files">
-<h2>Merging of raw files<a class="headerlink" href="#merging-of-raw-files" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="merging-of-raw-files">
+<h2>Merging of raw files<a class="headerlink" href="#merging-of-raw-files" title="Permalink to this heading">¶</a></h2>
 <p>When passing a directory path to <code class="code docutils literal notranslate"><span class="pre">input</span></code>, the input files are automatically
 merged if required by the output. Consider the following example:</p>
 <ul class="simple">
@@ -128,9 +132,9 @@ merged if required by the output. Consider the following example:</p>
 <p>The program will generate files as normal from 00:00 until 05:00. The file
 corresponding to 05:00-06:00 will automatically use data from <em>both</em> input files.
 The rest will continue normally, using data only from the second input file.</p>
-</div>
-<div class="section" id="selecting-time-range-for-output-files">
-<h2>Selecting time range for output files<a class="headerlink" href="#selecting-time-range-for-output-files" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="selecting-time-range-for-output-files">
+<h2>Selecting time range for output files<a class="headerlink" href="#selecting-time-range-for-output-files" title="Permalink to this heading">¶</a></h2>
 <p>By default, the first output file will start at the first available measurement of
 the raw files and will end one interval (<code class="code docutils literal notranslate"><span class="pre">--interval=</span></code>) length afterwards. This will be repeated
 until the application runs out of raw data. You can configure the time of the first output file using
@@ -144,9 +148,9 @@ until the application runs out of raw data. You can configure the time of the fi
 you can optionally use <code class="code docutils literal notranslate"><span class="pre">--end-time=</span></code> to set exactly where the output file should
 start and end. When using both <code class="code docutils literal notranslate"><span class="pre">--start-time=</span></code> and <code class="code docutils literal notranslate"><span class="pre">--end-time=</span></code>, the
 application will create only one file. The datetime formats are the same for both options.</p>
-</div>
-<div class="section" id="atmosphere">
-<h2>Atmosphere<a class="headerlink" href="#atmosphere" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="atmosphere">
+<h2>Atmosphere<a class="headerlink" href="#atmosphere" title="Permalink to this heading">¶</a></h2>
 <p>By default, when a file is being converted to SCC format, the generated file will have
 <code class="code docutils literal notranslate"><span class="pre">Molecular_Calc</span></code> set to 4 in order to use standard atmosphere. You can select which
 atmosphere you want to use using the <code class="code docutils literal notranslate"><span class="pre">--atmosphere=</span></code> option:</p>
@@ -180,21 +184,34 @@ the output file. For example, a file start starts in 00:00 and ends in 03:00, wi
 have a sounding file with data from 00:00.</p>
 <p><span class="badge badge-todo">todo</span>: Make this behaviour customizable</p>
 </div>
-</div>
-<div class="section" id="calibration">
-<h2>Calibration<a class="headerlink" href="#calibration" title="Permalink to this headline">¶</a></h2>
-<p>If the PollyXT file contains data in one of the following periods, a calibration file
-will be created:</p>
-<ul class="simple">
-<li><p>02:31 to 02:41</p></li>
-<li><p>17:31 to 17:41</p></li>
-<li><p>21:31 to 21:41</p></li>
-</ul>
-<p>During these time periods, the corresponding data points will not be copied to the output file. To disable the generation of calibration files (and <code class="code docutils literal notranslate"><span class="pre">NaN</span></code>),
-use the <code class="code docutils literal notranslate"><span class="pre">--no-calibration</span></code> option.</p>
-</div>
-<div class="section" id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="calibration">
+<h2>Calibration<a class="headerlink" href="#calibration" title="Permalink to this heading">¶</a></h2>
+<p>If the PollyXT files contain calibration data, determined by the value of <code class="code docutils literal notranslate"><span class="pre">depol_cal_angle</span></code>,
+the application will create calibration files. The calibration filenames are prefixed
+with <code class="code docutils literal notranslate"><span class="pre">calibration_</span></code> and are created in pairs, one for 355nm and one for 532nm.</p>
+<p>Which channels are used from the PollyXT netCDF file and how they are mapped to
+SCC channels is configured through the current <span class="xref std std-doc">Location</span>. The
+following diagram shows how data is copied from the PollyXT file to the SCC-format
+file (for 532nm, but the same procedure takes place for 355nm).</p>
+<img alt="_images/scc-calibration-rawdata.png" src="_images/scc-calibration-rawdata.png" />
+<p>In the PollyXT file, <code class="code docutils literal notranslate"><span class="pre">depol_cal_angle</span></code> takes zero value during normal measurements
+(configurable, shown as 0 in the figure) and a non-zero value during calibration.
+Using the value of <code class="code docutils literal notranslate"><span class="pre">depol_cal_angle</span></code>, the application will determine which
+data indices correspond to the +45° and -45° calibration cycles. The first two
++45° samples are discarded, as well as the last 3 -45° samples. The samples
+between the +45° and -45° calibration cycles are discarded as well. Since SCC
+has separate channels for the +45° and -45° calibration cycles, the data is
+copied from two channels into four as shown in the figure (see colors).</p>
+<p>The values for <code class="code docutils literal notranslate"><span class="pre">Raw_Data_Start_Time</span></code> and <code class="code docutils literal notranslate"><span class="pre">Raw_Data_Stop_Time</span></code> are
+set as the start and end time of the calibration cycle. For example:</p>
+<img alt="_images/scc-calibration-times.png" src="_images/scc-calibration-times.png" />
+<p>During these time periods, the corresponding data points will not be copied to
+the output file. To disable the generation of calibration files, use the
+<code class="code docutils literal notranslate"><span class="pre">--no-calibration</span></code> option.</p>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h2>
 <p>Convert one file from Antikythera to SCC format, hourly, and store the output inside
 the <code class="code docutils literal notranslate"><span class="pre">scc_data</span></code> directory.</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines create-scc 2019_06_02_Sun_NOA_06_00_01.nc Antikythera ./scc_data
@@ -226,72 +243,72 @@ no radiosonde files:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines create-scc 2019_06_02_Sun_NOA_06_00_01.nc Antikythera ./scc_data --start-time<span class="o">=</span><span class="m">09</span>:30 --end-time<span class="o">=</span><span class="m">12</span>:34
 </pre></div>
 </div>
-</div>
-<div class="section" id="api">
-<h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="api">
+<h2>API<a class="headerlink" href="#api" title="Permalink to this heading">¶</a></h2>
 <p>PollyXT files are read using the <code class="code docutils literal notranslate"><span class="pre">PollyXTFile</span></code> class from the
 <code class="code docutils literal notranslate"><span class="pre">pollyxt_pipelines.polly_to_scc.pollyxt</span></code> module, which opens the netCDF files,
 loads all the required variables into members and closes the file. Processing methods
 are inside <code class="code docutils literal notranslate"><span class="pre">pollyxt_pipelines.polly_to_scc.scc_netcdf</span></code>, they mostly accept
 <code class="code docutils literal notranslate"><span class="pre">PollyXTFile</span></code>.</p>
-<div class="section" id="module-pollyxt_pipelines.polly_to_scc.pollyxt">
-<span id="pollyxt-file-related-routines"></span><h3>PollyXT file related routines<a class="headerlink" href="#module-pollyxt_pipelines.polly_to_scc.pollyxt" title="Permalink to this headline">¶</a></h3>
+<section id="module-pollyxt_pipelines.polly_to_scc.pollyxt">
+<span id="pollyxt-file-related-routines"></span><h3>PollyXT file related routines<a class="headerlink" href="#module-pollyxt_pipelines.polly_to_scc.pollyxt" title="Permalink to this heading">¶</a></h3>
 <p>Routines related to PollyXT files</p>
 <dl class="py class">
-<dt id="pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pollyxt_pipelines.polly_to_scc.pollyxt.</span></code><code class="sig-name descname"><span class="pre">PollyXTFile</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#PollyXTFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pollyxt_pipelines.polly_to_scc.pollyxt.</span></span><span class="sig-name descname"><span class="pre">PollyXTFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#PollyXTFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Reads the variables of interest from a PollyXT netCDF file.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pollyxt_pipelines.polly_to_scc.pollyxt.</span></code><code class="sig-name descname"><span class="pre">PollyXTRepository</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#PollyXTRepository"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pollyxt_pipelines.polly_to_scc.pollyxt.</span></span><span class="sig-name descname"><span class="pre">PollyXTRepository</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#PollyXTRepository"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Represents a collection of PollyXT netCDF files. Provides facilities for reading data from such
 files, even across single-file boundaries.</p>
 <dl class="py method">
-<dt id="pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository.get_calibration_periods">
-<code class="sig-name descname"><span class="pre">get_calibration_periods</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#PollyXTRepository.get_calibration_periods"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository.get_calibration_periods" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository.get_calibration_periods">
+<span class="sig-name descname"><span class="pre">get_calibration_periods</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#PollyXTRepository.get_calibration_periods"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository.get_calibration_periods" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of periods that refer to calibration times.</p>
 <p>This function checks when the <code class="xref py py-obj docutils literal notranslate"><span class="pre">depol_cal_angle</span></code> variable is not 0 and returns
 the time periods that this occures.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A list containing periods (ie. tuples of start-time and end-time)</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>List[Tuple[datetime, datetime]]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository.get_pollyxt_file">
-<code class="sig-name descname"><span class="pre">get_pollyxt_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#PollyXTRepository.get_pollyxt_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository.get_pollyxt_file" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository.get_pollyxt_file">
+<span class="sig-name descname"><span class="pre">get_pollyxt_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#PollyXTRepository.get_pollyxt_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository.get_pollyxt_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a PollyXTFile for the given time range.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>time_start</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code>) – First measurement to include</p></li>
 <li><p><strong>time_end</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code>) – Last measurement to include</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The PollyXTFile file for the requested period.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository.get_time_period">
-<code class="sig-name descname"><span class="pre">get_time_period</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#PollyXTRepository.get_time_period"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository.get_time_period" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository.get_time_period">
+<span class="sig-name descname"><span class="pre">get_time_period</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#PollyXTRepository.get_time_period"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository.get_time_period" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the time period available in this repository</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code>]</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A tuple containing the first and last available timestamps</p>
 </dd>
 </dl>
@@ -300,75 +317,75 @@ the time periods that this occures.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pollyxt_pipelines.polly_to_scc.pollyxt.find_time_indices">
-<code class="sig-prename descclassname"><span class="pre">pollyxt_pipelines.polly_to_scc.pollyxt.</span></code><code class="sig-name descname"><span class="pre">find_time_indices</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measurement_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#find_time_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.find_time_indices" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pollyxt_pipelines.polly_to_scc.pollyxt.find_time_indices">
+<span class="sig-prename descclassname"><span class="pre">pollyxt_pipelines.polly_to_scc.pollyxt.</span></span><span class="sig-name descname"><span class="pre">find_time_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measurement_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#find_time_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.find_time_indices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given the <code class="xref py py-obj docutils literal notranslate"><span class="pre">measurement_time</span></code> array from a PollyXT netCDF file and a time period (<code class="xref py py-obj docutils literal notranslate"><span class="pre">start</span></code> and
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">end</span></code> in HH:MM format), this function returns the indices of the time period in the array.</p>
 <p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">measurement_time</span></code> array has two columns, the first contains the date in YYYYMMDD format
 and the second column contains each measurement’s delta from the date, in seconds (!).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pollyxt_pipelines.polly_to_scc.pollyxt.get_measurement_period">
-<code class="sig-prename descclassname"><span class="pre">pollyxt_pipelines.polly_to_scc.pollyxt.</span></code><code class="sig-name descname"><span class="pre">get_measurement_period</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#get_measurement_period"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.get_measurement_period" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pollyxt_pipelines.polly_to_scc.pollyxt.get_measurement_period">
+<span class="sig-prename descclassname"><span class="pre">pollyxt_pipelines.polly_to_scc.pollyxt.</span></span><span class="sig-name descname"><span class="pre">get_measurement_period</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#get_measurement_period"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.get_measurement_period" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the measurement time (i.e. start and end times) from a PollyXT file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>input</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]) – Either a path to a PollyXT netCDF file, an opened netCDF dataset or the
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">measurement_time</span></code> variable.</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code>]</p>
 </dd>
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A tuple containing the start and end dates.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pollyxt_pipelines.polly_to_scc.pollyxt.polly_date_to_datetime">
-<code class="sig-prename descclassname"><span class="pre">pollyxt_pipelines.polly_to_scc.pollyxt.</span></code><code class="sig-name descname"><span class="pre">polly_date_to_datetime</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#polly_date_to_datetime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.polly_date_to_datetime" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pollyxt_pipelines.polly_to_scc.pollyxt.polly_date_to_datetime">
+<span class="sig-prename descclassname"><span class="pre">pollyxt_pipelines.polly_to_scc.pollyxt.</span></span><span class="sig-name descname"><span class="pre">polly_date_to_datetime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/pollyxt.html#polly_date_to_datetime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.pollyxt.polly_date_to_datetime" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts a PollyXT Date to a Python object.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>timestamp</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – PollyXT timestamp in two-integer format: 1) date as YYYYMMDD 2) seconds since start of day</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></p>
 </dd>
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A datetime object</p>
 </dd>
 </dl>
 </dd></dl>
 
-</div>
-<div class="section" id="module-pollyxt_pipelines.polly_to_scc.scc_netcdf">
-<span id="scc-file-related-routines"></span><h3>SCC file related routines<a class="headerlink" href="#module-pollyxt_pipelines.polly_to_scc.scc_netcdf" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="module-pollyxt_pipelines.polly_to_scc.scc_netcdf">
+<span id="scc-file-related-routines"></span><h3>SCC file related routines<a class="headerlink" href="#module-pollyxt_pipelines.polly_to_scc.scc_netcdf" title="Permalink to this heading">¶</a></h3>
 <p>Routines for converting PollyXT files to SCC files</p>
 <dl class="py class">
-<dt id="pollyxt_pipelines.polly_to_scc.scc_netcdf.Atmosphere">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pollyxt_pipelines.polly_to_scc.scc_netcdf.</span></code><code class="sig-name descname"><span class="pre">Atmosphere</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/scc_netcdf.html#Atmosphere"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.scc_netcdf.Atmosphere" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.IntEnum</span></code></p>
+<dt class="sig sig-object py" id="pollyxt_pipelines.polly_to_scc.scc_netcdf.Atmosphere">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pollyxt_pipelines.polly_to_scc.scc_netcdf.</span></span><span class="sig-name descname"><span class="pre">Atmosphere</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/scc_netcdf.html#Atmosphere"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.scc_netcdf.Atmosphere" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">IntEnum</span></code></p>
 <p>Which atmosphere to use to processing. These are the possible values for <code class="xref py py-obj docutils literal notranslate"><span class="pre">molecular_calc</span></code>.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="pollyxt_pipelines.polly_to_scc.scc_netcdf.Wavelength">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pollyxt_pipelines.polly_to_scc.scc_netcdf.</span></code><code class="sig-name descname"><span class="pre">Wavelength</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/scc_netcdf.html#Wavelength"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.scc_netcdf.Wavelength" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<dt class="sig sig-object py" id="pollyxt_pipelines.polly_to_scc.scc_netcdf.Wavelength">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pollyxt_pipelines.polly_to_scc.scc_netcdf.</span></span><span class="sig-name descname"><span class="pre">Wavelength</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/scc_netcdf.html#Wavelength"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.scc_netcdf.Wavelength" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
 <p>Laser wavelength</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pollyxt_pipelines.polly_to_scc.scc_netcdf.convert_pollyxt_file">
-<code class="sig-prename descclassname"><span class="pre">pollyxt_pipelines.polly_to_scc.scc_netcdf.</span></code><code class="sig-name descname"><span class="pre">convert_pollyxt_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">repo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atmosphere</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">should_round</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calibration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/scc_netcdf.html#convert_pollyxt_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.scc_netcdf.convert_pollyxt_file" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pollyxt_pipelines.polly_to_scc.scc_netcdf.convert_pollyxt_file">
+<span class="sig-prename descclassname"><span class="pre">pollyxt_pipelines.polly_to_scc.scc_netcdf.</span></span><span class="sig-name descname"><span class="pre">convert_pollyxt_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">repo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atmosphere</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">should_round</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calibration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/scc_netcdf.html#convert_pollyxt_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.scc_netcdf.convert_pollyxt_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts a pollyXT repository into a collection of SCC files. The input files will be split/merged into intervals
 before being converted to the new format.</p>
 <p>This function is a generator, so you can use it in a for loop to monitor progress:</p>
@@ -379,7 +396,7 @@ before being converted to the new format.</p>
 </dl>
 </div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>repo</strong> (<a class="reference internal" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository" title="pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository"><code class="xref py py-class docutils literal notranslate"><span class="pre">PollyXTRepository</span></code></a>) – PollyXT file to convert</p></li>
 <li><p><strong>output_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Directory to write the SCC files</p></li>
@@ -397,16 +414,13 @@ is generated, for your target interval (HH:MM or YYYY-MM-DD_HH:MM format, string
 </dd></dl>
 
 <dl class="py function">
-<dt id="pollyxt_pipelines.polly_to_scc.scc_netcdf.create_scc_calibration_netcdf">
-<code class="sig-prename descclassname"><span class="pre">pollyxt_pipelines.polly_to_scc.scc_netcdf.</span></code><code class="sig-name descname"><span class="pre">create_scc_calibration_netcdf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pol_calib_range_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pol_calib_range_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2500</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/scc_netcdf.html#create_scc_calibration_netcdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.scc_netcdf.create_scc_calibration_netcdf" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pollyxt_pipelines.polly_to_scc.scc_netcdf.create_scc_calibration_netcdf">
+<span class="sig-prename descclassname"><span class="pre">pollyxt_pipelines.polly_to_scc.scc_netcdf.</span></span><span class="sig-name descname"><span class="pre">create_scc_calibration_netcdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pol_calib_range_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pol_calib_range_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2500</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/scc_netcdf.html#create_scc_calibration_netcdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.scc_netcdf.create_scc_calibration_netcdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>From a PollyXT netCDF file, create the corresponding calibration SCC file.
-Calibration times are:
-- 02:31 to 02:41
-- 17:31 to 17:41
-- 21:31 to 21:41
+Calibration only occures when <code class="xref py py-obj docutils literal notranslate"><span class="pre">depol_cal_angle</span></code> is not equal to the default state value.
 Take care to create the <code class="xref py py-obj docutils literal notranslate"><span class="pre">PollyXTFile</span></code> with these intervals.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pf</strong> (<a class="reference internal" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile" title="pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">PollyXTFile</span></code></a>) – An opened PollyXT file</p></li>
 <li><p><strong>output_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Where to store the produced netCDF file</p></li>
@@ -416,21 +430,21 @@ Take care to create the <code class="xref py py-obj docutils literal notranslate
 <li><p><strong>pol_calib_range_max</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Calibration contant calculation, maximum height</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>]</p>
 </dd>
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A tuple containing the measurement ID and the output path</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pollyxt_pipelines.polly_to_scc.scc_netcdf.create_scc_netcdf">
-<code class="sig-prename descclassname"><span class="pre">pollyxt_pipelines.polly_to_scc.scc_netcdf.</span></code><code class="sig-name descname"><span class="pre">create_scc_netcdf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">pf</span></em>, <em class="sig-param"><span class="pre">output_path</span></em>, <em class="sig-param"><span class="pre">location</span></em>, <em class="sig-param"><span class="pre">atmosphere=&lt;Atmosphere.STANDARD_ATMOSPHERE:</span> <span class="pre">4&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/scc_netcdf.html#create_scc_netcdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.scc_netcdf.create_scc_netcdf" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pollyxt_pipelines.polly_to_scc.scc_netcdf.create_scc_netcdf">
+<span class="sig-prename descclassname"><span class="pre">pollyxt_pipelines.polly_to_scc.scc_netcdf.</span></span><span class="sig-name descname"><span class="pre">create_scc_netcdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atmosphere</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Atmosphere.STANDARD_ATMOSPHERE</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/polly_to_scc/scc_netcdf.html#create_scc_netcdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.polly_to_scc.scc_netcdf.create_scc_netcdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a PollyXT netCDF file to a SCC file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pf</strong> (<a class="reference internal" href="#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile" title="pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">PollyXTFile</span></code></a>) – An opened PollyXT file. When you create this, you can specify the time period of interest.</p></li>
 <li><p><strong>output_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Where to store the produced netCDF file</p></li>
@@ -446,18 +460,18 @@ Take care to create the <code class="xref py py-obj docutils literal notranslate
 by this function.</p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>]</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A tuple containing  the measurement ID and the output path</p>
 </dd>
 </dl>
 </dd></dl>
 
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
   <div class="t-pagination clearfix">
     <span>

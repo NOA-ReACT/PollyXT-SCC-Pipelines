@@ -3,10 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calibration QC &mdash; PollyXT-Pipelines  documentation</title>
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<title>Calibration QC &mdash; PollyXT-Pipelines  documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono"><link rel="stylesheet" href="_static/typlog.css?v=0.7.3" type="text/css" />
-  <link rel="stylesheet" href="_static/theme.css?v=0.7.3" type="text/css" />
+  <link rel="stylesheet" href="_static/theme.css?v=0.7.3" type="text/css" /><link rel="stylesheet" href="_static/pygments.css" type="text/css" /><link rel="stylesheet" href="_static/typlog.css" type="text/css" />
       <link rel="index" title="Index" href="genindex.html"/>
       <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="PollyXT-Pipelines  documentation" href="index.html"/>
@@ -14,9 +15,12 @@
       <link rel="prev" title="Converting to SCC Format" href="convert-scc.html"/>
   <script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');ga('create', '');ga('send', 'pageview');</script>
   <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="PollyXT-Pipelines">
   <meta property="og:title" content="Calibration QC">
@@ -80,8 +84,8 @@
   <div class="t-content">
     <div class="t-body yue">
       
-  <div class="section" id="calibration-qc">
-<h1>Calibration QC<a class="headerlink" href="#calibration-qc" title="Permalink to this headline">¶</a></h1>
+  <section id="calibration-qc">
+<h1>Calibration QC<a class="headerlink" href="#calibration-qc" title="Permalink to this heading">¶</a></h1>
 <p>PollyXT-Pipelines contains routines for checking the quality of the system calibration by looking at the ELDEC output files. Specifically, the <code class="code docutils literal notranslate"><span class="pre">qc-eldec</span></code> command can read such ELDEC files and check whether the calibration is OK by the following criteria:</p>
 <ul class="simple">
 <li><p>is relative error of the gain factor below threshold?</p></li>
@@ -90,8 +94,8 @@
 </ul>
 <p>The command stores previous calibrations (per-location) so they can be compared and used for the last criteria. The results are optionally plotted.</p>
 <p>The history files are stored at the config directory. For Linux, that should be <code class="xref py py-obj docutils literal notranslate"><span class="pre">config/pollyxt_pipelines/</span></code> and for Windows <code class="xref py py-obj docutils literal notranslate"><span class="pre">%APPDATA%/PollyXT_Pipelines/</span></code>.</p>
-<div class="section" id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines qc-eldec &lt;input&gt; &lt;location&gt; <span class="o">[</span>&lt;plot&gt;<span class="o">]</span>
 </pre></div>
 </div>
@@ -104,8 +108,8 @@
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines qc-eldec-delete-history
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
   <div class="t-pagination clearfix">
     <span>

@@ -108,16 +108,34 @@ be created.
 Calibration
 ===========
 
-If the PollyXT file contains data in one of the following periods, a calibration file
-will be created:
+If the PollyXT files contain calibration data, determined by the value of :code:`depol_cal_angle`,
+the application will create calibration files. The calibration filenames are prefixed
+with :code:`calibration_` and are created in pairs, one for 355nm and one for 532nm.
 
-- 02:31 to 02:41
-- 17:31 to 17:41
-- 21:31 to 21:41
+Which channels are used from the PollyXT netCDF file and how they are mapped to
+SCC channels is configured through the current :doc:`Location <location>`. The
+following diagram shows how data is copied from the PollyXT file to the SCC-format
+file (for 532nm, but the same procedure takes place for 355nm).
 
-During these time periods, the corresponding data points will not be copied to the output file. To disable the generation of calibration files (and :code:`NaN`),
-use the :code:`--no-calibration` option.
+.. image:: figures/scc-calibration-rawdata.png
 
+In the PollyXT file, :code:`depol_cal_angle` takes zero value during normal measurements
+(configurable, shown as 0 in the figure) and a non-zero value during calibration.
+Using the value of :code:`depol_cal_angle`, the application will determine which
+data indices correspond to the +45° and -45° calibration cycles. The first two
++45° samples are discarded, as well as the last 3 -45° samples. The samples
+between the +45° and -45° calibration cycles are discarded as well. Since SCC
+has separate channels for the +45° and -45° calibration cycles, the data is
+copied from two channels into four as shown in the figure (see colors).
+
+The values for :code:`Raw_Data_Start_Time` and :code:`Raw_Data_Stop_Time` are
+set as the start and end time of the calibration cycle. For example:
+
+.. image:: figures/scc-calibration-times.png
+
+During these time periods, the corresponding data points will not be copied to
+the output file. To disable the generation of calibration files, use the
+:code:`--no-calibration` option.
 
 
 Examples

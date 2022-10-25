@@ -3,10 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Searching and downloading historic data &mdash; PollyXT-Pipelines  documentation</title>
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<title>Searching and downloading historic data &mdash; PollyXT-Pipelines  documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono"><link rel="stylesheet" href="_static/typlog.css?v=0.7.3" type="text/css" />
-  <link rel="stylesheet" href="_static/theme.css?v=0.7.3" type="text/css" />
+  <link rel="stylesheet" href="_static/theme.css?v=0.7.3" type="text/css" /><link rel="stylesheet" href="_static/pygments.css" type="text/css" /><link rel="stylesheet" href="_static/typlog.css" type="text/css" />
       <link rel="index" title="Index" href="genindex.html"/>
       <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="PollyXT-Pipelines  documentation" href="index.html"/>
@@ -14,9 +15,12 @@
       <link rel="prev" title="Uploading to SCC and downloading products" href="scc-upload-download.html"/>
   <script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');ga('create', '');ga('send', 'pageview');</script>
   <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="PollyXT-Pipelines">
   <meta property="og:title" content="Searching and downloading historic data">
@@ -84,14 +88,14 @@
   <div class="t-content">
     <div class="t-body yue">
       
-  <div class="section" id="searching-and-downloading-historic-data">
-<h1>Searching and downloading historic data<a class="headerlink" href="#searching-and-downloading-historic-data" title="Permalink to this headline">¶</a></h1>
+  <section id="searching-and-downloading-historic-data">
+<h1>Searching and downloading historic data<a class="headerlink" href="#searching-and-downloading-historic-data" title="Permalink to this heading">¶</a></h1>
 <p>The commands <code class="code docutils literal notranslate"><span class="pre">scc-search</span></code> and <code class="code docutils literal notranslate"><span class="pre">scc-search-download</span></code> can be used to search and download
 “old” processing results, without having to provide the measurement IDs yourself. You can use
 <code class="code docutils literal notranslate"><span class="pre">scc-search</span></code> to see what is available and then use <code class="code docutils literal notranslate"><span class="pre">scc-search-download</span></code> to download
 files of interest.</p>
-<div class="section" id="searching">
-<h2>Searching<a class="headerlink" href="#searching" title="Permalink to this headline">¶</a></h2>
+<section id="searching">
+<h2>Searching<a class="headerlink" href="#searching" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines scc-search <span class="o">[</span>--location <span class="o">[</span>&lt;...&gt;<span class="o">]]</span> <span class="o">[</span>--to-csv &lt;...&gt;<span class="o">]</span> &lt;date-start&gt; &lt;date-end&gt;
 </pre></div>
 </div>
@@ -119,9 +123,9 @@ request for N measurements so it should be avoided if not required.</p>
 20210307aky1130,Antikythera,aky,2021-03-07T11:30:00,2021-03-07T12:30:00,2021-03-07T13:46:00,2021-03-07T13:46:00,127,127,127,-127,127
 </pre></div>
 </div>
-</div>
-<div class="section" id="downloading">
-<h2>Downloading<a class="headerlink" href="#downloading" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="downloading">
+<h2>Downloading<a class="headerlink" href="#downloading" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines scc-search-download <span class="o">[</span>--location <span class="o">[</span>&lt;...&gt;<span class="o">]]</span> &lt;date-start&gt; &lt;date-end&gt;
 </pre></div>
 </div>
@@ -137,9 +141,9 @@ request for N measurements so it should be avoided if not required.</p>
 </ul>
 <p>By default, this command downloads all products but you can specifically excluse some using the
 <code class="code docutils literal notranslate"><span class="pre">--no-*</span></code> options.</p>
-</div>
-<div class="section" id="lidar-constants">
-<h2>Lidar constants<a class="headerlink" href="#lidar-constants" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="lidar-constants">
+<h2>Lidar constants<a class="headerlink" href="#lidar-constants" title="Permalink to this heading">¶</a></h2>
 <p>The <a class="reference external" href="https://github.com/NOA-ReACT/PollyXT-SCC-Pipelines">lidar constants table</a>  can be downloaded as a CSV file using the <code class="code docutils literal notranslate"><span class="pre">lidar-constants-scc</span></code> command.</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines scc-lidar-constants <span class="o">[</span>--location <span class="o">[</span>&lt;...&gt;<span class="o">]]</span> &lt;date-start&gt; &lt;date-end&gt; &lt;csv&gt;
 </pre></div>
@@ -150,9 +154,9 @@ request for N measurements so it should be avoided if not required.</p>
 <li><p><code class="code docutils literal notranslate"><span class="pre">csv</span></code> <span class="badge badge-blue">required</span>: Where to save the CSV file.</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">--location=</span></code>: Optionally filter by a measurement station</p></li>
 </ul>
-</div>
-<div class="section" id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h2>
 <p>Search for all files between 2020-01-01 and 2020-02-01 from Finokalia.</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines scc-search <span class="m">2020</span>-01-01 <span class="m">2020</span>-02-01 --location<span class="o">=</span>Finokalia
 </pre></div>
@@ -169,13 +173,13 @@ request for N measurements so it should be avoided if not required.</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines scc-lidar-constants <span class="m">2020</span>-10-01 <span class="m">2020</span>-11-01 lidar.csv
 </pre></div>
 </div>
-</div>
-<div class="section" id="api">
-<h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="api">
+<h2>API<a class="headerlink" href="#api" title="Permalink to this heading">¶</a></h2>
 <p>All network-related operationg are handled by the <code class="code docutils literal notranslate"><span class="pre">pollyxt_pipelines.scc_access</span></code> module, which
 has a <code class="code docutils literal notranslate"><span class="pre">SCC</span></code> class. For more information read the <a class="reference internal" href="network-api.html"><span class="doc">Network API</span></a> page.</p>
-</div>
-</div>
+</section>
+</section>
 
   <div class="t-pagination clearfix">
     <span>
