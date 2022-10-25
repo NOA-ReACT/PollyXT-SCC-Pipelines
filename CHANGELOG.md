@@ -1,3 +1,9 @@
+# 1.12.0
+
+- ✨⚠️ Add new `depol_calibration_zero_state` setting to locations for configuring which value `depol_cal_angle` takes when no calibration takes place.
+- 🛠 Change how depolarization calibration files are generated, files should now be correct for consumption by SCC. See documentation for detailed explanation.
+- 🐜 Fix some error handling when uploading malformed SCC files.
+
 # 1.11.0
 
 - 🛠 Data during depolarization calibration are now removed from the SCC files. This replaces the old behaviour that set this period to NaN.
