@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pollyxt_pipelines"
-version = "1.12.0"
+version = "1.12.1"
 description = "Tools and scripts related to the automated processing of PollyXT files"
 authors = ["Thanasis Georgiou <ageorgiou@noa.gr>"]
 

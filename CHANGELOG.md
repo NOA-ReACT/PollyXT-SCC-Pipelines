@@ -1,3 +1,7 @@
+# 1.12.1
+
+- 🐜 When the two depol. calibration cycles are not of same length, attempt to handle it by clipping the largest one so it matches the smaller one.
+
 # 1.12.0
 
 - ✨⚠️ Add new `depol_calibration_zero_state` setting to locations for configuring which value `depol_cal_angle` takes when no calibration takes place.
