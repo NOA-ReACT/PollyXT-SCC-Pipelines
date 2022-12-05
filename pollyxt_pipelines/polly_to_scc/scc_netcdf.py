@@ -236,10 +236,13 @@ def create_scc_calibration_netcdf(
     end_negative = pf.depol_cal_angle.shape[0] - 3
     negative_length = end_negative - start_negative
 
-    if positive_length != negative_length:
-        raise ValueError(
-            f"Positive and negative calibration cycles have different lengths: {positive_length} vs {negative_length}"
-        )
+    # Reduce the larger period to match
+    if positive_length > negative_length:
+        end_positive -= positive_length - negative_length
+        positive_length = negative_length
+    elif negative_length > positive_length:
+        end_negative -= negative_length - positive_length
+        negative_length = positive_length
 
     # Create Dimensions. (mandatory)
     nc.createDimension("points", np.size(pf.raw_signal, axis=1))
@@ -311,11 +314,11 @@ def create_scc_calibration_netcdf(
 
     # Fill Variables with Data. (mandatory)
     raw_data_start_time[:] = (
-        pf.measurement_time[start_positive: end_positive, 1]
+        pf.measurement_time[start_positive:end_positive, 1]
         - pf.measurement_time[start_positive, 1]
     )
     raw_data_stop_time[:] = (
-        pf.measurement_time[start_negative: end_negative, 1]
+        pf.measurement_time[start_negative:end_negative, 1]
         - pf.measurement_time[start_positive, 1]
     )
     id_timescale[:] = np.array([0, 0, 0, 0])
