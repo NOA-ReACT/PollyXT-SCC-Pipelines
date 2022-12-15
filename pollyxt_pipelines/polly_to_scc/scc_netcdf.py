@@ -191,8 +191,8 @@ def create_scc_calibration_netcdf(
     output_path: Path,
     location: Location,
     wavelength: Wavelength,
-    pol_calib_range_min: int = 1200,
-    pol_calib_range_max: int = 2500,
+    pol_calib_range_min: int = 2000,
+    pol_calib_range_max: int = 3000,
 ) -> Tuple[str, Path]:
     """
     From a PollyXT netCDF file, create the corresponding calibration SCC file.
