@@ -3,7 +3,6 @@ Routines for converting PollyXT files to SCC files
 """
 
 from datetime import timedelta
-from enum import Enum, IntEnum
 from pathlib import Path
 from typing import Tuple
 
@@ -12,43 +11,12 @@ from netCDF4 import Dataset
 
 from pollyxt_pipelines import utils
 from pollyxt_pipelines.locations import Location
+from pollyxt_pipelines.enums import Atmosphere, Wavelength
 from pollyxt_pipelines.polly_to_scc import pollyxt
 from pollyxt_pipelines.polly_to_scc.exceptions import (
     NoMeasurementsInTimePeriod,
     TimeOutsideFile,
 )
-
-
-class Wavelength(Enum):
-    """Laser wavelength"""
-
-    NM_355 = 355
-    NM_532 = 532
-
-
-class Atmosphere(IntEnum):
-    """
-    Which atmosphere to use to processing. These are the possible values for `molecular_calc`.
-    """
-
-    AUTOMATIC = 0
-    RADIOSONDE = 1
-    CLOUDNET = 2
-    STANDARD_ATMOSPHERE = 4
-
-    @staticmethod
-    def from_string(x: str):
-        x = x.lower().strip()
-        if x == "automatic":
-            return Atmosphere.AUTOMATIC
-        if x == "radiosonde":
-            return Atmosphere.RADIOSONDE
-        if x == "cloudnet":
-            return Atmosphere.CLOUDNET
-        if x == "standard":
-            return Atmosphere.STANDARD_ATMOSPHERE
-
-        raise ValueError(f"Unknown atmosphere {x}")
 
 
 def create_scc_netcdf(
@@ -216,12 +184,7 @@ def create_scc_calibration_netcdf(
 
     # Create SCC file
     # Output filename is always the measurement ID
-    if wavelength == Wavelength.NM_355:
-        output_filename = output_path / f"calibration_{measurement_id}_355.nc"
-    elif wavelength == Wavelength.NM_532:
-        output_filename = output_path / f"calibration_{measurement_id}_532.nc"
-    else:
-        raise ValueError(f"Unknown wavelength {wavelength}")
+    output_filename = output_path / f"calibration_{measurement_id}_{int(wavelength)}.nc"
     nc = Dataset(output_filename, "w")
 
     # Find start/end indices for the +45 and -45 degree calibration cycles in Polly file
@@ -356,6 +319,17 @@ def create_scc_calibration_netcdf(
         nc.X_PollyXTPipelines_Configuration_ID = (
             location.calibration_configuration_532nm
         )
+    elif wavelength == Wavelength.NM_1064:
+        total_channel_idx = location.total_channel_1064_nm_idx
+        cross_channel_idx = location.cross_channel_1064_nm_idx
+        channel_id[:] = np.array(
+            location.calibration_1064nm_total_channel_ids
+            + location.calibration_1064nm_cross_channel_ids
+        )
+        nc.Measurement_ID = measurement_id + "10"
+        nc.X_PollyXTPipelines_Configuration_ID = (
+            location.calibration_configuration_1064nm
+        )
     else:
         raise ValueError(f"Unknown wavelength {wavelength}")
 
@@ -469,17 +443,17 @@ def convert_pollyxt_file(
 
     # Generate calibration files
     if calibration:
+        depol_channels = location.has_depol_channels()
+
         # Check for any valid calibration intervals
         for start, end in repo.get_calibration_periods():
             if start > measurement_start and end < measurement_end:
                 pf = repo.get_pollyxt_file(start, end)
 
-                id, path = create_scc_calibration_netcdf(
-                    pf, output_path, location, wavelength=Wavelength.NM_532
-                )
-                yield id, path, start, end
-
-                id, path = create_scc_calibration_netcdf(
-                    pf, output_path, location, wavelength=Wavelength.NM_355
-                )
-                yield id, path, start, end
+                # Generate calibration files for all channels that exist!
+                for wv, channel_exists in depol_channels.items():
+                    if channel_exists:
+                        id, path = create_scc_calibration_netcdf(
+                            pf, output_path, location, wavelength=wv
+                        )
+                        yield id, path, start, end

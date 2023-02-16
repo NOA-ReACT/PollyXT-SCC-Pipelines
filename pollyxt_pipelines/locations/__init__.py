@@ -15,6 +15,7 @@ from rich.markdown import Markdown
 from rich.table import Table
 
 from pollyxt_pipelines import config
+from pollyxt_pipelines.enums import Wavelength
 from pollyxt_pipelines.console import console
 from pollyxt_pipelines.utils import ints_to_csv
 
@@ -51,10 +52,13 @@ class Location(NamedTuple):
     nighttime_configuration: int
     """SCC Lidar Configuration ID - Nightime"""
 
-    calibration_configuration_355nm: int
+    calibration_configuration_355nm: int | None
     """SCC Lidar Configuration ID - Calibration (355 nm)"""
 
-    calibration_configuration_532nm: int
+    calibration_configuration_532nm: int | None
+    """SCC Lidar Configuration ID - Calibration (532 nm)"""
+
+    calibration_configuration_1064nm: int | None
     """SCC Lidar Configuration ID - Calibration (532 nm)"""
 
     depol_calibration_zero_state: int
@@ -81,17 +85,23 @@ class Location(NamedTuple):
     pressure: int
     """Pressure at the lidar station (`Pressure_at_Lidar_Station` variable)"""
 
-    total_channel_355_nm_idx: int
+    total_channel_355_nm_idx: int | None
     """Index in Polly netCDF file for the total channel (355nm)"""
 
-    cross_channel_355_nm_idx: int
+    cross_channel_355_nm_idx: int | None
     """Index in Polly netCDF file for the cross channel (355nm)"""
 
-    total_channel_532_nm_idx: int
+    total_channel_532_nm_idx: int | None
     """Index in Polly netCDF file for the total channel (532nm)"""
 
-    cross_channel_532_nm_idx: int
+    cross_channel_532_nm_idx: int | None
     """Index in Polly netCDF file for the cross channel (532nm)"""
+
+    total_channel_1064_nm_idx: int | None
+    """Index in Polly netCDF file for the total channel (1064nm)"""
+
+    cross_channel_1064_nm_idx: int | None
+    """Index in Polly netCDF file for the cross channel (1064nm)"""
 
     calibration_355nm_total_channel_ids: List[int]
     """
@@ -116,6 +126,17 @@ class Location(NamedTuple):
     Calibration channel SCC IDs for 532nm. Comma separated list. First value must be the
     +45° channel, second value must be the -45° channel.
     """
+    calibration_1064nm_total_channel_ids: List[int]
+    """
+    Calibration channel SCC IDs for 1064nm. Comma separated list. First value must be the
+    +45° channel, second value must be the -45° channel.
+    """
+
+    calibration_1064nm_cross_channel_ids: List[int]
+    """
+    Calibration channel SCC IDs for 1064nm. Comma separated list. First value must be the
+    +45° channel, second value must be the -45° channel.
+    """
 
     def print(self):
         """
@@ -133,6 +154,30 @@ class Location(NamedTuple):
 
         console.print(table)
 
+    def has_depol_channels(self) -> Dict[Wavelength, bool]:
+        """
+        Returns a dictionary of wavelengths to booleans, true if that corresponding
+        wavelength has depolarization channels.
+        """
+
+        return {
+            Wavelength.NM_355: self.calibration_configuration_355nm is not None
+            and self.total_channel_355_nm_idx is not None
+            and self.cross_channel_355_nm_idx is not None
+            and self.calibration_355nm_total_channel_ids
+            and self.calibration_355nm_cross_channel_ids,
+            Wavelength.NM_532: self.calibration_configuration_532nm is not None
+            and self.total_channel_532_nm_idx is not None
+            and self.cross_channel_532_nm_idx is not None
+            and self.calibration_532nm_total_channel_ids
+            and self.calibration_532nm_cross_channel_ids,
+            Wavelength.NM_1064: self.calibration_configuration_1064nm is not None
+            and self.total_channel_1064_nm_idx is not None
+            and self.cross_channel_1064_nm_idx is not None
+            and self.calibration_1064nm_total_channel_ids
+            and self.calibration_1064nm_cross_channel_ids,
+        }
+
 
 def location_from_section(name: str, section: SectionProxy) -> Location:
     """
@@ -148,19 +193,33 @@ def location_from_section(name: str, section: SectionProxy) -> Location:
 
     calibration_355nm_total_channel_ids = [
         int(x.strip())
-        for x in section.get("calibration_355nm_total_channel_ids").split(",")
+        for x in section.get("calibration_355nm_total_channel_ids", "").split(",")
+        if x.strip()
     ]
     calibration_355nm_cross_channel_ids = [
         int(x.strip())
-        for x in section.get("calibration_355nm_cross_channel_ids").split(",")
+        for x in section.get("calibration_355nm_cross_channel_ids", "").split(",")
+        if x.strip()
     ]
     calibration_532nm_total_channel_ids = [
         int(x.strip())
-        for x in section.get("calibration_532nm_total_channel_ids").split(",")
+        for x in section.get("calibration_532nm_total_channel_ids", "").split(",")
+        if x.strip()
     ]
     calibration_532nm_cross_channel_ids = [
         int(x.strip())
-        for x in section.get("calibration_532nm_cross_channel_ids").split(",")
+        for x in section.get("calibration_532nm_cross_channel_ids", "").split(",")
+        if x.strip()
+    ]
+    calibration_1064nm_total_channel_ids = [
+        int(x.strip())
+        for x in section.get("calibration_1064nm_total_channel_ids", "").split(",")
+        if x.strip()
+    ]
+    calibration_1064nm_cross_channel_ids = [
+        int(x.strip())
+        for x in section.get("calibration_1064nm_cross_channel_ids", "").split(",")
+        if x.strip()
     ]
 
     return Location(
@@ -172,10 +231,13 @@ def location_from_section(name: str, section: SectionProxy) -> Location:
         daytime_configuration=section.getint("daytime_configuration"),
         nighttime_configuration=section.getint("nighttime_configuration"),
         calibration_configuration_355nm=section.getint(
-            "calibration_configuration_355nm"
+            "calibration_configuration_355nm", None
         ),
         calibration_configuration_532nm=section.getint(
-            "calibration_configuration_532nm"
+            "calibration_configuration_532nm", None
+        ),
+        calibration_configuration_1064nm=section.getint(
+            "calibration_configuration_1064nm", None
         ),
         depol_calibration_zero_state=section.getint(
             "depol_calibration_zero_state",
@@ -186,14 +248,18 @@ def location_from_section(name: str, section: SectionProxy) -> Location:
         lr_input=lr_input,
         temperature=section.getint("temperature"),
         pressure=section.getint("pressure"),
-        total_channel_355_nm_idx=section.getint("total_channel_355_nm_idx"),
-        cross_channel_355_nm_idx=section.getint("cross_channel_355_nm_idx"),
-        total_channel_532_nm_idx=section.getint("total_channel_532_nm_idx"),
-        cross_channel_532_nm_idx=section.getint("cross_channel_532_nm_idx"),
+        total_channel_355_nm_idx=section.getint("total_channel_355_nm_idx", None),
+        cross_channel_355_nm_idx=section.getint("cross_channel_355_nm_idx", None),
+        total_channel_532_nm_idx=section.getint("total_channel_532_nm_idx", None),
+        cross_channel_532_nm_idx=section.getint("cross_channel_532_nm_idx", None),
+        total_channel_1064_nm_idx=section.getint("total_channel_1064_nm_idx", None),
+        cross_channel_1064_nm_idx=section.getint("cross_channel_1064_nm_idx", None),
         calibration_355nm_total_channel_ids=calibration_355nm_total_channel_ids,
         calibration_355nm_cross_channel_ids=calibration_355nm_cross_channel_ids,
         calibration_532nm_total_channel_ids=calibration_532nm_total_channel_ids,
         calibration_532nm_cross_channel_ids=calibration_532nm_cross_channel_ids,
+        calibration_1064nm_total_channel_ids=calibration_1064nm_total_channel_ids,
+        calibration_1064nm_cross_channel_ids=calibration_1064nm_cross_channel_ids,
         sounding_provider=section["sounding_provider"],
         profile_name=section["profile_name"],
     )
