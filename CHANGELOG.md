@@ -1,3 +1,8 @@
+# 1.31.0
+
+- ✨ Add support for 1064nm depolarization channels
+- ✨ Make all depolarization channels optional. When the corresponding options are missing from the configuration file, that channel is silently ignored.
+
 # 1.12.1
 
 - 🐜 When the two depol. calibration cycles are not of same length, attempt to handle it by clipping the largest one so it matches the smaller one.
