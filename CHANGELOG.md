@@ -1,8 +1,12 @@
-# 1.31.1
+# 1.13.2
+
+- 🐜 Fix type annotation issue breaking compatibility with Python <3.10
+
+# 1.13.1
 
 - ✨ Add CVO to default locations
 
-# 1.31.0
+# 1.13.0
 
 - ✨ Add support for 1064nm depolarization channels
 - ✨ Make all depolarization channels optional. When the corresponding options are missing from the configuration file, that channel is silently ignored.
