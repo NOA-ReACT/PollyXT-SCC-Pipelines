@@ -9,7 +9,7 @@ import io
 import sys
 from configparser import ConfigParser, SectionProxy
 from importlib.resources import read_text
-from typing import Dict, List, NamedTuple, Union
+from typing import Dict, List, NamedTuple, Union, Optional
 
 from rich.markdown import Markdown
 from rich.table import Table
@@ -52,13 +52,13 @@ class Location(NamedTuple):
     nighttime_configuration: int
     """SCC Lidar Configuration ID - Nightime"""
 
-    calibration_configuration_355nm: int | None
+    calibration_configuration_355nm: Optional[int]
     """SCC Lidar Configuration ID - Calibration (355 nm)"""
 
-    calibration_configuration_532nm: int | None
+    calibration_configuration_532nm: Optional[int]
     """SCC Lidar Configuration ID - Calibration (532 nm)"""
 
-    calibration_configuration_1064nm: int | None
+    calibration_configuration_1064nm: Optional[int]
     """SCC Lidar Configuration ID - Calibration (532 nm)"""
 
     depol_calibration_zero_state: int
@@ -85,22 +85,22 @@ class Location(NamedTuple):
     pressure: int
     """Pressure at the lidar station (`Pressure_at_Lidar_Station` variable)"""
 
-    total_channel_355_nm_idx: int | None
+    total_channel_355_nm_idx: Optional[int]
     """Index in Polly netCDF file for the total channel (355nm)"""
 
-    cross_channel_355_nm_idx: int | None
+    cross_channel_355_nm_idx: Optional[int]
     """Index in Polly netCDF file for the cross channel (355nm)"""
 
-    total_channel_532_nm_idx: int | None
+    total_channel_532_nm_idx: Optional[int]
     """Index in Polly netCDF file for the total channel (532nm)"""
 
-    cross_channel_532_nm_idx: int | None
+    cross_channel_532_nm_idx: Optional[int]
     """Index in Polly netCDF file for the cross channel (532nm)"""
 
-    total_channel_1064_nm_idx: int | None
+    total_channel_1064_nm_idx: Optional[int]
     """Index in Polly netCDF file for the total channel (1064nm)"""
 
-    cross_channel_1064_nm_idx: int | None
+    cross_channel_1064_nm_idx: Optional[int]
     """Index in Polly netCDF file for the cross channel (1064nm)"""
 
     calibration_355nm_total_channel_ids: List[int]
