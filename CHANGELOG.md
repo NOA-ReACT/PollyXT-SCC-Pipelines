@@ -1,3 +1,7 @@
+# 1.31.1
+
+- ✨ Add CVO to default locations
+
 # 1.31.0
 
 - ✨ Add support for 1064nm depolarization channels
