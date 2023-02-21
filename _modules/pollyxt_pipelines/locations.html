@@ -91,12 +91,13 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">configparser</span> <span class="kn">import</span> <span class="n">ConfigParser</span><span class="p">,</span> <span class="n">SectionProxy</span>
 <span class="kn">from</span> <span class="nn">importlib.resources</span> <span class="kn">import</span> <span class="n">read_text</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span> <span class="nn">rich.markdown</span> <span class="kn">import</span> <span class="n">Markdown</span>
 <span class="kn">from</span> <span class="nn">rich.table</span> <span class="kn">import</span> <span class="n">Table</span>
 
 <span class="kn">from</span> <span class="nn">pollyxt_pipelines</span> <span class="kn">import</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">pollyxt_pipelines.enums</span> <span class="kn">import</span> <span class="n">Wavelength</span>
 <span class="kn">from</span> <span class="nn">pollyxt_pipelines.console</span> <span class="kn">import</span> <span class="n">console</span>
 <span class="kn">from</span> <span class="nn">pollyxt_pipelines.utils</span> <span class="kn">import</span> <span class="n">ints_to_csv</span>
 
@@ -133,10 +134,13 @@
     <span class="n">nighttime_configuration</span><span class="p">:</span> <span class="nb">int</span>
     <span class="sd">&quot;&quot;&quot;SCC Lidar Configuration ID - Nightime&quot;&quot;&quot;</span>
 
-    <span class="n">calibration_configuration_355nm</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">calibration_configuration_355nm</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
     <span class="sd">&quot;&quot;&quot;SCC Lidar Configuration ID - Calibration (355 nm)&quot;&quot;&quot;</span>
 
-    <span class="n">calibration_configuration_532nm</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">calibration_configuration_532nm</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="sd">&quot;&quot;&quot;SCC Lidar Configuration ID - Calibration (532 nm)&quot;&quot;&quot;</span>
+
+    <span class="n">calibration_configuration_1064nm</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
     <span class="sd">&quot;&quot;&quot;SCC Lidar Configuration ID - Calibration (532 nm)&quot;&quot;&quot;</span>
 
     <span class="n">depol_calibration_zero_state</span><span class="p">:</span> <span class="nb">int</span>
@@ -163,17 +167,23 @@
     <span class="n">pressure</span><span class="p">:</span> <span class="nb">int</span>
     <span class="sd">&quot;&quot;&quot;Pressure at the lidar station (`Pressure_at_Lidar_Station` variable)&quot;&quot;&quot;</span>
 
-    <span class="n">total_channel_355_nm_idx</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">total_channel_355_nm_idx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
     <span class="sd">&quot;&quot;&quot;Index in Polly netCDF file for the total channel (355nm)&quot;&quot;&quot;</span>
 
-    <span class="n">cross_channel_355_nm_idx</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">cross_channel_355_nm_idx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
     <span class="sd">&quot;&quot;&quot;Index in Polly netCDF file for the cross channel (355nm)&quot;&quot;&quot;</span>
 
-    <span class="n">total_channel_532_nm_idx</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">total_channel_532_nm_idx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
     <span class="sd">&quot;&quot;&quot;Index in Polly netCDF file for the total channel (532nm)&quot;&quot;&quot;</span>
 
-    <span class="n">cross_channel_532_nm_idx</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">cross_channel_532_nm_idx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
     <span class="sd">&quot;&quot;&quot;Index in Polly netCDF file for the cross channel (532nm)&quot;&quot;&quot;</span>
+
+    <span class="n">total_channel_1064_nm_idx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="sd">&quot;&quot;&quot;Index in Polly netCDF file for the total channel (1064nm)&quot;&quot;&quot;</span>
+
+    <span class="n">cross_channel_1064_nm_idx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="sd">&quot;&quot;&quot;Index in Polly netCDF file for the cross channel (1064nm)&quot;&quot;&quot;</span>
 
     <span class="n">calibration_355nm_total_channel_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -198,6 +208,17 @@
 <span class="sd">    Calibration channel SCC IDs for 532nm. Comma separated list. First value must be the</span>
 <span class="sd">    +45° channel, second value must be the -45° channel.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">calibration_1064nm_total_channel_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calibration channel SCC IDs for 1064nm. Comma separated list. First value must be the</span>
+<span class="sd">    +45° channel, second value must be the -45° channel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">calibration_1064nm_cross_channel_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calibration channel SCC IDs for 1064nm. Comma separated list. First value must be the</span>
+<span class="sd">    +45° channel, second value must be the -45° channel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Location.print"><a class="viewcode-back" href="../../locations.html#pollyxt_pipelines.locations.Location.print">[docs]</a>    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -213,7 +234,31 @@
                 <span class="n">value</span> <span class="o">=</span> <span class="n">ints_to_csv</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
             <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
 
-        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span></div></div>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Location.has_depol_channels"><a class="viewcode-back" href="../../locations.html#pollyxt_pipelines.locations.Location.has_depol_channels">[docs]</a>    <span class="k">def</span> <span class="nf">has_depol_channels</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Wavelength</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dictionary of wavelengths to booleans, true if that corresponding</span>
+<span class="sd">        wavelength has depolarization channels.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_355</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration_configuration_355nm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_channel_355_nm_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">cross_channel_355_nm_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration_355nm_total_channel_ids</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration_355nm_cross_channel_ids</span><span class="p">,</span>
+            <span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_532</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration_configuration_532nm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_channel_532_nm_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">cross_channel_532_nm_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration_532nm_total_channel_ids</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration_532nm_cross_channel_ids</span><span class="p">,</span>
+            <span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_1064</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration_configuration_1064nm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_channel_1064_nm_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">cross_channel_1064_nm_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration_1064nm_total_channel_ids</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration_1064nm_cross_channel_ids</span><span class="p">,</span>
+        <span class="p">}</span></div></div>
 
 
 <div class="viewcode-block" id="location_from_section"><a class="viewcode-back" href="../../locations.html#pollyxt_pipelines.locations.location_from_section">[docs]</a><span class="k">def</span> <span class="nf">location_from_section</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">section</span><span class="p">:</span> <span class="n">SectionProxy</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Location</span><span class="p">:</span>
@@ -230,19 +275,33 @@
 
     <span class="n">calibration_355nm_total_channel_ids</span> <span class="o">=</span> <span class="p">[</span>
         <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_355nm_total_channel_ids&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_355nm_total_channel_ids&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="p">]</span>
     <span class="n">calibration_355nm_cross_channel_ids</span> <span class="o">=</span> <span class="p">[</span>
         <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_355nm_cross_channel_ids&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_355nm_cross_channel_ids&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="p">]</span>
     <span class="n">calibration_532nm_total_channel_ids</span> <span class="o">=</span> <span class="p">[</span>
         <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_532nm_total_channel_ids&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_532nm_total_channel_ids&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="p">]</span>
     <span class="n">calibration_532nm_cross_channel_ids</span> <span class="o">=</span> <span class="p">[</span>
         <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_532nm_cross_channel_ids&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_532nm_cross_channel_ids&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="p">]</span>
+    <span class="n">calibration_1064nm_total_channel_ids</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_1064nm_total_channel_ids&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="p">]</span>
+    <span class="n">calibration_1064nm_cross_channel_ids</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_1064nm_cross_channel_ids&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="p">]</span>
 
     <span class="k">return</span> <span class="n">Location</span><span class="p">(</span>
@@ -254,10 +313,13 @@
         <span class="n">daytime_configuration</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;daytime_configuration&quot;</span><span class="p">),</span>
         <span class="n">nighttime_configuration</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;nighttime_configuration&quot;</span><span class="p">),</span>
         <span class="n">calibration_configuration_355nm</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span>
-            <span class="s2">&quot;calibration_configuration_355nm&quot;</span>
+            <span class="s2">&quot;calibration_configuration_355nm&quot;</span><span class="p">,</span> <span class="kc">None</span>
         <span class="p">),</span>
         <span class="n">calibration_configuration_532nm</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span>
-            <span class="s2">&quot;calibration_configuration_532nm&quot;</span>
+            <span class="s2">&quot;calibration_configuration_532nm&quot;</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="p">),</span>
+        <span class="n">calibration_configuration_1064nm</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span>
+            <span class="s2">&quot;calibration_configuration_1064nm&quot;</span><span class="p">,</span> <span class="kc">None</span>
         <span class="p">),</span>
         <span class="n">depol_calibration_zero_state</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span>
             <span class="s2">&quot;depol_calibration_zero_state&quot;</span><span class="p">,</span>
@@ -268,14 +330,18 @@
         <span class="n">lr_input</span><span class="o">=</span><span class="n">lr_input</span><span class="p">,</span>
         <span class="n">temperature</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;temperature&quot;</span><span class="p">),</span>
         <span class="n">pressure</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;pressure&quot;</span><span class="p">),</span>
-        <span class="n">total_channel_355_nm_idx</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;total_channel_355_nm_idx&quot;</span><span class="p">),</span>
-        <span class="n">cross_channel_355_nm_idx</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;cross_channel_355_nm_idx&quot;</span><span class="p">),</span>
-        <span class="n">total_channel_532_nm_idx</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;total_channel_532_nm_idx&quot;</span><span class="p">),</span>
-        <span class="n">cross_channel_532_nm_idx</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;cross_channel_532_nm_idx&quot;</span><span class="p">),</span>
+        <span class="n">total_channel_355_nm_idx</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;total_channel_355_nm_idx&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="n">cross_channel_355_nm_idx</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;cross_channel_355_nm_idx&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="n">total_channel_532_nm_idx</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;total_channel_532_nm_idx&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="n">cross_channel_532_nm_idx</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;cross_channel_532_nm_idx&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="n">total_channel_1064_nm_idx</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;total_channel_1064_nm_idx&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="n">cross_channel_1064_nm_idx</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;cross_channel_1064_nm_idx&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
         <span class="n">calibration_355nm_total_channel_ids</span><span class="o">=</span><span class="n">calibration_355nm_total_channel_ids</span><span class="p">,</span>
         <span class="n">calibration_355nm_cross_channel_ids</span><span class="o">=</span><span class="n">calibration_355nm_cross_channel_ids</span><span class="p">,</span>
         <span class="n">calibration_532nm_total_channel_ids</span><span class="o">=</span><span class="n">calibration_532nm_total_channel_ids</span><span class="p">,</span>
         <span class="n">calibration_532nm_cross_channel_ids</span><span class="o">=</span><span class="n">calibration_532nm_cross_channel_ids</span><span class="p">,</span>
+        <span class="n">calibration_1064nm_total_channel_ids</span><span class="o">=</span><span class="n">calibration_1064nm_total_channel_ids</span><span class="p">,</span>
+        <span class="n">calibration_1064nm_cross_channel_ids</span><span class="o">=</span><span class="n">calibration_1064nm_cross_channel_ids</span><span class="p">,</span>
         <span class="n">sounding_provider</span><span class="o">=</span><span class="n">section</span><span class="p">[</span><span class="s2">&quot;sounding_provider&quot;</span><span class="p">],</span>
         <span class="n">profile_name</span><span class="o">=</span><span class="n">section</span><span class="p">[</span><span class="s2">&quot;profile_name&quot;</span><span class="p">],</span>
     <span class="p">)</span></div>

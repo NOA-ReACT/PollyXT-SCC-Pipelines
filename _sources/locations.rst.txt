@@ -27,11 +27,11 @@ contains the station's coordinates and the related IDs for SCC. Specifically, fo
   measurements that are used to calibrate the depolarization angle. If :code:`depol_cal_angle` is not
   equal to :code:`zero_state_depol_cal_angle`, the corresponding time period is assumed
   to be a calibration period.
-* **Total/Cross channels**: Four variables are available for setting the total/cross channel indices in the PollyXT file for 355nm and 532nm:
+* **Total/Cross channels**: Four variables are available for setting the total/cross channel indices in the PollyXT file for 355nm, 532nm and 1064nm:
     #. For 355nm: :code:`total_channel_355_nm_idx` and :code:`cross_channel_355_nm_idx`.
-    #. For 532nm: :code:`total_channel_532_nm_idx` and :code:`cross_channel_532_nm_idx = 5
-`.
-* **Calibration channels**: For both wavelengths, the SCC channel IDs must be provided in the following order in :code:`calibration_355nm_total_channel_ids` and :code:`calibration_355nm_cross_channel_ids` (same for 532nm) for each wavelength:
+    #. For 532nm: :code:`total_channel_532_nm_idx` and :code:`cross_channel_532_nm_idx`.
+    #. For 1064nm: :code:`total_channel_1064_nm_idx` and :code:`cross_channel_1064_nm_idx`.
+* **Calibration channels**: For both wavelengths, the SCC channel IDs must be provided in the following order in :code:`calibration_355nm_total_channel_ids` and :code:`calibration_355nm_cross_channel_ids` (same for 532nm and/or 1064nm) for each wavelength:
     #. :code:`plus_45_transmitted`
     #. :code:`plus_45_reflected`
     #. :code:`minus_45_transmitted`
@@ -40,6 +40,8 @@ contains the station's coordinates and the related IDs for SCC. Specifically, fo
 
 For the arrays, you can input values separated by commas (see example below). Currently, the application
 has a built-in registry containing information about two stations, *Antikythera* and *Finokalia*.
+
+For depolarization channels, any channel (e.g., 355nm) that is missing one of the required fields (e.g., :code:`total_channel_355_nm_idx`) will be ignored. That means, any channel without a complete description will be skipped during the creation of depolarization calibration files. If you find one channel is missing from your generated files, make sure all required variables are present here.
 
 
 Printing known locations

@@ -85,7 +85,6 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">timedelta</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">IntEnum</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
 
@@ -94,43 +93,12 @@
 
 <span class="kn">from</span> <span class="nn">pollyxt_pipelines</span> <span class="kn">import</span> <span class="n">utils</span>
 <span class="kn">from</span> <span class="nn">pollyxt_pipelines.locations</span> <span class="kn">import</span> <span class="n">Location</span>
+<span class="kn">from</span> <span class="nn">pollyxt_pipelines.enums</span> <span class="kn">import</span> <span class="n">Atmosphere</span><span class="p">,</span> <span class="n">Wavelength</span>
 <span class="kn">from</span> <span class="nn">pollyxt_pipelines.polly_to_scc</span> <span class="kn">import</span> <span class="n">pollyxt</span>
 <span class="kn">from</span> <span class="nn">pollyxt_pipelines.polly_to_scc.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">NoMeasurementsInTimePeriod</span><span class="p">,</span>
     <span class="n">TimeOutsideFile</span><span class="p">,</span>
 <span class="p">)</span>
-
-
-<div class="viewcode-block" id="Wavelength"><a class="viewcode-back" href="../../../convert-scc.html#pollyxt_pipelines.polly_to_scc.scc_netcdf.Wavelength">[docs]</a><span class="k">class</span> <span class="nc">Wavelength</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Laser wavelength&quot;&quot;&quot;</span>
-
-    <span class="n">NM_355</span> <span class="o">=</span> <span class="mi">355</span>
-    <span class="n">NM_532</span> <span class="o">=</span> <span class="mi">532</span></div>
-
-
-<div class="viewcode-block" id="Atmosphere"><a class="viewcode-back" href="../../../convert-scc.html#pollyxt_pipelines.polly_to_scc.scc_netcdf.Atmosphere">[docs]</a><span class="k">class</span> <span class="nc">Atmosphere</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Which atmosphere to use to processing. These are the possible values for `molecular_calc`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">AUTOMATIC</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">RADIOSONDE</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">CLOUDNET</span> <span class="o">=</span> <span class="mi">2</span>
-    <span class="n">STANDARD_ATMOSPHERE</span> <span class="o">=</span> <span class="mi">4</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;automatic&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">Atmosphere</span><span class="o">.</span><span class="n">AUTOMATIC</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;radiosonde&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">Atmosphere</span><span class="o">.</span><span class="n">RADIOSONDE</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;cloudnet&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">Atmosphere</span><span class="o">.</span><span class="n">CLOUDNET</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;standard&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">Atmosphere</span><span class="o">.</span><span class="n">STANDARD_ATMOSPHERE</span>
-
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown atmosphere </span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="create_scc_netcdf"><a class="viewcode-back" href="../../../convert-scc.html#pollyxt_pipelines.polly_to_scc.scc_netcdf.create_scc_netcdf">[docs]</a><span class="k">def</span> <span class="nf">create_scc_netcdf</span><span class="p">(</span>
@@ -298,12 +266,7 @@
 
     <span class="c1"># Create SCC file</span>
     <span class="c1"># Output filename is always the measurement ID</span>
-    <span class="k">if</span> <span class="n">wavelength</span> <span class="o">==</span> <span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_355</span><span class="p">:</span>
-        <span class="n">output_filename</span> <span class="o">=</span> <span class="n">output_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;calibration_</span><span class="si">{</span><span class="n">measurement_id</span><span class="si">}</span><span class="s2">_355.nc&quot;</span>
-    <span class="k">elif</span> <span class="n">wavelength</span> <span class="o">==</span> <span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_532</span><span class="p">:</span>
-        <span class="n">output_filename</span> <span class="o">=</span> <span class="n">output_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;calibration_</span><span class="si">{</span><span class="n">measurement_id</span><span class="si">}</span><span class="s2">_532.nc&quot;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown wavelength </span><span class="si">{</span><span class="n">wavelength</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">output_filename</span> <span class="o">=</span> <span class="n">output_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;calibration_</span><span class="si">{</span><span class="n">measurement_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">wavelength</span><span class="p">)</span><span class="si">}</span><span class="s2">.nc&quot;</span>
     <span class="n">nc</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">output_filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
 
     <span class="c1"># Find start/end indices for the +45 and -45 degree calibration cycles in Polly file</span>
@@ -438,6 +401,17 @@
         <span class="n">nc</span><span class="o">.</span><span class="n">X_PollyXTPipelines_Configuration_ID</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">location</span><span class="o">.</span><span class="n">calibration_configuration_532nm</span>
         <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">wavelength</span> <span class="o">==</span> <span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_1064</span><span class="p">:</span>
+        <span class="n">total_channel_idx</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">total_channel_1064_nm_idx</span>
+        <span class="n">cross_channel_idx</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">cross_channel_1064_nm_idx</span>
+        <span class="n">channel_id</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="n">location</span><span class="o">.</span><span class="n">calibration_1064nm_total_channel_ids</span>
+            <span class="o">+</span> <span class="n">location</span><span class="o">.</span><span class="n">calibration_1064nm_cross_channel_ids</span>
+        <span class="p">)</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">Measurement_ID</span> <span class="o">=</span> <span class="n">measurement_id</span> <span class="o">+</span> <span class="s2">&quot;10&quot;</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">X_PollyXTPipelines_Configuration_ID</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">location</span><span class="o">.</span><span class="n">calibration_configuration_1064nm</span>
+        <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown wavelength </span><span class="si">{</span><span class="n">wavelength</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -551,20 +525,20 @@
 
     <span class="c1"># Generate calibration files</span>
     <span class="k">if</span> <span class="n">calibration</span><span class="p">:</span>
+        <span class="n">depol_channels</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">has_depol_channels</span><span class="p">()</span>
+
         <span class="c1"># Check for any valid calibration intervals</span>
         <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">repo</span><span class="o">.</span><span class="n">get_calibration_periods</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">start</span> <span class="o">&gt;</span> <span class="n">measurement_start</span> <span class="ow">and</span> <span class="n">end</span> <span class="o">&lt;</span> <span class="n">measurement_end</span><span class="p">:</span>
                 <span class="n">pf</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">get_pollyxt_file</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
 
-                <span class="nb">id</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">create_scc_calibration_netcdf</span><span class="p">(</span>
-                    <span class="n">pf</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_532</span>
-                <span class="p">)</span>
-                <span class="k">yield</span> <span class="nb">id</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span>
-
-                <span class="nb">id</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">create_scc_calibration_netcdf</span><span class="p">(</span>
-                    <span class="n">pf</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_355</span>
-                <span class="p">)</span>
-                <span class="k">yield</span> <span class="nb">id</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span></div>
+                <span class="c1"># Generate calibration files for all channels that exist!</span>
+                <span class="k">for</span> <span class="n">wv</span><span class="p">,</span> <span class="n">channel_exists</span> <span class="ow">in</span> <span class="n">depol_channels</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">channel_exists</span><span class="p">:</span>
+                        <span class="nb">id</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">create_scc_calibration_netcdf</span><span class="p">(</span>
+                            <span class="n">pf</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="n">wv</span>
+                        <span class="p">)</span>
+                        <span class="k">yield</span> <span class="nb">id</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span></div>
 </pre></div>
   <div class="t-pagination clearfix">
   </div>
