@@ -1,3 +1,7 @@
+# 1.14.0
+
+- ✨ Add ability to adjust sunset and sunrise times, used for determining the correct configuration ID.
+
 # 1.13.2
 
 - 🐜 Fix type annotation issue breaking compatibility with Python <3.10
