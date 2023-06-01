@@ -9,6 +9,7 @@ import io
 import sys
 from configparser import ConfigParser, SectionProxy
 from importlib.resources import read_text
+from datetime import time, timezone
 from typing import Dict, List, NamedTuple, Union, Optional
 
 from rich.markdown import Markdown
@@ -138,6 +139,18 @@ class Location(NamedTuple):
     +45° channel, second value must be the -45° channel.
     """
 
+    sunrise_time: str
+    """
+    Sunrise time (HH:MM) or offset (minutes from calculated sunrise in +X or -X format,
+    where X an integer)
+    """
+
+    sunset_time: str
+    """
+    Sunrise time (HH:MM) or offset (minutes from calculated sunrise in +X or -X format,
+    where X an integer)
+    """
+
     def print(self):
         """
         Prints this location as a Table in the terminal
@@ -262,6 +275,8 @@ def location_from_section(name: str, section: SectionProxy) -> Location:
         calibration_1064nm_cross_channel_ids=calibration_1064nm_cross_channel_ids,
         sounding_provider=section["sounding_provider"],
         profile_name=section["profile_name"],
+        sunrise_time=section.get("sunrise_time", "0"),
+        sunset_time=section.get("sunset_time", "0"),
     )
 
 

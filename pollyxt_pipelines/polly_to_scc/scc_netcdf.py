@@ -5,9 +5,12 @@ Routines for converting PollyXT files to SCC files
 from datetime import timedelta
 from pathlib import Path
 from typing import Tuple
+import re
 
 import numpy as np
 from netCDF4 import Dataset
+from astral import LocationInfo
+from astral.sun import sunrise, sunset
 
 from pollyxt_pipelines import utils
 from pollyxt_pipelines.locations import Location
@@ -72,14 +75,39 @@ def create_scc_netcdf(
         nc.Sounding_File_Name = f"rs_{measurement_id[:-2]}.nc"
     # nc.Overlap_File_Name = 'ov_' + selected_start.strftime('%Y%m%daky%H') + '.nc'
 
-    # Custom attribute for configuration ID
-    # From 04:00 until 16:00 we use daytime configuration
-    if pf.start_date.replace(
-        hour=4, minute=0
-    ) < pf.start_date and pf.start_date < pf.start_date.replace(hour=16, minute=0):
+    # Calculate sunset and sunrise times for the current station
+    sun_locinfo = LocationInfo(
+        location.name, "", timezone="UTC", latitude=location.lat, longitude=location.lon
+    )
+    if re.match(r"[0-2]\d:[0-5]\d", location.sunrise_time):
+        hh, mm = location.sunrise_time.split(":")
+        hh, mm = int(hh), int(mm)
+        sunrise_time = pf.start_date.replace(hour=hh, minute=mm)
+    else:
+        sunrise_time = sunrise(sun_locinfo.observer, pf.start_date)
+        sunrise_time = sunrise_time.replace(tzinfo=None)
+        if re.match(r"[+-]\d+", location.sunrise_time):
+            sunrise_time += timedelta(minutes=int(location.sunrise_time))
+
+    if re.match(r"[0-2]\d:[0-5]\d", location.sunset_time):
+        hh, mm = location.sunset_time.split(":")
+        hh, mm = int(hh), int(mm)
+        sunset_time = pf.start_date.replace(hour=hh, minute=mm)
+    else:
+        sunset_time = sunset(sun_locinfo.observer, pf.start_date)
+        sunset_time = sunset_time.replace(tzinfo=None)
+        if re.match(r"[+-]\d+", location.sunset_time):
+            sunset_time += timedelta(minutes=int(location.sunset_time))
+
+    if sunrise_time < pf.start_date and pf.start_date < sunset_time:
         nc.X_PollyXTPipelines_Configuration_ID = location.daytime_configuration
+        nc.X_PollyXTPipelines_Is_Daytime = "yes"
     else:
         nc.X_PollyXTPipelines_Configuration_ID = location.nighttime_configuration
+        nc.X_PollyXTPipelines_Is_Daytime = "no"
+
+    nc.X_PollyXTPipelines_Sunrise_time = sunrise_time.strftime("%H:%M")
+    nc.X_PollyXTPipelines_Sunset_time = sunset_time.strftime("%H:%M")
 
     # Create Variables. (mandatory)
     raw_data_start_time = nc.createVariable(

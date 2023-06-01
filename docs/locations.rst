@@ -37,6 +37,8 @@ contains the station's coordinates and the related IDs for SCC. Specifically, fo
     #. :code:`minus_45_transmitted`
     #. :code:`minus_45_reflected`
 * **Sounding provider** (:code:`sounding_provider`): Which provider to use for radiosonde files.
+* **Sunrise time** (:code:`sunrise_time`): Adjustments for the sunrise time. Can either be a fixed time (:code:`HH:MM` format) or an offset from the astronomical (calculated) sunrise in either +MM (e.g., +17 for +17 minutes) or -MM.
+* **Sunset time** (:code:`sunset_time`): Adjustments for the sunset time. Same format as sunrise time.
 
 For the arrays, you can input values separated by commas (see example below). Currently, the application
 has a built-in registry containing information about two stations, *Antikythera* and *Finokalia*.
