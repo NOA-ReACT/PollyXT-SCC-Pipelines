@@ -7,9 +7,9 @@ the .ini files are included with the software but custom locations can be define
 
 import io
 import sys
+import re
 from configparser import ConfigParser, SectionProxy
 from importlib.resources import read_text
-from datetime import time, timezone
 from typing import Dict, List, NamedTuple, Union, Optional
 
 from rich.markdown import Markdown
@@ -18,7 +18,7 @@ from rich.table import Table
 from pollyxt_pipelines import config
 from pollyxt_pipelines.enums import Wavelength
 from pollyxt_pipelines.console import console
-from pollyxt_pipelines.utils import ints_to_csv
+from pollyxt_pipelines.utils import ints_to_csv, parse_into_string_or_integer_list
 
 
 class Location(NamedTuple):
@@ -65,7 +65,7 @@ class Location(NamedTuple):
     depol_calibration_zero_state: int
     """Value of `depol_cal_angle` when there is *no* calibration taking place"""
 
-    channel_id: List[int]
+    channel_id: Union[List[int], List[str]]
     """Mapping of PollyXT Channels to SCC Channels
     Comma-separated list. The order of the list is the order of the channels in the
     PollyXT netCDF file.
@@ -104,36 +104,36 @@ class Location(NamedTuple):
     cross_channel_1064_nm_idx: Optional[int]
     """Index in Polly netCDF file for the cross channel (1064nm)"""
 
-    calibration_355nm_total_channel_ids: List[int]
+    calibration_355nm_total_channel_ids: Union[List[int], List[str]]
     """
     Calibration channel SCC IDs for 355nm. Comma separated list. First value must be the
     +45° channel, second value must be the -45° channel.
     """
 
-    calibration_355nm_cross_channel_ids: List[int]
+    calibration_355nm_cross_channel_ids: Union[List[int], List[str]]
     """
     Calibration channel SCC IDs for 355nm. Comma separated list. First value must be the
     +45° channel, second value must be the -45° channel.
     """
 
-    calibration_532nm_total_channel_ids: List[int]
+    calibration_532nm_total_channel_ids: Union[List[int], List[str]]
     """
     Calibration channel SCC IDs for 532nm. Comma separated list. First value must be the
     +45° channel, second value must be the -45° channel.
     """
 
-    calibration_532nm_cross_channel_ids: List[int]
+    calibration_532nm_cross_channel_ids: Union[List[int], List[str]]
     """
     Calibration channel SCC IDs for 532nm. Comma separated list. First value must be the
     +45° channel, second value must be the -45° channel.
     """
-    calibration_1064nm_total_channel_ids: List[int]
+    calibration_1064nm_total_channel_ids: Union[List[int], List[str]]
     """
     Calibration channel SCC IDs for 1064nm. Comma separated list. First value must be the
     +45° channel, second value must be the -45° channel.
     """
 
-    calibration_1064nm_cross_channel_ids: List[int]
+    calibration_1064nm_cross_channel_ids: Union[List[int], List[str]]
     """
     Calibration channel SCC IDs for 1064nm. Comma separated list. First value must be the
     +45° channel, second value must be the -45° channel.
@@ -197,43 +197,33 @@ def location_from_section(name: str, section: SectionProxy) -> Location:
     Create a Location from a ConfigParser Section (SectionProxy)
     """
 
-    channel_id = [int(x.strip()) for x in section.get("channel_id").split(",")]
+    channel_id = parse_into_string_or_integer_list(section.get("channel_id"))
     background_low = [int(x.strip()) for x in section.get("background_low").split(",")]
     background_high = [
         int(x.strip()) for x in section.get("background_high").split(",")
     ]
     lr_input = [int(x.strip()) for x in section.get("lr_input").split(",")]
 
-    calibration_355nm_total_channel_ids = [
-        int(x.strip())
-        for x in section.get("calibration_355nm_total_channel_ids", "").split(",")
-        if x.strip()
-    ]
-    calibration_355nm_cross_channel_ids = [
-        int(x.strip())
-        for x in section.get("calibration_355nm_cross_channel_ids", "").split(",")
-        if x.strip()
-    ]
-    calibration_532nm_total_channel_ids = [
-        int(x.strip())
-        for x in section.get("calibration_532nm_total_channel_ids", "").split(",")
-        if x.strip()
-    ]
-    calibration_532nm_cross_channel_ids = [
-        int(x.strip())
-        for x in section.get("calibration_532nm_cross_channel_ids", "").split(",")
-        if x.strip()
-    ]
-    calibration_1064nm_total_channel_ids = [
-        int(x.strip())
-        for x in section.get("calibration_1064nm_total_channel_ids", "").split(",")
-        if x.strip()
-    ]
-    calibration_1064nm_cross_channel_ids = [
-        int(x.strip())
-        for x in section.get("calibration_1064nm_cross_channel_ids", "").split(",")
-        if x.strip()
-    ]
+    calibration_355nm_total_channel_ids = parse_into_string_or_integer_list(
+        section.get("calibration_355nm_total_channel_ids")
+    )
+    calibration_355nm_cross_channel_ids = parse_into_string_or_integer_list(
+        section.get("calibration_355nm_cross_channel_ids")
+    )
+
+    calibration_532nm_total_channel_ids = parse_into_string_or_integer_list(
+        section.get("calibration_532nm_total_channel_ids")
+    )
+    calibration_532nm_cross_channel_ids = parse_into_string_or_integer_list(
+        section.get("calibration_532nm_cross_channel_ids")
+    )
+
+    calibration_1064nm_total_channel_ids = parse_into_string_or_integer_list(
+        section.get("calibration_1064nm_total_channel_ids")
+    )
+    calibration_1064nm_cross_channel_ids = parse_into_string_or_integer_list(
+        section.get("calibration_1064nm_cross_channel_ids")
+    )
 
     return Location(
         name=name,

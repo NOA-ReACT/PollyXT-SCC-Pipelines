@@ -1,6 +1,6 @@
 """Various helper functions that fit nowhere"""
 
-from typing import List
+from typing import List, Union, Optional
 from datetime import datetime, timedelta
 import re
 
@@ -111,3 +111,22 @@ def date_option_to_datetime(today: datetime, string: str) -> datetime:
             return today.replace(minute=minute)
 
     raise ValueError("`string` is neither in XX:MM, HH:MM nor YYYY-mm-DD HH:MM format!")
+
+
+def parse_into_string_or_integer_list(
+    text_values: Optional[str],
+) -> Optional[Union[List[int], List[str]]]:
+    """
+    Parses comma-seperated values into a list of either integers or string.
+    For the resulting list to be an integer one, all values must be integers (0-9)
+    If input is none, returns none.
+    """
+
+    if text_values is None:
+        return None
+
+    values = [x.strip() for x in text_values.split(",")]
+    if all([re.match(r"^\d+$", x) for x in values]):
+        return [int(x) for x in values]
+    else:
+        return values
