@@ -45,6 +45,8 @@ has a built-in registry containing information about two stations, *Antikythera*
 
 For depolarization channels, any channel (e.g., 355nm) that is missing one of the required fields (e.g., :code:`total_channel_355_nm_idx`) will be ignored. That means, any channel without a complete description will be skipped during the creation of depolarization calibration files. If you find one channel is missing from your generated files, make sure all required variables are present here.
 
+For the variable :code:`channel_id` and the depolarization total/cross channels, you can either specify the SCC integer channel ID or the channel name. However, only one way of specifying channels can be used (all integers or all strings). If strings are used, the resulting netCDF files will use the :code:`channel_string_IDs` variable instead of :code:`channel_ID`.
+
 
 Printing known locations
 ------------------------
