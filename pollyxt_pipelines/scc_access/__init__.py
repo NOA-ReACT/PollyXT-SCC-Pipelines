@@ -343,7 +343,9 @@ class SCC:
 
         data_input_field = response_body.find("input", id="id_data")
         if data_input_field is not None:
-            data_text = data_input_field.parent.find("p").text.strip().replace("\n", " ")
+            data_text = (
+                data_input_field.parent.find("p").text.strip().replace("\n", " ")
+            )
             if "Error:" in data_text:
                 raise exceptions.SCCError(data_text)
 

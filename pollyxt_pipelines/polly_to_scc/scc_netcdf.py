@@ -8,7 +8,7 @@ from typing import Tuple
 import re
 
 import numpy as np
-from netCDF4 import Dataset
+from netCDF4 import Dataset, stringtochar
 from astral import LocationInfo
 from astral.sun import sunrise, sunset
 
@@ -122,6 +122,19 @@ def create_scc_netcdf(
     channel_id = nc.createVariable(
         "channel_ID", "i4", dimensions=("channels"), zlib=True
     )
+    channel_id[:] = -1
+    if isinstance(location.channel_id[0], int):
+        channel_id[:] = np.array(location.channel_id)
+    else:
+        str_len = np.max([len(x) for x in location.channel_id])
+        nc.createDimension("channel_string_length", str_len)
+        channel_id = nc.createVariable(
+            "channel_string_ID",
+            "S1",
+            dimensions=("channels", "channel_string_length"),
+        )
+        channel_id[:] = stringtochar(np.array(location.channel_id, f"S{str_len}"))
+
     id_timescale = nc.createVariable(
         "id_timescale", "i4", dimensions=("channels"), zlib=True
     )
@@ -162,7 +175,6 @@ def create_scc_netcdf(
         pf.measurement_time[~pf.calibration_mask, 1] - pf.measurement_time[0, 1]
     ) + 30
     raw_lidar_data[:] = pf.raw_signal_swap[~pf.calibration_mask]
-    channel_id[:] = np.array(location.channel_id)
     id_timescale[:] = np.zeros(np.size(pf.raw_signal[~pf.calibration_mask], axis=2))
     laser_pointing_angle[:] = int(pf.zenith_angle.item(0))
     laser_pointing_angle_of_profiles[:] = np.zeros(
@@ -235,6 +247,43 @@ def create_scc_calibration_netcdf(
         end_negative -= negative_length - positive_length
         negative_length = positive_length
 
+    # Define total and cross channels IDs from Polly
+    if wavelength == Wavelength.NM_355:
+        total_channel_idx = location.total_channel_355_nm_idx
+        cross_channel_idx = location.cross_channel_355_nm_idx
+        channel_ids = np.array(
+            location.calibration_355nm_total_channel_ids
+            + location.calibration_355nm_cross_channel_ids
+        )
+        nc.Measurement_ID = measurement_id + "35"
+        nc.X_PollyXTPipelines_Configuration_ID = (
+            location.calibration_configuration_355nm
+        )
+    elif wavelength == Wavelength.NM_532:
+        total_channel_idx = location.total_channel_532_nm_idx
+        cross_channel_idx = location.cross_channel_532_nm_idx
+        channel_ids = np.array(
+            location.calibration_532nm_total_channel_ids
+            + location.calibration_532nm_cross_channel_ids
+        )
+        nc.Measurement_ID = measurement_id + "53"
+        nc.X_PollyXTPipelines_Configuration_ID = (
+            location.calibration_configuration_532nm
+        )
+    elif wavelength == Wavelength.NM_1064:
+        total_channel_idx = location.total_channel_1064_nm_idx
+        cross_channel_idx = location.cross_channel_1064_nm_idx
+        channel_ids = np.array(
+            location.calibration_1064nm_total_channel_ids
+            + location.calibration_1064nm_cross_channel_ids
+        )
+        nc.Measurement_ID = measurement_id + "10"
+        nc.X_PollyXTPipelines_Configuration_ID = (
+            location.calibration_configuration_1064nm
+        )
+    else:
+        raise ValueError(f"Unknown wavelength {wavelength}")
+
     # Create Dimensions. (mandatory)
     nc.createDimension("points", np.size(pf.raw_signal, axis=1))
     nc.createDimension("channels", 4)
@@ -268,6 +317,18 @@ def create_scc_calibration_netcdf(
     channel_id = nc.createVariable(
         "channel_ID", "i4", dimensions=("channels"), zlib=True
     )
+    channel_id[:] = 1
+    if isinstance(location.channel_id[0], int):
+        channel_id[:] = np.array(channel_ids)
+    else:
+        str_len = np.max([len(x) for x in channel_ids])
+        nc.createDimension("channel_string_length", str_len)
+        channel_id = nc.createVariable(
+            "channel_string_ID",
+            "S1",
+            dimensions=("channels", "channel_string_length"),
+        )
+        channel_id[:] = stringtochar(np.array(channel_ids, f"S{str_len}"))
     id_timescale = nc.createVariable(
         "id_timescale", "i4", dimensions=("channels"), zlib=True
     )
@@ -323,43 +384,6 @@ def create_scc_calibration_netcdf(
     pol_calib_range_max_var[:] = np.repeat(pol_calib_range_max, 4)
     pressure_at_lidar_station[:] = location.pressure
     temperature_at_lidar_station[:] = location.temperature
-
-    # Define total and cross channels IDs from Polly
-    if wavelength == Wavelength.NM_355:
-        total_channel_idx = location.total_channel_355_nm_idx
-        cross_channel_idx = location.cross_channel_355_nm_idx
-        channel_id[:] = np.array(
-            location.calibration_355nm_total_channel_ids
-            + location.calibration_355nm_cross_channel_ids
-        )
-        nc.Measurement_ID = measurement_id + "35"
-        nc.X_PollyXTPipelines_Configuration_ID = (
-            location.calibration_configuration_355nm
-        )
-    elif wavelength == Wavelength.NM_532:
-        total_channel_idx = location.total_channel_532_nm_idx
-        cross_channel_idx = location.cross_channel_532_nm_idx
-        channel_id[:] = np.array(
-            location.calibration_532nm_total_channel_ids
-            + location.calibration_532nm_cross_channel_ids
-        )
-        nc.Measurement_ID = measurement_id + "53"
-        nc.X_PollyXTPipelines_Configuration_ID = (
-            location.calibration_configuration_532nm
-        )
-    elif wavelength == Wavelength.NM_1064:
-        total_channel_idx = location.total_channel_1064_nm_idx
-        cross_channel_idx = location.cross_channel_1064_nm_idx
-        channel_id[:] = np.array(
-            location.calibration_1064nm_total_channel_ids
-            + location.calibration_1064nm_cross_channel_ids
-        )
-        nc.Measurement_ID = measurement_id + "10"
-        nc.X_PollyXTPipelines_Configuration_ID = (
-            location.calibration_configuration_1064nm
-        )
-    else:
-        raise ValueError(f"Unknown wavelength {wavelength}")
 
     raw_lidar_data[:] = 0
     # Total channel, +45°
