@@ -204,6 +204,18 @@
     <span class="n">channel_id</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span>
         <span class="s2">&quot;channel_ID&quot;</span><span class="p">,</span> <span class="s2">&quot;i4&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
+    <span class="n">channel_id</span><span class="p">[:]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">location</span><span class="o">.</span><span class="n">channel_id</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="n">channel_id</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">location</span><span class="o">.</span><span class="n">channel_id</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">str_len</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">location</span><span class="o">.</span><span class="n">channel_id</span><span class="p">])</span>
+        <span class="n">channel_id</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span>
+            <span class="s2">&quot;channel_string_ID&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;S</span><span class="si">{</span><span class="n">str_len</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">channel_id</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">location</span><span class="o">.</span><span class="n">channel_id</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;S</span><span class="si">{</span><span class="n">str_len</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
     <span class="n">id_timescale</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span>
         <span class="s2">&quot;id_timescale&quot;</span><span class="p">,</span> <span class="s2">&quot;i4&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
@@ -244,7 +256,6 @@
         <span class="n">pf</span><span class="o">.</span><span class="n">measurement_time</span><span class="p">[</span><span class="o">~</span><span class="n">pf</span><span class="o">.</span><span class="n">calibration_mask</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">pf</span><span class="o">.</span><span class="n">measurement_time</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">+</span> <span class="mi">30</span>
     <span class="n">raw_lidar_data</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">raw_signal_swap</span><span class="p">[</span><span class="o">~</span><span class="n">pf</span><span class="o">.</span><span class="n">calibration_mask</span><span class="p">]</span>
-    <span class="n">channel_id</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">location</span><span class="o">.</span><span class="n">channel_id</span><span class="p">)</span>
     <span class="n">id_timescale</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">raw_signal</span><span class="p">[</span><span class="o">~</span><span class="n">pf</span><span class="o">.</span><span class="n">calibration_mask</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
     <span class="n">laser_pointing_angle</span><span class="p">[:]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">zenith_angle</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
     <span class="n">laser_pointing_angle_of_profiles</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
@@ -317,6 +328,43 @@
         <span class="n">end_negative</span> <span class="o">-=</span> <span class="n">negative_length</span> <span class="o">-</span> <span class="n">positive_length</span>
         <span class="n">negative_length</span> <span class="o">=</span> <span class="n">positive_length</span>
 
+    <span class="c1"># Define total and cross channels IDs from Polly</span>
+    <span class="k">if</span> <span class="n">wavelength</span> <span class="o">==</span> <span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_355</span><span class="p">:</span>
+        <span class="n">total_channel_idx</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">total_channel_355_nm_idx</span>
+        <span class="n">cross_channel_idx</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">cross_channel_355_nm_idx</span>
+        <span class="n">channel_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="n">location</span><span class="o">.</span><span class="n">calibration_355nm_total_channel_ids</span>
+            <span class="o">+</span> <span class="n">location</span><span class="o">.</span><span class="n">calibration_355nm_cross_channel_ids</span>
+        <span class="p">)</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">Measurement_ID</span> <span class="o">=</span> <span class="n">measurement_id</span> <span class="o">+</span> <span class="s2">&quot;35&quot;</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">X_PollyXTPipelines_Configuration_ID</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">location</span><span class="o">.</span><span class="n">calibration_configuration_355nm</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">wavelength</span> <span class="o">==</span> <span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_532</span><span class="p">:</span>
+        <span class="n">total_channel_idx</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">total_channel_532_nm_idx</span>
+        <span class="n">cross_channel_idx</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">cross_channel_532_nm_idx</span>
+        <span class="n">channel_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="n">location</span><span class="o">.</span><span class="n">calibration_532nm_total_channel_ids</span>
+            <span class="o">+</span> <span class="n">location</span><span class="o">.</span><span class="n">calibration_532nm_cross_channel_ids</span>
+        <span class="p">)</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">Measurement_ID</span> <span class="o">=</span> <span class="n">measurement_id</span> <span class="o">+</span> <span class="s2">&quot;53&quot;</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">X_PollyXTPipelines_Configuration_ID</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">location</span><span class="o">.</span><span class="n">calibration_configuration_532nm</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">wavelength</span> <span class="o">==</span> <span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_1064</span><span class="p">:</span>
+        <span class="n">total_channel_idx</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">total_channel_1064_nm_idx</span>
+        <span class="n">cross_channel_idx</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">cross_channel_1064_nm_idx</span>
+        <span class="n">channel_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="n">location</span><span class="o">.</span><span class="n">calibration_1064nm_total_channel_ids</span>
+            <span class="o">+</span> <span class="n">location</span><span class="o">.</span><span class="n">calibration_1064nm_cross_channel_ids</span>
+        <span class="p">)</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">Measurement_ID</span> <span class="o">=</span> <span class="n">measurement_id</span> <span class="o">+</span> <span class="s2">&quot;10&quot;</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">X_PollyXTPipelines_Configuration_ID</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">location</span><span class="o">.</span><span class="n">calibration_configuration_1064nm</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown wavelength </span><span class="si">{</span><span class="n">wavelength</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
     <span class="c1"># Create Dimensions. (mandatory)</span>
     <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s2">&quot;points&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">raw_signal</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
     <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
@@ -350,6 +398,17 @@
     <span class="n">channel_id</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span>
         <span class="s2">&quot;channel_ID&quot;</span><span class="p">,</span> <span class="s2">&quot;i4&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
+    <span class="n">channel_id</span><span class="p">[:]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">location</span><span class="o">.</span><span class="n">channel_id</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="n">channel_id</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">channel_ids</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">str_len</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">channel_ids</span><span class="p">])</span>
+        <span class="n">channel_id</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span>
+            <span class="s2">&quot;channel_string_ID&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;S</span><span class="si">{</span><span class="n">str_len</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">channel_id</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">channel_ids</span><span class="p">)</span>
     <span class="n">id_timescale</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span>
         <span class="s2">&quot;id_timescale&quot;</span><span class="p">,</span> <span class="s2">&quot;i4&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
@@ -405,43 +464,6 @@
     <span class="n">pol_calib_range_max_var</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">pol_calib_range_max</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
     <span class="n">pressure_at_lidar_station</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">pressure</span>
     <span class="n">temperature_at_lidar_station</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">temperature</span>
-
-    <span class="c1"># Define total and cross channels IDs from Polly</span>
-    <span class="k">if</span> <span class="n">wavelength</span> <span class="o">==</span> <span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_355</span><span class="p">:</span>
-        <span class="n">total_channel_idx</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">total_channel_355_nm_idx</span>
-        <span class="n">cross_channel_idx</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">cross_channel_355_nm_idx</span>
-        <span class="n">channel_id</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-            <span class="n">location</span><span class="o">.</span><span class="n">calibration_355nm_total_channel_ids</span>
-            <span class="o">+</span> <span class="n">location</span><span class="o">.</span><span class="n">calibration_355nm_cross_channel_ids</span>
-        <span class="p">)</span>
-        <span class="n">nc</span><span class="o">.</span><span class="n">Measurement_ID</span> <span class="o">=</span> <span class="n">measurement_id</span> <span class="o">+</span> <span class="s2">&quot;35&quot;</span>
-        <span class="n">nc</span><span class="o">.</span><span class="n">X_PollyXTPipelines_Configuration_ID</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">location</span><span class="o">.</span><span class="n">calibration_configuration_355nm</span>
-        <span class="p">)</span>
-    <span class="k">elif</span> <span class="n">wavelength</span> <span class="o">==</span> <span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_532</span><span class="p">:</span>
-        <span class="n">total_channel_idx</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">total_channel_532_nm_idx</span>
-        <span class="n">cross_channel_idx</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">cross_channel_532_nm_idx</span>
-        <span class="n">channel_id</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-            <span class="n">location</span><span class="o">.</span><span class="n">calibration_532nm_total_channel_ids</span>
-            <span class="o">+</span> <span class="n">location</span><span class="o">.</span><span class="n">calibration_532nm_cross_channel_ids</span>
-        <span class="p">)</span>
-        <span class="n">nc</span><span class="o">.</span><span class="n">Measurement_ID</span> <span class="o">=</span> <span class="n">measurement_id</span> <span class="o">+</span> <span class="s2">&quot;53&quot;</span>
-        <span class="n">nc</span><span class="o">.</span><span class="n">X_PollyXTPipelines_Configuration_ID</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">location</span><span class="o">.</span><span class="n">calibration_configuration_532nm</span>
-        <span class="p">)</span>
-    <span class="k">elif</span> <span class="n">wavelength</span> <span class="o">==</span> <span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_1064</span><span class="p">:</span>
-        <span class="n">total_channel_idx</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">total_channel_1064_nm_idx</span>
-        <span class="n">cross_channel_idx</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">cross_channel_1064_nm_idx</span>
-        <span class="n">channel_id</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-            <span class="n">location</span><span class="o">.</span><span class="n">calibration_1064nm_total_channel_ids</span>
-            <span class="o">+</span> <span class="n">location</span><span class="o">.</span><span class="n">calibration_1064nm_cross_channel_ids</span>
-        <span class="p">)</span>
-        <span class="n">nc</span><span class="o">.</span><span class="n">Measurement_ID</span> <span class="o">=</span> <span class="n">measurement_id</span> <span class="o">+</span> <span class="s2">&quot;10&quot;</span>
-        <span class="n">nc</span><span class="o">.</span><span class="n">X_PollyXTPipelines_Configuration_ID</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">location</span><span class="o">.</span><span class="n">calibration_configuration_1064nm</span>
-        <span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown wavelength </span><span class="si">{</span><span class="n">wavelength</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="n">raw_lidar_data</span><span class="p">[:]</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="c1"># Total channel, +45°</span>

@@ -89,9 +89,9 @@
 
 <span class="kn">import</span> <span class="nn">io</span>
 <span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">configparser</span> <span class="kn">import</span> <span class="n">ConfigParser</span><span class="p">,</span> <span class="n">SectionProxy</span>
 <span class="kn">from</span> <span class="nn">importlib.resources</span> <span class="kn">import</span> <span class="n">read_text</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">time</span><span class="p">,</span> <span class="n">timezone</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span> <span class="nn">rich.markdown</span> <span class="kn">import</span> <span class="n">Markdown</span>
@@ -100,7 +100,7 @@
 <span class="kn">from</span> <span class="nn">pollyxt_pipelines</span> <span class="kn">import</span> <span class="n">config</span>
 <span class="kn">from</span> <span class="nn">pollyxt_pipelines.enums</span> <span class="kn">import</span> <span class="n">Wavelength</span>
 <span class="kn">from</span> <span class="nn">pollyxt_pipelines.console</span> <span class="kn">import</span> <span class="n">console</span>
-<span class="kn">from</span> <span class="nn">pollyxt_pipelines.utils</span> <span class="kn">import</span> <span class="n">ints_to_csv</span>
+<span class="kn">from</span> <span class="nn">pollyxt_pipelines.utils</span> <span class="kn">import</span> <span class="n">ints_to_csv</span><span class="p">,</span> <span class="n">parse_into_string_or_integer_list</span>
 
 
 <div class="viewcode-block" id="Location"><a class="viewcode-back" href="../../locations.html#pollyxt_pipelines.locations.Location">[docs]</a><span class="k">class</span> <span class="nc">Location</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
@@ -147,7 +147,7 @@
     <span class="n">depol_calibration_zero_state</span><span class="p">:</span> <span class="nb">int</span>
     <span class="sd">&quot;&quot;&quot;Value of `depol_cal_angle` when there is *no* calibration taking place&quot;&quot;&quot;</span>
 
-    <span class="n">channel_id</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">channel_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
     <span class="sd">&quot;&quot;&quot;Mapping of PollyXT Channels to SCC Channels</span>
 <span class="sd">    Comma-separated list. The order of the list is the order of the channels in the</span>
 <span class="sd">    PollyXT netCDF file.</span>
@@ -186,36 +186,36 @@
     <span class="n">cross_channel_1064_nm_idx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
     <span class="sd">&quot;&quot;&quot;Index in Polly netCDF file for the cross channel (1064nm)&quot;&quot;&quot;</span>
 
-    <span class="n">calibration_355nm_total_channel_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">calibration_355nm_total_channel_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calibration channel SCC IDs for 355nm. Comma separated list. First value must be the</span>
 <span class="sd">    +45° channel, second value must be the -45° channel.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">calibration_355nm_cross_channel_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">calibration_355nm_cross_channel_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calibration channel SCC IDs for 355nm. Comma separated list. First value must be the</span>
 <span class="sd">    +45° channel, second value must be the -45° channel.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">calibration_532nm_total_channel_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">calibration_532nm_total_channel_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calibration channel SCC IDs for 532nm. Comma separated list. First value must be the</span>
 <span class="sd">    +45° channel, second value must be the -45° channel.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">calibration_532nm_cross_channel_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">calibration_532nm_cross_channel_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calibration channel SCC IDs for 532nm. Comma separated list. First value must be the</span>
 <span class="sd">    +45° channel, second value must be the -45° channel.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">calibration_1064nm_total_channel_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">calibration_1064nm_total_channel_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calibration channel SCC IDs for 1064nm. Comma separated list. First value must be the</span>
 <span class="sd">    +45° channel, second value must be the -45° channel.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">calibration_1064nm_cross_channel_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">calibration_1064nm_cross_channel_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calibration channel SCC IDs for 1064nm. Comma separated list. First value must be the</span>
 <span class="sd">    +45° channel, second value must be the -45° channel.</span>
@@ -279,43 +279,33 @@
 <span class="sd">    Create a Location from a ConfigParser Section (SectionProxy)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">channel_id</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;channel_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+    <span class="n">channel_id</span> <span class="o">=</span> <span class="n">parse_into_string_or_integer_list</span><span class="p">(</span><span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;channel_id&quot;</span><span class="p">))</span>
     <span class="n">background_low</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;background_low&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
     <span class="n">background_high</span> <span class="o">=</span> <span class="p">[</span>
         <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;background_high&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
     <span class="p">]</span>
     <span class="n">lr_input</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lr_input&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
 
-    <span class="n">calibration_355nm_total_channel_ids</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_355nm_total_channel_ids&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-    <span class="p">]</span>
-    <span class="n">calibration_355nm_cross_channel_ids</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_355nm_cross_channel_ids&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-    <span class="p">]</span>
-    <span class="n">calibration_532nm_total_channel_ids</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_532nm_total_channel_ids&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-    <span class="p">]</span>
-    <span class="n">calibration_532nm_cross_channel_ids</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_532nm_cross_channel_ids&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-    <span class="p">]</span>
-    <span class="n">calibration_1064nm_total_channel_ids</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_1064nm_total_channel_ids&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-    <span class="p">]</span>
-    <span class="n">calibration_1064nm_cross_channel_ids</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_1064nm_cross_channel_ids&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-    <span class="p">]</span>
+    <span class="n">calibration_355nm_total_channel_ids</span> <span class="o">=</span> <span class="n">parse_into_string_or_integer_list</span><span class="p">(</span>
+        <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_355nm_total_channel_ids&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">calibration_355nm_cross_channel_ids</span> <span class="o">=</span> <span class="n">parse_into_string_or_integer_list</span><span class="p">(</span>
+        <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_355nm_cross_channel_ids&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">calibration_532nm_total_channel_ids</span> <span class="o">=</span> <span class="n">parse_into_string_or_integer_list</span><span class="p">(</span>
+        <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_532nm_total_channel_ids&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">calibration_532nm_cross_channel_ids</span> <span class="o">=</span> <span class="n">parse_into_string_or_integer_list</span><span class="p">(</span>
+        <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_532nm_cross_channel_ids&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">calibration_1064nm_total_channel_ids</span> <span class="o">=</span> <span class="n">parse_into_string_or_integer_list</span><span class="p">(</span>
+        <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_1064nm_total_channel_ids&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">calibration_1064nm_cross_channel_ids</span> <span class="o">=</span> <span class="n">parse_into_string_or_integer_list</span><span class="p">(</span>
+        <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_1064nm_cross_channel_ids&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">Location</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
