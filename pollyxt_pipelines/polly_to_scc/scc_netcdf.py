@@ -8,7 +8,7 @@ from typing import Tuple
 import re
 
 import numpy as np
-from netCDF4 import Dataset, stringtochar
+from netCDF4 import Dataset
 from astral import LocationInfo
 from astral.sun import sunrise, sunset
 
@@ -127,13 +127,12 @@ def create_scc_netcdf(
         channel_id[:] = np.array(location.channel_id)
     else:
         str_len = np.max([len(x) for x in location.channel_id])
-        nc.createDimension("channel_string_length", str_len)
         channel_id = nc.createVariable(
             "channel_string_ID",
-            "S1",
-            dimensions=("channels", "channel_string_length"),
+            f"S{str_len}",
+            dimensions=("channels"),
         )
-        channel_id[:] = stringtochar(np.array(location.channel_id, f"S{str_len}"))
+        channel_id[:] = np.array(location.channel_id, f"S{str_len}")
 
     id_timescale = nc.createVariable(
         "id_timescale", "i4", dimensions=("channels"), zlib=True
@@ -322,13 +321,12 @@ def create_scc_calibration_netcdf(
         channel_id[:] = np.array(channel_ids)
     else:
         str_len = np.max([len(x) for x in channel_ids])
-        nc.createDimension("channel_string_length", str_len)
         channel_id = nc.createVariable(
             "channel_string_ID",
-            "S1",
-            dimensions=("channels", "channel_string_length"),
+            f"S{str_len}",
+            dimensions=("channels"),
         )
-        channel_id[:] = stringtochar(np.array(channel_ids, f"S{str_len}"))
+        channel_id[:] = np.array(channel_ids)
     id_timescale = nc.createVariable(
         "id_timescale", "i4", dimensions=("channels"), zlib=True
     )
