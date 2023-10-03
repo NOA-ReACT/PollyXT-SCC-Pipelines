@@ -1,3 +1,7 @@
+# 1.14.1
+
+- ✨ Add support for the new `channel_string_IDs` variable.
+
 # 1.14.0
 
 - ✨ Add ability to adjust sunset and sunrise times, used for determining the correct configuration ID.
