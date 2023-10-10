@@ -503,7 +503,11 @@ def convert_pollyxt_file(
                 # Generate calibration files for all channels that exist!
                 for wv, channel_exists in depol_channels.items():
                     if channel_exists:
-                        id, path = create_scc_calibration_netcdf(
-                            pf, output_path, location, wavelength=wv
-                        )
-                        yield id, path, start, end
+                        # HACK, do something more robust here
+                        try:
+                            id, path = create_scc_calibration_netcdf(
+                                pf, output_path, location, wavelength=wv
+                            )
+                            yield id, path, start, end
+                        except Exception as ex:
+                            print(f"Failed to generate calibration file: {ex}")
