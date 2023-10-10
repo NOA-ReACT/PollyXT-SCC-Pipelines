@@ -174,7 +174,7 @@ class Measurement:
             eldec=Product.from_code(json["eldec"]),
             elic=Product.from_code(json["elic"]),
             elquick=Product.from_code(json["elquick"]),
-            is_processing=json["is_running"],
+            is_processing=json["is_being_processed"],
             is_queued=json["is_queued"],
         )
 
