@@ -8,7 +8,7 @@ authors = ["Thanasis Georgiou <ageorgiou@noa.gr>"]
 pollyxt_pipelines = 'pollyxt_pipelines:main'
 
 [tool.poetry.dependencies]
-python = "^3.8,<3.11"
+python = "^3.8,<3.12"
 cleo = "^0.8.1"
 netCDF4 = "^1.5.7"
 numpy = "^1.23.3"
