@@ -105,7 +105,7 @@
 
 
 <div class="viewcode-block" id="SCC_Credentials"><a class="viewcode-back" href="../../network-api.html#pollyxt_pipelines.scc_access.SCC_Credentials">[docs]</a><span class="k">class</span> <span class="nc">SCC_Credentials</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Contains all required credentials to authenticate with SCC</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -122,7 +122,7 @@
 
 
 <div class="viewcode-block" id="SCC"><a class="viewcode-back" href="../../network-api.html#pollyxt_pipelines.scc_access.SCC">[docs]</a><span class="k">class</span> <span class="nc">SCC</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Represents a session with SCC.</span>
 <span class="sd">    Before making any calls, the user should login using `login()`!</span>
 
@@ -138,7 +138,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">verify</span> <span class="o">=</span> <span class="kc">True</span>
 
 <div class="viewcode-block" id="SCC.login"><a class="viewcode-back" href="../../network-api.html#pollyxt_pipelines.scc_access.SCC.login">[docs]</a>    <span class="k">def</span> <span class="nf">login</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Login to SCC</span>
 
 <span class="sd">        This function starts a session with the SCC backend, storing the authentication</span>
@@ -170,11 +170,11 @@
             <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">WrongCredentialsException</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="SCC.logout"><a class="viewcode-back" href="../../network-api.html#pollyxt_pipelines.scc_access.SCC.logout">[docs]</a>    <span class="k">def</span> <span class="nf">logout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Logout of SCC&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Logout of SCC&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">login_url</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SCC.download_file"><a class="viewcode-back" href="../../network-api.html#pollyxt_pipelines.scc_access.SCC.download_file">[docs]</a>    <span class="k">def</span> <span class="nf">download_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Downloads a single file from SCC to the given path</span>
 
 <span class="sd">        Parameters:</span>
@@ -189,7 +189,7 @@
 <div class="viewcode-block" id="SCC.query_measurements"><a class="viewcode-back" href="../../network-api.html#pollyxt_pipelines.scc_access.SCC.query_measurements">[docs]</a>    <span class="k">def</span> <span class="nf">query_measurements</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">date_start</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span> <span class="n">date_end</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Location</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">page</span><span class="o">=</span><span class="mi">1</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Measurement</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Searches SCC for uploaded measurements</span>
 
 <span class="sd">        Parameters:</span>
@@ -244,7 +244,7 @@
         <span class="n">optical</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">elic</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Downloads products for a given measurement (ID) to the given path.</span>
 <span class="sd">        This function is a generator, yielding the filename of each downloaded file.</span>
 
@@ -315,7 +315,7 @@
                 <span class="k">continue</span></div>
 
 <div class="viewcode-block" id="SCC.get_anchillary"><a class="viewcode-back" href="../../network-api.html#pollyxt_pipelines.scc_access.SCC.get_anchillary">[docs]</a>    <span class="k">def</span> <span class="nf">get_anchillary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">APIObject</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Uses the SCC API to fetch information about anchillary files.</span>
 
 <span class="sd">        Parameters:</span>
@@ -361,7 +361,7 @@
         <span class="n">ov_filename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">lr_filename</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Uploads a file to SCC, together with the auxilary files. There is no return value, but it will</span>
 <span class="sd">        throw for potential errors.</span>
 
@@ -438,7 +438,7 @@
             <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">UnexpectedResponse</span><span class="p">(</span><span class="s2">&quot;Upload to SCC failed, unknown reason&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SCC.get_measurement"><a class="viewcode-back" href="../../network-api.html#pollyxt_pipelines.scc_access.SCC.get_measurement">[docs]</a>    <span class="k">def</span> <span class="nf">get_measurement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">measurement_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Measurement</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fetches information about one measurement from SCC.</span>
 
 <span class="sd">        Parameters:</span>
@@ -464,7 +464,7 @@
             <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">UnexpectedResponse</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="SCC.delete_measurement"><a class="viewcode-back" href="../../network-api.html#pollyxt_pipelines.scc_access.SCC.delete_measurement">[docs]</a>    <span class="k">def</span> <span class="nf">delete_measurement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">measurement_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Deletes a measurement from SCC</span>
 
 <span class="sd">        Parameters:</span>
@@ -490,7 +490,7 @@
             <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">UnexpectedResponse</span><span class="p">(</span><span class="s2">&quot;Response code is not 200&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SCC.rerun_processing"><a class="viewcode-back" href="../../network-api.html#pollyxt_pipelines.scc_access.SCC.rerun_processing">[docs]</a>    <span class="k">def</span> <span class="nf">rerun_processing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">measurement_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Asks SCC to re-run processing routines for a given measurement ID</span>
 
 <span class="sd">        Parameters:</span>
@@ -532,7 +532,7 @@
 <div class="viewcode-block" id="SCC.get_lidar_consants"><a class="viewcode-back" href="../../network-api.html#pollyxt_pipelines.scc_access.SCC.get_lidar_consants">[docs]</a>    <span class="k">def</span> <span class="nf">get_lidar_consants</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">date_start</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span> <span class="n">date_end</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Location</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">page</span><span class="o">=</span><span class="mi">1</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Measurement</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fetches the Lidar constants from SCC</span>
 
 <span class="sd">        Parameters:</span>
@@ -580,7 +580,7 @@
 
 <div class="viewcode-block" id="scc_session"><a class="viewcode-back" href="../../network-api.html#pollyxt_pipelines.scc_access.scc_session">[docs]</a><span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
 <span class="k">def</span> <span class="nf">scc_session</span><span class="p">(</span><span class="n">credentials</span><span class="p">:</span> <span class="n">SCC_Credentials</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An SCC session as a context, to use with `with:`</span>
 
 <span class="sd">    Example::</span>

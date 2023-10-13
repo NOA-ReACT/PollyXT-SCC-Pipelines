@@ -96,7 +96,7 @@
 files of interest.</p>
 <section id="searching">
 <h2>Searching<a class="headerlink" href="#searching" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines scc-search <span class="o">[</span>--location <span class="o">[</span>&lt;...&gt;<span class="o">]]</span> <span class="o">[</span>--to-csv &lt;...&gt;<span class="o">]</span> &lt;date-start&gt; &lt;date-end&gt;
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines<span class="w"> </span>scc-search<span class="w"> </span><span class="o">[</span>--location<span class="w"> </span><span class="o">[</span>&lt;...&gt;<span class="o">]]</span><span class="w"> </span><span class="o">[</span>--to-csv<span class="w"> </span>&lt;...&gt;<span class="o">]</span><span class="w"> </span>&lt;date-start&gt;<span class="w"> </span>&lt;date-end&gt;
 </pre></div>
 </div>
 <ul class="simple">
@@ -126,7 +126,7 @@ request for N measurements so it should be avoided if not required.</p>
 </section>
 <section id="downloading">
 <h2>Downloading<a class="headerlink" href="#downloading" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines scc-search-download <span class="o">[</span>--location <span class="o">[</span>&lt;...&gt;<span class="o">]]</span> &lt;date-start&gt; &lt;date-end&gt;
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines<span class="w"> </span>scc-search-download<span class="w"> </span><span class="o">[</span>--location<span class="w"> </span><span class="o">[</span>&lt;...&gt;<span class="o">]]</span><span class="w"> </span>&lt;date-start&gt;<span class="w"> </span>&lt;date-end&gt;
 </pre></div>
 </div>
 <ul class="simple">
@@ -145,7 +145,7 @@ request for N measurements so it should be avoided if not required.</p>
 <section id="lidar-constants">
 <h2>Lidar constants<a class="headerlink" href="#lidar-constants" title="Permalink to this heading">¶</a></h2>
 <p>The <a class="reference external" href="https://github.com/NOA-ReACT/PollyXT-SCC-Pipelines">lidar constants table</a>  can be downloaded as a CSV file using the <code class="code docutils literal notranslate"><span class="pre">lidar-constants-scc</span></code> command.</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines scc-lidar-constants <span class="o">[</span>--location <span class="o">[</span>&lt;...&gt;<span class="o">]]</span> &lt;date-start&gt; &lt;date-end&gt; &lt;csv&gt;
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines<span class="w"> </span>scc-lidar-constants<span class="w"> </span><span class="o">[</span>--location<span class="w"> </span><span class="o">[</span>&lt;...&gt;<span class="o">]]</span><span class="w"> </span>&lt;date-start&gt;<span class="w"> </span>&lt;date-end&gt;<span class="w"> </span>&lt;csv&gt;
 </pre></div>
 </div>
 <ul class="simple">
@@ -158,19 +158,19 @@ request for N measurements so it should be avoided if not required.</p>
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h2>
 <p>Search for all files between 2020-01-01 and 2020-02-01 from Finokalia.</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines scc-search <span class="m">2020</span>-01-01 <span class="m">2020</span>-02-01 --location<span class="o">=</span>Finokalia
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines<span class="w"> </span>scc-search<span class="w"> </span><span class="m">2020</span>-01-01<span class="w"> </span><span class="m">2020</span>-02-01<span class="w"> </span>--location<span class="o">=</span>Finokalia
 </pre></div>
 </div>
 <p>Download all files between 2020-10-07 and 2020-10-10 from all stations</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines scc-search-download <span class="m">2020</span>-10-07 <span class="m">2020</span>-10-10
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines<span class="w"> </span>scc-search-download<span class="w"> </span><span class="m">2020</span>-10-07<span class="w"> </span><span class="m">2020</span>-10-10
 </pre></div>
 </div>
 <p>Download all files, excluding optical products, between 2020-10-07 and 2020-10-10 from Antikythera:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines scc-search-download <span class="m">2020</span>-10-07 <span class="m">2020</span>-10-10 --no-optical --location<span class="o">=</span>Antikythera
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines<span class="w"> </span>scc-search-download<span class="w"> </span><span class="m">2020</span>-10-07<span class="w"> </span><span class="m">2020</span>-10-10<span class="w"> </span>--no-optical<span class="w"> </span>--location<span class="o">=</span>Antikythera
 </pre></div>
 </div>
 <p>Download the Lidar constant table for a given date range.</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines scc-lidar-constants <span class="m">2020</span>-10-01 <span class="m">2020</span>-11-01 lidar.csv
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pollyxt_pipelines<span class="w"> </span>scc-lidar-constants<span class="w"> </span><span class="m">2020</span>-10-01<span class="w"> </span><span class="m">2020</span>-11-01<span class="w"> </span>lidar.csv
 </pre></div>
 </div>
 </section>
