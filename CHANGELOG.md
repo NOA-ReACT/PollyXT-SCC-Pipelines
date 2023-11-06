@@ -1,3 +1,12 @@
+# 1.14.3
+
+- 🛠 Change sunset time for Antikythera to 16:00
+
+# 1.14.2
+
+- 🐜 Small compatibility fix with SCC API
+- 🐜 Mark as compatible with Python 3.11
+
 # 1.14.1
 
 - ✨ Add support for the new `channel_string_IDs` variable.
