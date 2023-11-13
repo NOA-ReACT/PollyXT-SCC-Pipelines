@@ -1,3 +1,7 @@
+# 1.14.4
+
+- 🐜 Fix an issue that produced empty calibration files when depol_cal_angle was not 0 (Thanks @ulysses78!)
+
 # 1.14.3
 
 - 🛠 Change sunset time for Antikythera to 16:00
