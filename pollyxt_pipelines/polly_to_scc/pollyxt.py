@@ -230,9 +230,11 @@ class PollyXTRepository:
             start_index = targets_filtered["index"].min()
             end_index = targets_filtered["index"].max()
 
-            #polly_files.append(PollyXTFile(path, start=start_index, end=end_index))
-            polly_files.append(PollyXTFile(path, location=self.location, start=start_index, end=end_index))
-
+            polly_files.append(
+                PollyXTFile(
+                    path, location=self.location, start=start_index, end=end_index
+                )
+            )
 
         # Concatenate data into one file
         pollyxt_file = polly_files[0]
@@ -289,8 +291,9 @@ class PollyXTFile:
     # Same size as `raw_signal*`, `measurement_time` and `measurement_shots`
     calibration_mask: np.ndarray
 
-#    def __init__(self, input_path: Path, start: int = None, end: int = None):
-    def __init__(self, input_path: Path, location: Location, start: int = None, end: int = None):
+    def __init__(
+        self, input_path: Path, location: Location, start: int = None, end: int = None
+    ):
         """
         Read a PollyXT netcdf file
 
@@ -325,9 +328,9 @@ class PollyXTFile:
 
         nc.close()
 
-#        self.calibration_mask = self.depol_cal_angle != 0.0
-        self.calibration_mask = self.depol_cal_angle != location.depol_calibration_zero_state
-
+        self.calibration_mask = (
+            self.depol_cal_angle != location.depol_calibration_zero_state
+        )
 
         # Store some variables for easy access
         self.start_index = start
