@@ -312,7 +312,11 @@
             <span class="n">start_index</span> <span class="o">=</span> <span class="n">targets_filtered</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
             <span class="n">end_index</span> <span class="o">=</span> <span class="n">targets_filtered</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
 
-            <span class="n">polly_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PollyXTFile</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start_index</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end_index</span><span class="p">))</span>
+            <span class="n">polly_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">PollyXTFile</span><span class="p">(</span>
+                    <span class="n">path</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start_index</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end_index</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
 
         <span class="c1"># Concatenate data into one file</span>
         <span class="n">pollyxt_file</span> <span class="o">=</span> <span class="n">polly_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -369,7 +373,9 @@
     <span class="c1"># Same size as `raw_signal*`, `measurement_time` and `measurement_shots`</span>
     <span class="n">calibration_mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">input_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="n">Location</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read a PollyXT netcdf file</span>
 
@@ -404,7 +410,9 @@
 
         <span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">calibration_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">depol_cal_angle</span> <span class="o">!=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calibration_mask</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">depol_cal_angle</span> <span class="o">!=</span> <span class="n">location</span><span class="o">.</span><span class="n">depol_calibration_zero_state</span>
+        <span class="p">)</span>
 
         <span class="c1"># Store some variables for easy access</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">start_index</span> <span class="o">=</span> <span class="n">start</span>
