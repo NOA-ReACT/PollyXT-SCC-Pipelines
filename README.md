@@ -4,10 +4,10 @@ PollyXT-Pipelines is a tool and a library for processing PollyXT files, mainly r
 with [Single Calculus Chain (SCC)](https://www.earlinet.org/index.php?id=281). It currently supports
 the following features:
 
-* Conversion of PollyXT files to SCC format
-* Create Sounding files from WRF profiles
-* Batch upload to SCC for processing
-* Batch download of products, both for new files and by date range
+- Conversion of PollyXT files to SCC format
+- Create Sounding files from WRF profiles
+- Batch upload to SCC for processing
+- Batch download of products, both for new files and by date range
 
 To get started, check the [**demo**](https://asciinema.org/a/380595) and read the [**documentation**](https://noa-react.github.io/PollyXT-SCC-Pipelines/)!
 
@@ -51,6 +51,8 @@ as a library without publishing your source code.
 The license is available in the `COPYING` and `COPYING.LESSER` files.
 
 ## Authors & Contributors
+
 - Anna Gialitaki <togialitaki@noa.gr>: Original PollyXT to SCC code
 - Thanasis Georgiou <ageorgiou@noa.gr>: Command line tool
 - Iannis Binietoglou <i.binietoglou@impworks.gr>: [scc-access](https://repositories.imaa.cnr.it/public/scc_access) tool, which was the basis for the upload/download features. `scc-access` is available under the MIT license.
+- Andi Klamt <klamt@tropos.de>
