@@ -1,3 +1,7 @@
+# 1.14.5
+
+- 🐜 Fix a crash when a station's location was near to the poles and subject to long nights or days.
+
 # 1.14.4
 
 - 🐜 Fix an issue that produced empty calibration files when depol_cal_angle was not 0 (Thanks @ulysses78!)
