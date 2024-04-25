@@ -1,3 +1,10 @@
+# 1.15.0
+
+- 🛠 Mark as compatible with Python 3.12
+- 🛠 Make 3.9 the minimum Python version
+- 🐜 Fix package version login
+- 🐜 Add crash w/ explaination when qc-eldec logic cannot handle a calibration file
+
 # 1.14.5
 
 - 🐜 Fix a crash when a station's location was near to the poles and subject to long nights or days.
