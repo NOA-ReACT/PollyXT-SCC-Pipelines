@@ -3,7 +3,8 @@ Entry point for the application, mainly contains cleo setup
 Author: Thanasis Georgiou <ageorgiou@noa.gr>
 """
 
-import pkg_resources
+import importlib
+import importlib.metadata
 
 from cleo import Application
 
@@ -26,15 +27,8 @@ from pollyxt_pipelines.qc_eldec.commands import QCEldec, QCEldecDeleteHistory
 
 
 def get_package_version():
-    """
-    Returns the package version. If the package is not installed, it will
-    return "Development Version".
-    """
-    try:
-        version = pkg_resources.get_distribution("sodust").version
-    except pkg_resources.DistributionNotFound:
-        version = "Development Version (not installed!)"
-    return version
+    """Returns the package version."""
+    return importlib.metadata.version("pollyxt_pipelines")
 
 
 def prepare_cli_application() -> Application:
