@@ -5,19 +5,19 @@ Original code by Ina Mattis (@imattis on GitLab): https://gitlab.com/imattis/qc_
 Original code unlicensed but used with permission
 """
 
-from datetime import datetime, timedelta
 import os
+from datetime import datetime, timedelta
 from pathlib import Path
-from pollyxt_pipelines import config
 
-from pollyxt_pipelines.qc_eldec import constants
-from pollyxt_pipelines.locations import Location
-
+import matplotlib.dates as mdates
 import numpy as np
-from netCDF4 import Dataset, date2num, num2date
 from matplotlib import pyplot as plt
 from matplotlib.ticker import FuncFormatter
-import matplotlib.dates as mdates
+from netCDF4 import Dataset, date2num, num2date
+
+from pollyxt_pipelines import config
+from pollyxt_pipelines.locations import Location
+from pollyxt_pipelines.qc_eldec import constants
 
 
 class ELDECfile:
@@ -62,8 +62,7 @@ class ELDECfile:
         nc.set_auto_mask(False)
 
         if nc.dimensions["time"].size > 1:
-            print("cannot read ELDEC file with more than 1 calibration")
-            return
+            raise ValueError("cannot read ELDEC file with more than 1 calibration")
 
         time_idx = 0  # read only first calibration
 
