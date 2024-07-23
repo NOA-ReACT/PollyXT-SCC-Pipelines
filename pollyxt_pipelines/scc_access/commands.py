@@ -617,17 +617,7 @@ class SearchDownloadSCC(Command):
                     )
                     try:
                         for file in scc.download_products(
-                            m.id,
-                            download_path,
-                            hirelpp and (m.hirelpp.status == ProductStatus.OK),
-                            cloudmask and (m.cloudmask.status == ProductStatus.OK),
-                            elpp and (m.elpp.status == ProductStatus.OK),
-                            optical
-                            and (
-                                (m.elda.status == ProductStatus.OK)
-                                or (m.eldec.status == ProductStatus.OK)
-                            ),
-                            elic and (m.elic.status == ProductStatus.OK),
+                            m.id, download_path, hirelpp, cloudmask, elpp, optical, elic
                         ):
                             file_count += 1
                             console.log(f"[info]Downloaded[/info] {file}")
