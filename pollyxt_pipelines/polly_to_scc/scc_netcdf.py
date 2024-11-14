@@ -174,6 +174,9 @@ def create_scc_netcdf(
     lr_input = nc.createVariable("LR_Input", "i4", dimensions=("channels"), zlib=True)
 
     # Fill Variables with Data. (mandatory)
+    print(pf.measurement_time[:, 1])
+    print(pf.calibration_mask)
+
     raw_data_start_time[:] = (
         pf.measurement_time[~pf.calibration_mask, 1] - pf.measurement_time[0, 1]
     )
@@ -486,7 +489,7 @@ def convert_pollyxt_file(
         # Open netCDF file and convert to SCC
         try:
             pf = repo.get_pollyxt_file(
-                interval_start, interval_end + timedelta(seconds=30)
+                interval_start, interval_end + timedelta(seconds=1)
             )
             id, path = create_scc_netcdf(pf, output_path, location, atmosphere)
 
