@@ -242,9 +242,8 @@ class PollyXTRepository:
         pollyxt_file.raw_signal_swap = np.concatenate(
             [x.raw_signal_swap for x in polly_files]
         )
-        pollyxt_file.measurement_time = np.concatenate(
-            [x.measurement_time for x in polly_files]
-        )
+        t_len = pollyxt_file.raw_signal.shape[0]
+        pollyxt_file.measurement_time = np.arange(0, t_len * 30, 30)
         pollyxt_file.measurement_shots = np.concatenate(
             [x.measurement_shots for x in polly_files]
         )

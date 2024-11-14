@@ -174,15 +174,8 @@ def create_scc_netcdf(
     lr_input = nc.createVariable("LR_Input", "i4", dimensions=("channels"), zlib=True)
 
     # Fill Variables with Data. (mandatory)
-    print(pf.measurement_time[:, 1])
-    print(pf.calibration_mask)
-
-    raw_data_start_time[:] = (
-        pf.measurement_time[~pf.calibration_mask, 1] - pf.measurement_time[0, 1]
-    )
-    raw_data_stop_time[:] = (
-        pf.measurement_time[~pf.calibration_mask, 1] - pf.measurement_time[0, 1]
-    ) + 30
+    raw_data_start_time[:] = pf.measurement_time[~pf.calibration_mask]
+    raw_data_stop_time[:] = (pf.measurement_time[~pf.calibration_mask]) + 30
     raw_lidar_data[:] = pf.raw_signal_swap[~pf.calibration_mask]
     id_timescale[:] = np.zeros(np.size(pf.raw_signal[~pf.calibration_mask], axis=2))
     laser_pointing_angle[:] = int(pf.zenith_angle.item(0))
