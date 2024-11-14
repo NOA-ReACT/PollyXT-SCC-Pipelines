@@ -470,7 +470,8 @@ def convert_pollyxt_file(
             raise TimeOutsideFile(measurement_start, measurement_end, end_time)
 
         measurement_end = end_time
-        interval = timedelta(seconds=(end_time - start_time).total_seconds())
+        if interval is None:
+            interval = timedelta(seconds=(end_time - start_time).total_seconds())
 
     # Create output files
     interval_start = measurement_start
