@@ -1,3 +1,9 @@
+# 1.16.0
+
+- 🛠 `create-scc`: Allow `--interval` to be used alongside `--start-time` and `--end-time`.
+- 🐜 `create-scc`: Fix time calculation for `Raw_Data_Start_Time`, fixes issue with time non-continuities with files that contained midnight.
+- 🐜 Removed 30s of extra length at the end of each file.
+
 # 1.15.0
 
 - 🛠 Mark as compatible with Python 3.12
