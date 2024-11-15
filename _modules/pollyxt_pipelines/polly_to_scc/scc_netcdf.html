@@ -256,12 +256,8 @@
     <span class="n">lr_input</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s2">&quot;LR_Input&quot;</span><span class="p">,</span> <span class="s2">&quot;i4&quot;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">),</span> <span class="n">zlib</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># Fill Variables with Data. (mandatory)</span>
-    <span class="n">raw_data_start_time</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">pf</span><span class="o">.</span><span class="n">measurement_time</span><span class="p">[</span><span class="o">~</span><span class="n">pf</span><span class="o">.</span><span class="n">calibration_mask</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">pf</span><span class="o">.</span><span class="n">measurement_time</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
-    <span class="p">)</span>
-    <span class="n">raw_data_stop_time</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">pf</span><span class="o">.</span><span class="n">measurement_time</span><span class="p">[</span><span class="o">~</span><span class="n">pf</span><span class="o">.</span><span class="n">calibration_mask</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">pf</span><span class="o">.</span><span class="n">measurement_time</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">+</span> <span class="mi">30</span>
+    <span class="n">raw_data_start_time</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">measurement_time</span><span class="p">[</span><span class="o">~</span><span class="n">pf</span><span class="o">.</span><span class="n">calibration_mask</span><span class="p">]</span>
+    <span class="n">raw_data_stop_time</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">measurement_time</span><span class="p">[</span><span class="o">~</span><span class="n">pf</span><span class="o">.</span><span class="n">calibration_mask</span><span class="p">])</span> <span class="o">+</span> <span class="mi">30</span>
     <span class="n">raw_lidar_data</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">raw_signal_swap</span><span class="p">[</span><span class="o">~</span><span class="n">pf</span><span class="o">.</span><span class="n">calibration_mask</span><span class="p">]</span>
     <span class="n">id_timescale</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">raw_signal</span><span class="p">[</span><span class="o">~</span><span class="n">pf</span><span class="o">.</span><span class="n">calibration_mask</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
     <span class="n">laser_pointing_angle</span><span class="p">[:]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">zenith_angle</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
@@ -452,14 +448,8 @@
     <span class="p">)</span>
 
     <span class="c1"># Fill Variables with Data. (mandatory)</span>
-    <span class="n">raw_data_start_time</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">pf</span><span class="o">.</span><span class="n">measurement_time</span><span class="p">[</span><span class="n">start_positive</span><span class="p">:</span><span class="n">end_positive</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
-        <span class="o">-</span> <span class="n">pf</span><span class="o">.</span><span class="n">measurement_time</span><span class="p">[</span><span class="n">start_positive</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
-    <span class="p">)</span>
-    <span class="n">raw_data_stop_time</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">pf</span><span class="o">.</span><span class="n">measurement_time</span><span class="p">[</span><span class="n">start_negative</span><span class="p">:</span><span class="n">end_negative</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
-        <span class="o">-</span> <span class="n">pf</span><span class="o">.</span><span class="n">measurement_time</span><span class="p">[</span><span class="n">start_positive</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
-    <span class="p">)</span>
+    <span class="n">raw_data_start_time</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">positive_length</span><span class="p">)</span> <span class="o">*</span> <span class="mi">30</span>
+    <span class="n">raw_data_stop_time</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">positive_length</span><span class="p">)</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span> <span class="o">+</span> <span class="mi">30</span>
     <span class="n">id_timescale</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
     <span class="n">laser_pointing_angle</span><span class="p">[:]</span> <span class="o">=</span> <span class="mi">5</span>
     <span class="n">laser_pointing_angle_of_profiles</span><span class="p">[:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mf">0.0</span>
@@ -552,7 +542,8 @@
             <span class="k">raise</span> <span class="n">TimeOutsideFile</span><span class="p">(</span><span class="n">measurement_start</span><span class="p">,</span> <span class="n">measurement_end</span><span class="p">,</span> <span class="n">end_time</span><span class="p">)</span>
 
         <span class="n">measurement_end</span> <span class="o">=</span> <span class="n">end_time</span>
-        <span class="n">interval</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="p">(</span><span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">interval</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">interval</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="p">(</span><span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())</span>
 
     <span class="c1"># Create output files</span>
     <span class="n">interval_start</span> <span class="o">=</span> <span class="n">measurement_start</span>
@@ -567,7 +558,7 @@
         <span class="c1"># Open netCDF file and convert to SCC</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">pf</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">get_pollyxt_file</span><span class="p">(</span>
-                <span class="n">interval_start</span><span class="p">,</span> <span class="n">interval_end</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+                <span class="n">interval_start</span><span class="p">,</span> <span class="n">interval_end</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
             <span class="p">)</span>
             <span class="nb">id</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">create_scc_netcdf</span><span class="p">(</span><span class="n">pf</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">atmosphere</span><span class="p">)</span>
 
