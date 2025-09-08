@@ -34,12 +34,31 @@ Different command are used to carry out each task and they accept different argu
 
 ## Development
 
-The project uses [poetry](https://python-poetry.org/) as the package manager and
-thus is required for working on the tool. After installing poetry, download the
+The project uses [uv](https://docs.astral.sh/uv/) as the package manager and
+thus is required for working on the tool. After installing uv, download the
 required dependencies using:
 
 ```
-poetry install
+uv sync
+```
+
+You can also install optional dependencies for development or documentation:
+
+```
+# Install development dependencies (linting, testing)
+uv sync --extra dev
+
+# Install documentation dependencies
+uv sync --extra docs
+
+# Install all optional dependencies
+uv sync --all-extras
+```
+
+To run the application during development:
+
+```
+uv run pollyxt_pipelines --help
 ```
 
 ## License
