@@ -44,12 +44,18 @@ class MeasurementNotFound(Exception):
 class UnexpectedResponse(Exception):
     """Raised when the response is not OK and we don't have a concrete reason for it"""
 
-    def __init__(self, message: str) -> None:
+    def __init__(self, message: str, body: str | None = None) -> None:
         super().__init__(message)
         self.message = message
+        self.body = body
 
     def __str__(self) -> str:
         if self.message is not None:
-            return "SCC responded in an unknown way: " + self.message
+            return (
+                "SCC responded in an unknown way: "
+                + self.message
+                + "\n"
+                + (self.body or "")
+            )
         else:
             return "SCC responded in an unknown way"

@@ -133,7 +133,9 @@ class SCC:
 
         results = self.session.get(constants.list_measurements_url, params=params)
         if not results.ok:
-            raise exceptions.UnexpectedResponse
+            raise exceptions.UnexpectedResponse(
+                "Failed to fetch measurements", results.text
+            )
 
         # Parse body to find measurements and page count
         body = BeautifulSoup(results.text, "html.parser")
@@ -226,8 +228,8 @@ class SCC:
                 yield download["path"]
             except Exception as ex:
                 console.print("[error]Error while downloading file from SCC[/error]")
-                console.print(f'[error]URL:[/error] {download["url"]}')
-                console.print(f'[error]Path:[/error] {download["path"]}')
+                console.print(f"[error]URL:[/error] {download['url']}")
+                console.print(f"[error]Path:[/error] {download['path']}")
                 console.print("[error]Exception:[/error]")
                 console.print_exception()
                 continue
@@ -353,7 +355,9 @@ class SCC:
             upload_submit.status_code != 200
             or upload_submit.url == constants.upload_url
         ):
-            raise exceptions.UnexpectedResponse("Upload to SCC failed, unknown reason")
+            raise exceptions.UnexpectedResponse(
+                "Upload to SCC failed, unknown reason", upload_submit.text
+            )
 
     def get_measurement(self, measurement_id: str) -> Union[Measurement, None]:
         """
@@ -405,7 +409,9 @@ class SCC:
         if response.status_code == 404:
             raise exceptions.MeasurementNotFound(measurement_id)
         if response.status_code != 200:
-            raise exceptions.UnexpectedResponse("Response code is not 200")
+            raise exceptions.UnexpectedResponse(
+                "Response code is not 200", response.text
+            )
 
     def rerun_processing(self, measurement_id: str):
         """
@@ -435,16 +441,20 @@ class SCC:
         if response.status_code == 404:
             raise exceptions.MeasurementNotFound(measurement_id)
         if response.status_code != 302:
-            raise exceptions.UnexpectedResponse("Response code is not 302")
+            raise exceptions.UnexpectedResponse(
+                "Response code is not 302", response.text
+            )
 
         # Check for message in cookie
         messages_cookie = response.cookies["messages"]
         if messages_cookie is None:
-            raise exceptions.UnexpectedResponse("`Messages` cookie not found")
+            raise exceptions.UnexpectedResponse(
+                "`Messages` cookie not found", response.text
+            )
 
         if "The processing chain was restarted" not in messages_cookie:
             raise exceptions.UnexpectedResponse(
-                "Could not found restart message in cookie"
+                "Could not found restart message in cookie", response.text
             )
 
     def get_lidar_consants(
@@ -476,7 +486,9 @@ class SCC:
 
         results = self.session.get(constants.lidar_constants_url, params=params)
         if not results.ok:
-            raise exceptions.UnexpectedResponse
+            raise exceptions.UnexpectedResponse(
+                "Failed to fetch Lidar constants", results.text
+            )
 
         # Parse body to find measurements and page count
         body = BeautifulSoup(results.text, "html.parser")
