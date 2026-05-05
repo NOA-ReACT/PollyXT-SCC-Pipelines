@@ -23,7 +23,7 @@ pollyxt-pipelines = "pollyxt_pipelines:main"
 dev = ["pylint>=2.15.3", "black>=22.8.0", "pytest>=6.2.1"]
 docs = [
   "Sphinx>=5.2.2",
-  "sphinx-typlog-theme>=0.8.0",
+  "furo",
   "sphinx-autodoc-typehints>=1.19.4",
   "esbonio>=0.16.0",
 ]

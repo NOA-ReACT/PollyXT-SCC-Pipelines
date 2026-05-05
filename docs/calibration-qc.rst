@@ -20,8 +20,8 @@ Usage
 
   pollyxt_pipelines qc-eldec <input> <location> [<plot>]
 
-* :code:`input` :badge-blue:`required`: Path to the ELDEC NetCDF file
-* :code:`location` :badge-blue:`required`: Station name. Used to store past calibrations.
+* :code:`input` **(required)**: Path to the ELDEC NetCDF file
+* :code:`location` **(required)**: Station name. Used to store past calibrations.
 * :code:`plot`: Optionally, a path to store the depol. calibration plot.
 
 
