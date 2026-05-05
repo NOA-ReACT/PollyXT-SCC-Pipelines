@@ -16,8 +16,8 @@ Searching
 
   pollyxt_pipelines scc-search [--location [<...>]] [--to-csv <...>] <date-start> <date-end>
 
-* :code:`date-start` :badge-blue:`required`: First day to search (inclusive)
-* :code:`date-end` :badge-blue:`required`: Last day to search (exclusive)
+* :code:`date-start` **(required)**: First day to search (inclusive)
+* :code:`date-end` **(required)**: Last day to search (exclusive)
 * :code:`--location=`: Optionally filter by a measurement station
 * :code:`--detailed-status`: Fetch processing status codes (eg. 127) for each product. This option **must** be used with :code:`--to-csv=`.
 * :code:`--to-csv=`: Optionally store the results in a CSV file. This file can also be used with :code:`scc-download`
@@ -54,8 +54,8 @@ Downloading
 
   pollyxt_pipelines scc-search-download [--location [<...>]] <date-start> <date-end>
 
-* :code:`date-start` :badge-blue:`required`: First day to search (inclusive)
-* :code:`date-end` :badge-blue:`required`: Last day to search (exclusive)
+* :code:`date-start` **(required)**: First day to search (inclusive)
+* :code:`date-end` **(required)**: Last day to search (exclusive)
 * :code:`--location=`: Optionally filter by a measurement station
 * :code:`--no-hirelpp`: Do not download HiRELPP products
 * :code:`--no-cloudmask`: Do not download cloudmask products
@@ -76,9 +76,9 @@ The `lidar constants table <https://github.com/NOA-ReACT/PollyXT-SCC-Pipelines>`
 
   pollyxt_pipelines scc-lidar-constants [--location [<...>]] <date-start> <date-end> <csv>
 
-* :code:`date-start` :badge-blue:`required`: First day to search (inclusive)
-* :code:`date-end` :badge-blue:`required`: Last day to search (exclusive)
-* :code:`csv` :badge-blue:`required`: Where to save the CSV file.
+* :code:`date-start` **(required)**: First day to search (inclusive)
+* :code:`date-end` **(required)**: Last day to search (exclusive)
+* :code:`csv` **(required)**: Where to save the CSV file.
 * :code:`--location=`: Optionally filter by a measurement station
 
 Examples

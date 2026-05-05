@@ -13,10 +13,10 @@ Usage
 
   pollyxt_pipelines create-scc [--interval <...>] [--round] [--no-calibration] [--start-time <...>] <input> <location> <output-path>
 
-* :code:`input` :badge-blue:`required`: Path to PollyXT NetCDF files. Can either be a single file or a directory
+* :code:`input` **(required)**: Path to PollyXT NetCDF files. Can either be a single file or a directory
 * :code:`--recursive`: If :code:`input` is a directory and this option is set, it will be searched recursively.
-* :code:`location` :badge-blue:`required`: Where did the Polly measurement take place (i.e. station name)
-* :code:`output-path` :badge-blue:`required`: **Directory** to write the output files. It will be created if it does not exist
+* :code:`location` **(required)**: Where did the Polly measurement take place (i.e. station name)
+* :code:`output-path` **(required)**: **Directory** to write the output files. It will be created if it does not exist
 * :code:`--interval=`: Set the interval (in minutes), in which to split PollyXT files.
 * :code:`--atmosphere=`: Select what kind of atmosphere to use: standard (default), radiosonde, cloudnet, automatic
 * :code:`--no-calibration`: Do not create calibration files
@@ -71,7 +71,7 @@ By default, when a file is being converted to SCC format, the generated file wil
 :code:`Molecular_Calc` set to 4 in order to use standard atmosphere. You can select which
 atmosphere you want to use using the :code:`--atmosphere=` option:
 
-* :code:`standard` :badge-blue:`default`: Use standard atmosphere
+* :code:`standard` **(default)**: Use standard atmosphere
 * :code:`radiosonde`: Create and use a collocated sounding file
 * :code:`cloudnet`: Use Cloudnet NWP
 * :code:`automatic`: Let SCC decide
@@ -101,7 +101,7 @@ be created.
   the output file. For example, a file start starts in 00:00 and ends in 03:00, will
   have a sounding file with data from 00:00.
 
-  :badge:`todo`: Make this behaviour customizable
+  **TODO:** Make this behaviour customizable
 
 
 
