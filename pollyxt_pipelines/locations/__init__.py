@@ -6,18 +6,18 @@ the .ini files are included with the software but custom locations can be define
 """
 
 import io
-import sys
 import re
+import sys
 from configparser import ConfigParser, SectionProxy
 from importlib.resources import read_text
-from typing import Dict, List, NamedTuple, Union, Optional
+from typing import Dict, List, NamedTuple, Optional, Union
 
 from rich.markdown import Markdown
 from rich.table import Table
 
 from pollyxt_pipelines import config
-from pollyxt_pipelines.enums import Wavelength
 from pollyxt_pipelines.console import console
+from pollyxt_pipelines.enums import Wavelength
 from pollyxt_pipelines.utils import ints_to_csv, parse_into_string_or_integer_list
 
 

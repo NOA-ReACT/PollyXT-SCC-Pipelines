@@ -5,8 +5,8 @@ Commands to manage locations (show, add, remove)
 from cleo import Command
 from rich.markdown import Markdown
 
+from pollyxt_pipelines import config, locations
 from pollyxt_pipelines.console import console
-from pollyxt_pipelines import locations, config
 
 
 class ShowLocations(Command):
@@ -41,7 +41,7 @@ class LocationPath(Command):
         config_paths = config.config_paths()
 
         if self.option("user"):
-            console.print(config_paths[-1].parent / "locations.ini")
+            console.print(config_paths[-1] / "locations.ini")
         else:
             for path in config_paths:
-                console.print(path.parent / "locations.ini")
+                console.print(path / "locations.ini")
