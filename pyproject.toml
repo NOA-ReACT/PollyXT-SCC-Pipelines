@@ -1,6 +1,6 @@
 [project]
 name = "pollyxt_pipelines"
-version = "1.16.0"
+version = "1.16.1"
 description = "Tools and scripts related to the automated processing of PollyXT files"
 authors = [{ name = "Thanasis Georgiou", email = "ageorgiou@noa.gr" }]
 requires-python = ">=3.9,<3.15"
