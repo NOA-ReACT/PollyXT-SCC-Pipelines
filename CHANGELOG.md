@@ -1,3 +1,7 @@
+# 1.16.2
+
+- 🐜 Fixed wrong paths being shown in `locations-show` command.
+
 # 1.16.0
 
 - 🛠 `create-scc`: Allow `--interval` to be used alongside `--start-time` and `--end-time`.
