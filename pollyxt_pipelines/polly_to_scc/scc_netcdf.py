@@ -493,6 +493,18 @@ def convert_pollyxt_file(
     if calibration:
         depol_channels = location.has_depol_channels()
 
+######## Check for the calibration problem
+        cal_periods = list(repo.get_calibration_periods())
+        print(f"Calibration periods found: {cal_periods}")
+    
+        # Check for any valid calibration intervals
+        for start, end in cal_periods:
+            print(f"Checking calibration period {start} -> {end}")
+            print(f"Measurement window {measurement_start} -> {measurement_end}")
+            print(
+                f"Accepted? {start > measurement_start and end < measurement_end}"
+            )
+
         # Check for any valid calibration intervals
         for start, end in repo.get_calibration_periods():
             if start > measurement_start and end < measurement_end:
