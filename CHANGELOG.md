@@ -1,3 +1,20 @@
+# 1.17.0
+
+- 🛠 Make 3.10 the minimum Python version
+- ✨ Library API for workflows (see the "Using as a library" docs page):
+  - `locations.read_locations_file()` reads one locations file, and `read_locations(extra_paths)` adds files to the usual ones. Invalid sections raise `InvalidLocationError` instead of being skipped.
+  - `scc_netcdf.convert_window()` converts one UTC time window and returns typed results (`SCCFile`, `WindowConversion`). Windows past the data are clipped, calibrations crossing the window end are kept, and failures are returned as reasons.
+  - `qc_eldec.qc`: `read_eldec()`, `check_calibration()`/`check_calibrations()` and `plot_calibration()` work with a history supplied by the caller, with no state file. `read_history_file()` imports the `qc-eldec` history files.
+  - `SCC.wait_for_product()` waits for SCC to finish a measurement.
+- ✨ `POLLYXT_PIPELINES_CONFIG_DIR` environment variable replaces the config directories.
+- 🛠 Library code logs through `logging` instead of printing; the CLI shows the messages through `rich`.
+- 🐜 `qc-eldec`: a calibration checked again no longer counts itself in the outlier check.
+- 🐜 `qc-eldec`: plots for 1064 nm calibrations no longer crash.
+- 🐜 `qc-eldec`: ELDEC files with more than one calibration raise a clear error instead of crashing later.
+- 🐜 `create-scc`: a calibration file that fails no longer leaves a partial file behind.
+- 🐜 `create-scc`: no crash on days without sunrise or sunset when no fixed times are set.
+- 🐜 A location missing a required key is reported instead of loading with empty values.
+
 # 1.16.2
 
 - 🐜 Fixed wrong paths being shown in `locations-show` command.
