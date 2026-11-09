@@ -34,3 +34,4 @@ User Guide
    search-scc
    manage-scc
    network-api
+   library-api
