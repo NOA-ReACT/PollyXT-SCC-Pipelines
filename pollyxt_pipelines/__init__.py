@@ -5,8 +5,12 @@ Author: Thanasis Georgiou <ageorgiou@noa.gr>
 
 import importlib
 import importlib.metadata
+import logging
 
 from cleo import Application
+from rich.logging import RichHandler
+
+from pollyxt_pipelines.console import console
 
 from pollyxt_pipelines.radiosondes.commands import GetRadiosonde
 from pollyxt_pipelines.polly_to_scc.commands import CreateSCC
@@ -57,6 +61,22 @@ def prepare_cli_application() -> Application:
     return application
 
 
+def setup_cli_logging(level: int = logging.INFO):
+    """
+    Show the library's log messages in the terminal, through the `rich` console.
+    Library users configure logging themselves.
+    """
+
+    handler = RichHandler(
+        console=console, show_time=False, show_path=False, markup=False
+    )
+    handler.setFormatter(logging.Formatter("%(message)s"))
+    package_logger = logging.getLogger("pollyxt_pipelines")
+    package_logger.addHandler(handler)
+    package_logger.setLevel(level)
+
+
 def main():
+    setup_cli_logging()
     app = prepare_cli_application()
     app.run()

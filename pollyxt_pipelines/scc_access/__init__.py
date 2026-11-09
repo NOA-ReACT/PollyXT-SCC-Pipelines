@@ -8,6 +8,7 @@ Based on `scc-access` by Iannis Binietoglou <i.binietoglou@impworks.gr>: https:/
 
 from datetime import date
 import contextlib
+import logging
 from typing import Union, List, Tuple
 from pathlib import Path
 import shutil
@@ -15,11 +16,12 @@ import shutil
 import requests
 from bs4 import BeautifulSoup
 
-from pollyxt_pipelines.console import console
 from pollyxt_pipelines.locations import Location
 from pollyxt_pipelines.config import Config
 from pollyxt_pipelines.scc_access import constants, exceptions
 from pollyxt_pipelines.scc_access.types import APIObject, LidarConstant, Measurement
+
+logger = logging.getLogger(__name__)
 
 
 class SCC_Credentials:
@@ -226,12 +228,12 @@ class SCC:
             try:
                 self.download_file(**download)
                 yield download["path"]
-            except Exception as ex:
-                console.print("[error]Error while downloading file from SCC[/error]")
-                console.print(f"[error]URL:[/error] {download['url']}")
-                console.print(f"[error]Path:[/error] {download['path']}")
-                console.print("[error]Exception:[/error]")
-                console.print_exception()
+            except Exception:
+                logger.exception(
+                    "Error while downloading file from SCC (URL: %s, path: %s)",
+                    download["url"],
+                    download["path"],
+                )
                 continue
 
     def get_anchillary(self, file_id: str, file_type: str) -> Union[APIObject, None]:
@@ -298,8 +300,8 @@ class SCC:
         if rs_filename is not None:
             info = self.get_anchillary(rs_filename.name, "sounding")
             if info is not None and info.exists:
-                console.print(
-                    f"[warn]Radiosonde file[/warn] {rs_filename.name} [warn]already exists on SCC.[/warn]"
+                logger.warning(
+                    "Radiosonde file %s already exists on SCC.", rs_filename.name
                 )
             else:
                 files["sounding_file"] = open(rs_filename, "rb")
@@ -307,8 +309,8 @@ class SCC:
         if ov_filename is not None:
             info = self.get_anchillary(ov_filename.name, "overlap")
             if info is not None and info.exists:
-                console.print(
-                    f"[warn]Overlap file[/warn] {ov_filename.name} [warn]already exists on SCC.[/warn]"
+                logger.warning(
+                    "Overlap file %s already exists on SCC.", ov_filename.name
                 )
             else:
                 files["overlap_file"] = open(ov_filename, "rb")
@@ -316,8 +318,8 @@ class SCC:
         if lr_filename is not None:
             info = self.get_anchillary(lr_filename.name, "lidarratio")
             if info is not None and info.exists:
-                console.print(
-                    f"[warn]Lidar ratio file[/warn] {lr_filename.name} [warn]already exists on SCC.[/warn]"
+                logger.warning(
+                    "Lidar ratio file %s already exists on SCC.", lr_filename.name
                 )
             else:
                 files["lidar_ratio_file"] = open(lr_filename, "rb")
