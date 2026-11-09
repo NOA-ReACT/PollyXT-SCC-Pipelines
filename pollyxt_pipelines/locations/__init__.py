@@ -6,11 +6,11 @@ the .ini files are included with the software but custom locations can be define
 """
 
 import io
-import re
 import sys
-from configparser import ConfigParser, SectionProxy
+from configparser import ConfigParser, Error as ConfigParserError, SectionProxy
 from importlib.resources import read_text
-from typing import Dict, List, NamedTuple, Optional, Union
+from pathlib import Path
+from typing import Dict, List, NamedTuple, Optional, Sequence, Union
 
 from rich.markdown import Markdown
 from rich.table import Table
@@ -192,11 +192,60 @@ class Location(NamedTuple):
         }
 
 
+class InvalidLocationError(ValueError):
+    """
+    Raised when a section of a locations file cannot be turned into a `Location`.
+    """
+
+    def __init__(self, path: Optional[Path], section: str, reason: str):
+        self.path = path
+        self.section = section
+        self.reason = reason
+        where = f"{path}, " if path is not None else ""
+        super().__init__(f"Invalid location ({where}section [{section}]): {reason}")
+
+
+REQUIRED_LOCATION_KEYS = (
+    "scc_code",
+    "lat",
+    "lon",
+    "altitude_asl",
+    "daytime_configuration",
+    "nighttime_configuration",
+    "depol_calibration_zero_state",
+    "channel_id",
+    "background_low",
+    "background_high",
+    "lr_input",
+    "temperature",
+    "pressure",
+    "profile_name",
+    "sounding_provider",
+)
+"""Keys that every location section must define"""
+
+
 def location_from_section(name: str, section: SectionProxy) -> Location:
     """
     Create a Location from a ConfigParser Section (SectionProxy)
+
+    Raises:
+        InvalidLocationError: A required key is missing or a value cannot be parsed.
     """
 
+    missing = [key for key in REQUIRED_LOCATION_KEYS if not section.get(key)]
+    if missing:
+        raise InvalidLocationError(
+            None, name, f"missing required key(s): {', '.join(missing)}"
+        )
+
+    try:
+        return _location_from_section(name, section)
+    except (ValueError, TypeError, AttributeError, KeyError) as ex:
+        raise InvalidLocationError(None, name, str(ex)) from ex
+
+
+def _location_from_section(name: str, section: SectionProxy) -> Location:
     channel_id = parse_into_string_or_integer_list(section.get("channel_id"))
     background_low = [int(x.strip()) for x in section.get("background_low").split(",")]
     background_high = [
@@ -270,48 +319,99 @@ def location_from_section(name: str, section: SectionProxy) -> Location:
     )
 
 
-def read_locations() -> Dict[str, Location]:
-    """
-    Reads all built-in and custom locations into a dictionary: name -> Location
-    """
-
+def _locations_from_parser(
+    parser: ConfigParser, path: Optional[Path]
+) -> Dict[str, Location]:
     locations = {}
-
-    # Read built-in locations
-    locations_buffer = io.StringIO(
-        read_text("pollyxt_pipelines.locations", "locations.ini")
-    )
-    locations_config = ConfigParser()
-    locations_config.read_file(locations_buffer)
-
-    for name in locations_config.sections():
-        section = locations_config[name]
-        locations[name] = location_from_section(name, section)
-
-    # Read custom locations
-    location_paths = [path / "locations.ini" for path in config.config_paths()]
-    locations_config = ConfigParser()
-    locations_config.read(location_paths)
-
-    for name in locations_config.sections():
-        section = locations_config[name]
+    for name in parser.sections():
         try:
-            locations[name] = location_from_section(name, section)
-        except Exception:
-            console.print(
-                f"Could not load locations from config file, problem occured in section [{name}]."
-            )
-            console.print("Check the following files:")
-            for path in location_paths:
-                if path.is_file():
-                    console.print(f"\t-{path}")
-            sys.exit(1)
+            locations[name] = location_from_section(name, parser[name])
+        except InvalidLocationError as ex:
+            raise InvalidLocationError(path, ex.section, ex.reason) from ex
+    return locations
+
+
+def read_locations_file(path: Path) -> Dict[str, Location]:
+    """
+    Reads the locations defined in one `.ini` file, and only that file.
+
+    Parameters:
+        path: The locations file
+
+    Returns:
+        A dictionary of location name to `Location`
+
+    Raises:
+        FileNotFoundError: The file does not exist
+        InvalidLocationError: A section is not a valid location. Sections are never skipped.
+    """
+
+    path = Path(path)
+    parser = ConfigParser()
+    try:
+        with open(path, "r") as file:
+            parser.read_file(file)
+    except ConfigParserError as ex:
+        raise InvalidLocationError(path, "?", f"could not parse file: {ex}") from ex
+
+    return _locations_from_parser(parser, path)
+
+
+def _builtin_locations() -> Dict[str, Location]:
+    parser = ConfigParser()
+    parser.read_file(
+        io.StringIO(read_text("pollyxt_pipelines.locations", "locations.ini"))
+    )
+    return _locations_from_parser(parser, Path("<built-in locations.ini>"))
+
+
+def _config_locations() -> Dict[str, Location]:
+    # The config files are read together, so a later file can override single keys
+    # of a section from an earlier one.
+    paths = [path / "locations.ini" for path in config.config_paths()]
+    existing = [path for path in paths if path.is_file()]
+    parser = ConfigParser()
+    parser.read(existing)
+    return _locations_from_parser(parser, existing[-1] if len(existing) == 1 else None)
+
+
+def read_locations(extra_paths: Sequence[Path] = ()) -> Dict[str, Location]:
+    """
+    Reads all known locations into a dictionary: name -> Location
+
+    The sources are read in this order, and a later definition of a location replaces an
+    earlier one:
+
+    1. The built-in `locations.ini`
+    2. `locations.ini` in each config directory (see `config.config_paths()`)
+    3. Each file in `extra_paths`, in order. These must exist.
+
+    Raises:
+        InvalidLocationError: Any section in any of the files is not a valid location
+    """
+
+    locations = _builtin_locations()
+    locations.update(_config_locations())
+    for path in extra_paths:
+        locations.update(read_locations_file(path))
 
     return locations
 
 
-LOCATIONS = read_locations()
-"""List of all known locations"""
+def _read_cli_locations() -> Dict[str, Location]:
+    try:
+        return read_locations()
+    except InvalidLocationError as ex:
+        console.print(f"Could not load locations: {ex}")
+        console.print("Check the following files:")
+        for path in config.config_paths():
+            if (path / "locations.ini").is_file():
+                console.print(f"\t-{path / 'locations.ini'}")
+        sys.exit(1)
+
+
+LOCATIONS = _read_cli_locations()
+"""All known locations (built-in and config directories), read at import. Used by the CLI."""
 
 
 def get_location_by_scc_code(code: str) -> Union[Location, None]:

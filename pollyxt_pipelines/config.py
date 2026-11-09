@@ -3,6 +3,8 @@ Helper functions and command for the app's config
 Import the `Config` function to use it.
 """
 
+import logging
+import os
 import os.path
 from configparser import ConfigParser
 from pathlib import Path
@@ -13,13 +15,25 @@ from cleo import Command
 
 from pollyxt_pipelines.console import console
 
+logger = logging.getLogger(__name__)
 
-def config_paths() -> List[str]:
+CONFIG_DIR_ENV_VAR = "POLLYXT_PIPELINES_CONFIG_DIR"
+"""If this environment variable is set, it is used as the only config directory"""
+
+
+def config_paths() -> List[Path]:
     """
     Returns the config directory paths for each platform.
     The last one returned is the user config path and should be
     used for writing.
+
+    If the `POLLYXT_PIPELINES_CONFIG_DIR` environment variable is set, it is the only
+    path returned. Use it to keep the config somewhere writable, e.g. in a container.
     """
+
+    override = os.environ.get(CONFIG_DIR_ENV_VAR)
+    if override:
+        return [Path(override).expanduser()]
 
     os_name = platform.system()
     if os_name == "Windows":
@@ -31,7 +45,7 @@ def config_paths() -> List[str]:
             Path("~/.config/pollyxt_pipelines/").expanduser(),
         ]
     else:
-        print("Unknown operating system! Using `./` as config directory!")
+        logger.warning("Unknown operating system! Using `./` as config directory!")
         paths = [Path("./").expanduser()]
     return paths
 
