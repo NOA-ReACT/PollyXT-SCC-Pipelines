@@ -1,5 +1,7 @@
 """Exceptions that might occur while working with SCC"""
 
+from typing import Optional
+
 
 class PageNotAccessible(Exception):
     """
@@ -44,7 +46,7 @@ class MeasurementNotFound(Exception):
 class UnexpectedResponse(Exception):
     """Raised when the response is not OK and we don't have a concrete reason for it"""
 
-    def __init__(self, message: str, body: str | None = None) -> None:
+    def __init__(self, message: str, body: Optional[str] = None) -> None:
         super().__init__(message)
         self.message = message
         self.body = body
