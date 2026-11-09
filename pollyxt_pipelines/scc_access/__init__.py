@@ -12,6 +12,7 @@ import logging
 from typing import Union, List, Tuple
 from pathlib import Path
 import shutil
+import time
 
 import requests
 from bs4 import BeautifulSoup
@@ -365,11 +366,17 @@ class SCC:
         """
         Fetches information about one measurement from SCC.
 
+        This is also the way to check whether a measurement is already uploaded: a missing
+        measurement returns `None` (it is not an error). This is part of the API.
+
         Parameters:
             measurement_id: Which measurement to lookup
 
         Returns:
             The measurement if it exists, None otherwise
+
+        Raises:
+            UnexpectedResponse: SCC answered with an error other than "not found"
         """
 
         url = constants.api_measurement_pattern.format(measurement_id)
@@ -386,6 +393,58 @@ class SCC:
             return Measurement.from_json(response_body)
         else:
             raise exceptions.UnexpectedResponse()
+
+    PRODUCTS = ("hirelpp", "cloudmask", "elpp", "elda", "eldec", "elic", "elquick")
+    """Product names accepted by `wait_for_product`"""
+
+    def wait_for_product(
+        self,
+        measurement_id: str,
+        product: str = "eldec",
+        timeout: float = 300,
+        poll: float = 30,
+    ) -> Measurement:
+        """
+        Wait until SCC is no longer working on a measurement, and return it so the caller
+        can check the product's final status.
+
+        While the measurement is queued or being processed, this keeps waiting and the time
+        does not count towards `timeout`. Time while the measurement isn't visible on SCC
+        yet does count.
+
+        Parameters:
+            measurement_id: The measurement to wait for
+            product: Which product the caller is interested in, one of `SCC.PRODUCTS`
+            timeout: Seconds to wait, not counting time in the queue or in processing
+            poll: Seconds between checks
+
+        Returns:
+            The measurement, once it is neither queued nor processing. Check
+            `getattr(measurement, product).status` for the result (e.g.
+            `ProductStatus.OK`).
+
+        Raises:
+            ValueError: Unknown product
+            TimeoutError: The measurement did not appear on SCC within `timeout`
+        """
+
+        if product not in self.PRODUCTS:
+            raise ValueError(f"Unknown product {product!r}, use one of {self.PRODUCTS}")
+
+        waited = 0.0
+        while True:
+            measurement = self.get_measurement(measurement_id)
+            if measurement is not None:
+                if not measurement.is_queued and not measurement.is_processing:
+                    return measurement
+            else:
+                if waited >= timeout:
+                    raise TimeoutError(
+                        f"Measurement {measurement_id} did not appear on SCC within {timeout} s"
+                    )
+                waited += poll
+
+            time.sleep(poll)
 
     def delete_measurement(self, measurement_id: str):
         """
