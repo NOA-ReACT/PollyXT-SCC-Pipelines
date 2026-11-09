@@ -200,6 +200,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../search-scc.html">Searching and downloading historic data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../manage-scc.html">Manage SCC Measurements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../network-api.html">Network API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../library-api.html">Using as a library</a></li>
 </ul>
 
 </div>
@@ -241,11 +242,11 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">configparser</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigParser</span><span class="p">,</span> <span class="n">SectionProxy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">configparser</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigParser</span><span class="p">,</span> <span class="n">Error</span> <span class="k">as</span> <span class="n">ConfigParserError</span><span class="p">,</span> <span class="n">SectionProxy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_text</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">rich.markdown</span><span class="w"> </span><span class="kn">import</span> <span class="n">Markdown</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">rich.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">Table</span>
@@ -436,13 +437,66 @@
 
 
 
+<div class="viewcode-block" id="InvalidLocationError">
+<a class="viewcode-back" href="../../locations.html#pollyxt_pipelines.locations.InvalidLocationError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">InvalidLocationError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Raised when a section of a locations file cannot be turned into a `Location`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">],</span> <span class="n">section</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">reason</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">section</span> <span class="o">=</span> <span class="n">section</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reason</span> <span class="o">=</span> <span class="n">reason</span>
+        <span class="n">where</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">, &quot;</span> <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid location (</span><span class="si">{</span><span class="n">where</span><span class="si">}</span><span class="s2">section [</span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s2">]): </span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="n">REQUIRED_LOCATION_KEYS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;scc_code&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lat&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lon&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;altitude_asl&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;daytime_configuration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nighttime_configuration&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;depol_calibration_zero_state&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;channel_id&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;background_low&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;background_high&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lr_input&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;temperature&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pressure&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;profile_name&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sounding_provider&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;Keys that every location section must define&quot;&quot;&quot;</span>
+
+
 <div class="viewcode-block" id="location_from_section">
 <a class="viewcode-back" href="../../locations.html#pollyxt_pipelines.locations.location_from_section">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">location_from_section</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">section</span><span class="p">:</span> <span class="n">SectionProxy</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Location</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a Location from a ConfigParser Section (SectionProxy)</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        InvalidLocationError: A required key is missing or a value cannot be parsed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">REQUIRED_LOCATION_KEYS</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">InvalidLocationError</span><span class="p">(</span>
+            <span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;missing required key(s): </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_location_from_section</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">section</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">InvalidLocationError</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">))</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_location_from_section</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">section</span><span class="p">:</span> <span class="n">SectionProxy</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Location</span><span class="p">:</span>
     <span class="n">channel_id</span> <span class="o">=</span> <span class="n">parse_into_string_or_integer_list</span><span class="p">(</span><span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;channel_id&quot;</span><span class="p">))</span>
     <span class="n">background_low</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;background_low&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
     <span class="n">background_high</span> <span class="o">=</span> <span class="p">[</span>
@@ -513,55 +567,108 @@
         <span class="n">profile_name</span><span class="o">=</span><span class="n">section</span><span class="p">[</span><span class="s2">&quot;profile_name&quot;</span><span class="p">],</span>
         <span class="n">sunrise_time</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sunrise_time&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">),</span>
         <span class="n">sunset_time</span><span class="o">=</span><span class="n">section</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sunset_time&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">),</span>
-    <span class="p">)</span></div>
+    <span class="p">)</span>
 
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_locations_from_parser</span><span class="p">(</span>
+    <span class="n">parser</span><span class="p">:</span> <span class="n">ConfigParser</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Location</span><span class="p">]:</span>
+    <span class="n">locations</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">parser</span><span class="o">.</span><span class="n">sections</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">locations</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">location_from_section</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">parser</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+        <span class="k">except</span> <span class="n">InvalidLocationError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InvalidLocationError</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">ex</span><span class="o">.</span><span class="n">section</span><span class="p">,</span> <span class="n">ex</span><span class="o">.</span><span class="n">reason</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span>
+    <span class="k">return</span> <span class="n">locations</span>
+
+
+<div class="viewcode-block" id="read_locations_file">
+<a class="viewcode-back" href="../../locations.html#pollyxt_pipelines.locations.read_locations_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_locations_file</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Location</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reads the locations defined in one `.ini` file, and only that file.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        path: The locations file</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A dictionary of location name to `Location`</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        FileNotFoundError: The file does not exist</span>
+<span class="sd">        InvalidLocationError: A section is not a valid location. Sections are never skipped.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">ConfigParserError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">InvalidLocationError</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;could not parse file: </span><span class="si">{</span><span class="n">ex</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ex</span>
+
+    <span class="k">return</span> <span class="n">_locations_from_parser</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_builtin_locations</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Location</span><span class="p">]:</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span>
+        <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">(</span><span class="n">read_text</span><span class="p">(</span><span class="s2">&quot;pollyxt_pipelines.locations&quot;</span><span class="p">,</span> <span class="s2">&quot;locations.ini&quot;</span><span class="p">))</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_locations_from_parser</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;&lt;built-in locations.ini&gt;&quot;</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_config_locations</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Location</span><span class="p">]:</span>
+    <span class="c1"># The config files are read together, so a later file can override single keys</span>
+    <span class="c1"># of a section from an earlier one.</span>
+    <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;locations.ini&quot;</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">config_paths</span><span class="p">()]</span>
+    <span class="n">existing</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span> <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">()]</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">existing</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_locations_from_parser</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">existing</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">existing</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="read_locations">
 <a class="viewcode-back" href="../../locations.html#pollyxt_pipelines.locations.read_locations">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">read_locations</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Location</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_locations</span><span class="p">(</span><span class="n">extra_paths</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="p">())</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Location</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Reads all built-in and custom locations into a dictionary: name -&gt; Location</span>
+<span class="sd">    Reads all known locations into a dictionary: name -&gt; Location</span>
+
+<span class="sd">    The sources are read in this order, and a later definition of a location replaces an</span>
+<span class="sd">    earlier one:</span>
+
+<span class="sd">    1. The built-in `locations.ini`</span>
+<span class="sd">    2. `locations.ini` in each config directory (see `config.config_paths()`)</span>
+<span class="sd">    3. Each file in `extra_paths`, in order. These must exist.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        InvalidLocationError: Any section in any of the files is not a valid location</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">locations</span> <span class="o">=</span> <span class="p">{}</span>
-
-    <span class="c1"># Read built-in locations</span>
-    <span class="n">locations_buffer</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">(</span>
-        <span class="n">read_text</span><span class="p">(</span><span class="s2">&quot;pollyxt_pipelines.locations&quot;</span><span class="p">,</span> <span class="s2">&quot;locations.ini&quot;</span><span class="p">)</span>
-    <span class="p">)</span>
-    <span class="n">locations_config</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="p">()</span>
-    <span class="n">locations_config</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">locations_buffer</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">locations_config</span><span class="o">.</span><span class="n">sections</span><span class="p">():</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="n">locations_config</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-        <span class="n">locations</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">location_from_section</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">section</span><span class="p">)</span>
-
-    <span class="c1"># Read custom locations</span>
-    <span class="n">location_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;locations.ini&quot;</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">config_paths</span><span class="p">()]</span>
-    <span class="n">locations_config</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="p">()</span>
-    <span class="n">locations_config</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">location_paths</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">locations_config</span><span class="o">.</span><span class="n">sections</span><span class="p">():</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="n">locations_config</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">locations</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">location_from_section</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">section</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Could not load locations from config file, problem occured in section [</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">].&quot;</span>
-            <span class="p">)</span>
-            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;Check the following files:&quot;</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">location_paths</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
-                    <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">-</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">locations</span> <span class="o">=</span> <span class="n">_builtin_locations</span><span class="p">()</span>
+    <span class="n">locations</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_config_locations</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">extra_paths</span><span class="p">:</span>
+        <span class="n">locations</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">read_locations_file</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">locations</span></div>
 
 
 
-<span class="n">LOCATIONS</span> <span class="o">=</span> <span class="n">read_locations</span><span class="p">()</span>
-<span class="sd">&quot;&quot;&quot;List of all known locations&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_cli_locations</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Location</span><span class="p">]:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">read_locations</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">InvalidLocationError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not load locations: </span><span class="si">{</span><span class="n">ex</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;Check the following files:&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">config_paths</span><span class="p">():</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;locations.ini&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">-</span><span class="si">{</span><span class="n">path</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s1">&#39;locations.ini&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="n">LOCATIONS</span> <span class="o">=</span> <span class="n">_read_cli_locations</span><span class="p">()</span>
+<span class="sd">&quot;&quot;&quot;All known locations (built-in and config directories), read at import. Used by the CLI.&quot;&quot;&quot;</span>
 
 
 <div class="viewcode-block" id="get_location_by_scc_code">

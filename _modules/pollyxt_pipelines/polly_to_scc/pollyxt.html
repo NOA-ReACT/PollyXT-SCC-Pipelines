@@ -200,6 +200,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../search-scc.html">Searching and downloading historic data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../manage-scc.html">Manage SCC Measurements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../network-api.html">Network API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../library-api.html">Using as a library</a></li>
 </ul>
 
 </div>
@@ -456,22 +457,30 @@
 
 <div class="viewcode-block" id="PollyXTRepository.get_pollyxt_file">
 <a class="viewcode-back" href="../../../convert-scc.html#pollyxt_pipelines.polly_to_scc.pollyxt.PollyXTRepository.get_pollyxt_file">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_pollyxt_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_start</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">time_end</span><span class="p">:</span> <span class="n">datetime</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_pollyxt_file</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">time_start</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">time_end</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">include_end</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a PollyXTFile for the given time range.</span>
 
 <span class="sd">        Parameters:</span>
-<span class="sd">            time_start: First measurement to include</span>
-<span class="sd">            time_end: Last measurement to include</span>
+<span class="sd">            time_start: First measurement to include (naive UTC)</span>
+<span class="sd">            time_end: Last measurement to include (naive UTC)</span>
+<span class="sd">            include_end: If False, a measurement exactly at `time_end` is left out.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The PollyXTFile file for the requested period.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            NoMeasurementsInTimePeriod: There are no measurements in the period</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Filter index for given time range</span>
-        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="s2">&quot;timestamp&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">time_start</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="s2">&quot;timestamp&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">time_end</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">include_end</span><span class="p">:</span>
+            <span class="n">end_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="s2">&quot;timestamp&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">time_end</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">end_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="s2">&quot;timestamp&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">time_end</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="s2">&quot;timestamp&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">time_start</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">end_mask</span>
         <span class="n">targets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">targets</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">NoMeasurementsInTimePeriod</span><span class="p">()</span>

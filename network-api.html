@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="prev" title="Manage SCC Measurements" href="manage-scc.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Using as a library" href="library-api.html"><link rel="prev" title="Manage SCC Measurements" href="manage-scc.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
         <title>Network API - PollyXT-Pipelines documentation</title>
@@ -201,6 +201,7 @@
 <li class="toctree-l1"><a class="reference internal" href="search-scc.html">Searching and downloading historic data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="manage-scc.html">Manage SCC Measurements</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Network API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library-api.html">Using as a library</a></li>
 </ul>
 
 </div>
@@ -284,6 +285,12 @@ you should call <code class="code docutils literal notranslate"><span class="pre
 <p>Represents a session with SCC.
 Before making any calls, the user should login using <a class="reference internal" href="#pollyxt_pipelines.scc_access.SCC.login" title="pollyxt_pipelines.scc_access.SCC.login"><code class="xref py py-obj docutils literal notranslate"><span class="pre">login()</span></code></a>!</p>
 <p>It’s recommended to use the <a class="reference internal" href="#pollyxt_pipelines.scc_access.scc_session" title="pollyxt_pipelines.scc_access.scc_session"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scc_session()</span></code></a> context manager, which handles logging in and out.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pollyxt_pipelines.scc_access.SCC.PRODUCTS">
+<span class="sig-name descname"><span class="pre">PRODUCTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('hirelpp',</span> <span class="pre">'cloudmask',</span> <span class="pre">'elpp',</span> <span class="pre">'elda',</span> <span class="pre">'eldec',</span> <span class="pre">'elic',</span> <span class="pre">'elquick')</span></em><a class="headerlink" href="#pollyxt_pipelines.scc_access.SCC.PRODUCTS" title="Link to this definition">¶</a></dt>
+<dd><p>Product names accepted by <a class="reference internal" href="#pollyxt_pipelines.scc_access.SCC.wait_for_product" title="pollyxt_pipelines.scc_access.SCC.wait_for_product"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wait_for_product</span></code></a></p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="pollyxt_pipelines.scc_access.SCC.delete_measurement">
 <span class="sig-name descname"><span class="pre">delete_measurement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measurement_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access.html#SCC.delete_measurement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.SCC.delete_measurement" title="Link to this definition">¶</a></dt>
@@ -375,6 +382,8 @@ This function is a generator, yielding the filename of each downloaded file.</p>
 <dt class="sig sig-object py" id="pollyxt_pipelines.scc_access.SCC.get_measurement">
 <span class="sig-name descname"><span class="pre">get_measurement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measurement_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access.html#SCC.get_measurement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.SCC.get_measurement" title="Link to this definition">¶</a></dt>
 <dd><p>Fetches information about one measurement from SCC.</p>
+<p>This is also the way to check whether a measurement is already uploaded: a missing
+measurement returns <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code> (it is not an error). This is part of the API.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>measurement_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Which measurement to lookup</p>
@@ -384,6 +393,9 @@ This function is a generator, yielding the filename of each downloaded file.</p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The measurement if it exists, None otherwise</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pollyxt_pipelines.scc_access.exceptions.UnexpectedResponse" title="pollyxt_pipelines.scc_access.exceptions.UnexpectedResponse"><strong>UnexpectedResponse</strong></a> – SCC answered with an error other than “not found”</p>
 </dd>
 </dl>
 </dd></dl>
@@ -448,6 +460,40 @@ throw for potential errors.</p>
 <li><p><strong>rs_filename</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>]</span>) – Path to the radiosonde netCDF file</p></li>
 <li><p><strong>ov_filename</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>]</span>) – Path to the overlap netCDF file</p></li>
 <li><p><strong>lr_filename</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>]</span>) – Path to the lidar ratio netCDF file</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pollyxt_pipelines.scc_access.SCC.wait_for_product">
+<span class="sig-name descname"><span class="pre">wait_for_product</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">measurement_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eldec'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poll</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pollyxt_pipelines/scc_access.html#SCC.wait_for_product"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pollyxt_pipelines.scc_access.SCC.wait_for_product" title="Link to this definition">¶</a></dt>
+<dd><p>Wait until SCC is no longer working on a measurement, and return it so the caller
+can check the product’s final status.</p>
+<p>While the measurement is queued or being processed, this keeps waiting and the time
+does not count towards <code class="xref py py-obj docutils literal notranslate"><span class="pre">timeout</span></code>. Time while the measurement isn’t visible on SCC
+yet does count.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>measurement_id</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – The measurement to wait for</p></li>
+<li><p><strong>product</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Which product the caller is interested in, one of <a class="reference internal" href="#pollyxt_pipelines.scc_access.SCC.PRODUCTS" title="pollyxt_pipelines.scc_access.SCC.PRODUCTS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SCC.PRODUCTS</span></code></a></p></li>
+<li><p><strong>timeout</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Seconds to wait, not counting time in the queue or in processing</p></li>
+<li><p><strong>poll</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Seconds between checks</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#pollyxt_pipelines.scc_access.types.Measurement" title="pollyxt_pipelines.scc_access.types.Measurement"><code class="xref py py-class docutils literal notranslate"><span class="pre">Measurement</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The measurement, once it is neither queued nor processing. Check
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">getattr(measurement,</span> <span class="pre">product).status</span></code> for the result (e.g.
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">ProductStatus.OK</span></code>).</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – Unknown product</p></li>
+<li><p><strong>TimeoutError</strong> – The measurement did not appear on SCC within <code class="xref py py-obj docutils literal notranslate"><span class="pre">timeout</span></code></p></li>
 </ul>
 </dd>
 </dl>
@@ -607,7 +653,15 @@ Table rows are formatted like in <a class="reference external" href="https://scc
       <footer>
         
         <div class="related-pages">
-          
+          <a class="next-page" href="library-api.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Using as a library</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
           <a class="prev-page" href="manage-scc.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
@@ -652,6 +706,7 @@ Table rows are formatted like in <a class="reference external" href="https://scc
 <li><a class="reference internal" href="#">Network API</a><ul>
 <li><a class="reference internal" href="#module-pollyxt_pipelines.scc_access">API</a><ul>
 <li><a class="reference internal" href="#pollyxt_pipelines.scc_access.SCC"><code class="docutils literal notranslate"><span class="pre">SCC</span></code></a><ul>
+<li><a class="reference internal" href="#pollyxt_pipelines.scc_access.SCC.PRODUCTS"><code class="docutils literal notranslate"><span class="pre">SCC.PRODUCTS</span></code></a></li>
 <li><a class="reference internal" href="#pollyxt_pipelines.scc_access.SCC.delete_measurement"><code class="docutils literal notranslate"><span class="pre">SCC.delete_measurement()</span></code></a></li>
 <li><a class="reference internal" href="#pollyxt_pipelines.scc_access.SCC.download_file"><code class="docutils literal notranslate"><span class="pre">SCC.download_file()</span></code></a></li>
 <li><a class="reference internal" href="#pollyxt_pipelines.scc_access.SCC.download_products"><code class="docutils literal notranslate"><span class="pre">SCC.download_products()</span></code></a></li>
@@ -663,6 +718,7 @@ Table rows are formatted like in <a class="reference external" href="https://scc
 <li><a class="reference internal" href="#pollyxt_pipelines.scc_access.SCC.query_measurements"><code class="docutils literal notranslate"><span class="pre">SCC.query_measurements()</span></code></a></li>
 <li><a class="reference internal" href="#pollyxt_pipelines.scc_access.SCC.rerun_processing"><code class="docutils literal notranslate"><span class="pre">SCC.rerun_processing()</span></code></a></li>
 <li><a class="reference internal" href="#pollyxt_pipelines.scc_access.SCC.upload_file"><code class="docutils literal notranslate"><span class="pre">SCC.upload_file()</span></code></a></li>
+<li><a class="reference internal" href="#pollyxt_pipelines.scc_access.SCC.wait_for_product"><code class="docutils literal notranslate"><span class="pre">SCC.wait_for_product()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#pollyxt_pipelines.scc_access.SCC_Credentials"><code class="docutils literal notranslate"><span class="pre">SCC_Credentials</span></code></a></li>

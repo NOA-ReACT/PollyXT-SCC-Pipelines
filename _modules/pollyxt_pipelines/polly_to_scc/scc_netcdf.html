@@ -200,6 +200,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../search-scc.html">Searching and downloading historic data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../manage-scc.html">Manage SCC Measurements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../network-api.html">Network API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../library-api.html">Using as a library</a></li>
 </ul>
 
 </div>
@@ -237,15 +238,15 @@
 <span class="sd">Routines for converting PollyXT files to SCC files</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">netCDF4</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">astral</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocationInfo</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">astral.sun</span><span class="w"> </span><span class="kn">import</span> <span class="n">sunrise</span><span class="p">,</span> <span class="n">sunset</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pollyxt_pipelines</span><span class="w"> </span><span class="kn">import</span> <span class="n">sun</span><span class="p">,</span> <span class="n">utils</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pollyxt_pipelines.locations</span><span class="w"> </span><span class="kn">import</span> <span class="n">Location</span>
@@ -255,6 +256,161 @@
     <span class="n">NoMeasurementsInTimePeriod</span><span class="p">,</span>
     <span class="n">TimeOutsideFile</span><span class="p">,</span>
 <span class="p">)</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="SCCFile">
+<a class="viewcode-back" href="../../../convert-scc.html#pollyxt_pipelines.polly_to_scc.scc_netcdf.SCCFile">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SCCFile</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    One SCC netCDF file produced by a conversion.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">kind</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;calibration&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Whether this is a measurement (data) file or a depolarization calibration file&quot;&quot;&quot;</span>
+
+    <span class="n">measurement_id</span><span class="p">:</span> <span class="nb">str</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;SCC measurement ID, as written in the file&#39;s `Measurement_ID` attribute&quot;&quot;&quot;</span>
+
+    <span class="n">path</span><span class="p">:</span> <span class="n">Path</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Where the file was written&quot;&quot;&quot;</span>
+
+    <span class="n">start</span><span class="p">:</span> <span class="n">datetime</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Time of the first measurement in the file (timezone-aware, UTC)&quot;&quot;&quot;</span>
+
+    <span class="n">end</span><span class="p">:</span> <span class="n">datetime</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Time of the last measurement in the file (timezone-aware, UTC). This is the start</span>
+<span class="sd">    of the last 30 s profile, so a full hour of data spans 59.5 minutes.&quot;&quot;&quot;</span>
+
+    <span class="n">configuration_id</span><span class="p">:</span> <span class="nb">int</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;SCC lidar configuration (system) ID to upload the file with&quot;&quot;&quot;</span>
+
+    <span class="n">wavelength</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Wavelength</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calibration files only: the calibrated wavelength&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="WindowConversion">
+<a class="viewcode-back" href="../../../convert-scc.html#pollyxt_pipelines.polly_to_scc.scc_netcdf.WindowConversion">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WindowConversion</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The result of converting one time window with `convert_window`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SCCFile</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The data file, or None if the window has no (non-calibration) measurements&quot;&quot;&quot;</span>
+
+    <span class="n">calibrations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SCCFile</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calibration files for the calibration periods that start in the window&quot;&quot;&quot;</span>
+
+    <span class="n">skipped</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Human-readable reasons for calibration files that were not made&quot;&quot;&quot;</span></div>
+
+
+
+<span class="n">CALIBRATION_ID_SUFFIX</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_355</span><span class="p">:</span> <span class="s2">&quot;35&quot;</span><span class="p">,</span>
+    <span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_532</span><span class="p">:</span> <span class="s2">&quot;53&quot;</span><span class="p">,</span>
+    <span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_1064</span><span class="p">:</span> <span class="s2">&quot;10&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="sd">&quot;&quot;&quot;Suffix appended to the calibration measurement ID, per wavelength&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="data_measurement_id">
+<a class="viewcode-back" href="../../../convert-scc.html#pollyxt_pipelines.polly_to_scc.scc_netcdf.data_measurement_id">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">data_measurement_id</span><span class="p">(</span><span class="n">location</span><span class="p">:</span> <span class="n">Location</span><span class="p">,</span> <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Measurement ID of a data file: `YYYYMMDD{scc_code}HHMM`, from the time of its first</span>
+<span class="sd">    measurement.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">start_date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;%Y%m%d</span><span class="si">{</span><span class="n">location</span><span class="o">.</span><span class="n">scc_code</span><span class="si">}</span><span class="s2">%H%M&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="calibration_measurement_id">
+<a class="viewcode-back" href="../../../convert-scc.html#pollyxt_pipelines.polly_to_scc.scc_netcdf.calibration_measurement_id">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calibration_measurement_id</span><span class="p">(</span>
+    <span class="n">location</span><span class="p">:</span> <span class="n">Location</span><span class="p">,</span> <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">:</span> <span class="n">Wavelength</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Measurement ID of a calibration file: `YYYYMMDD{scc_code}HH` followed by `35`, `53` or</span>
+<span class="sd">    `10` for 355, 532 or 1064 nm, from the start of the calibration period.</span>
+
+<span class="sd">    Note that this can coincide with a data file&#39;s ID (e.g. a data file starting at HH:35).</span>
+<span class="sd">    The scheme is kept as it is on purpose.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">wavelength</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">CALIBRATION_ID_SUFFIX</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown wavelength </span><span class="si">{</span><span class="n">wavelength</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">start_date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;%Y%m%d</span><span class="si">{</span><span class="n">location</span><span class="o">.</span><span class="n">scc_code</span><span class="si">}</span><span class="s2">%H&quot;</span><span class="p">)</span>
+        <span class="o">+</span> <span class="n">CALIBRATION_ID_SUFFIX</span><span class="p">[</span><span class="n">wavelength</span><span class="p">]</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="calibration_configuration_id">
+<a class="viewcode-back" href="../../../convert-scc.html#pollyxt_pipelines.polly_to_scc.scc_netcdf.calibration_configuration_id">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calibration_configuration_id</span><span class="p">(</span>
+    <span class="n">location</span><span class="p">:</span> <span class="n">Location</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">:</span> <span class="n">Wavelength</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;SCC configuration ID for calibration files of the given wavelength&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">wavelength</span> <span class="o">==</span> <span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_355</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">location</span><span class="o">.</span><span class="n">calibration_configuration_355nm</span>
+    <span class="k">if</span> <span class="n">wavelength</span> <span class="o">==</span> <span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_532</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">location</span><span class="o">.</span><span class="n">calibration_configuration_532nm</span>
+    <span class="k">if</span> <span class="n">wavelength</span> <span class="o">==</span> <span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_1064</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">location</span><span class="o">.</span><span class="n">calibration_configuration_1064nm</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown wavelength </span><span class="si">{</span><span class="n">wavelength</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="day_night_configuration">
+<a class="viewcode-back" href="../../../convert-scc.html#pollyxt_pipelines.polly_to_scc.scc_netcdf.day_night_configuration">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">day_night_configuration</span><span class="p">(</span>
+    <span class="n">location</span><span class="p">:</span> <span class="n">Location</span><span class="p">,</span> <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Decide whether a data file starting at `start_date` uses the day or night configuration.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A tuple of (configuration ID, is daytime, sunrise time, sunset time). The sunrise and</span>
+<span class="sd">        sunset times are None when the sun doesn&#39;t rise or set that day.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">suninfo</span> <span class="o">=</span> <span class="n">sun</span><span class="o">.</span><span class="n">get_sun_times</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">start_date</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[0-2]\d:[0-5]\d&quot;</span><span class="p">,</span> <span class="n">location</span><span class="o">.</span><span class="n">sunrise_time</span><span class="p">):</span>
+        <span class="n">hh</span><span class="p">,</span> <span class="n">mm</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">sunrise_time</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+        <span class="n">sunrise_time</span> <span class="o">=</span> <span class="n">start_date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">hour</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">hh</span><span class="p">),</span> <span class="n">minute</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">mm</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">suninfo</span><span class="o">.</span><span class="n">sunrise_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">sunrise_time</span> <span class="o">=</span> <span class="n">suninfo</span><span class="o">.</span><span class="n">sunrise_time</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[+-]\d+&quot;</span><span class="p">,</span> <span class="n">location</span><span class="o">.</span><span class="n">sunrise_time</span><span class="p">):</span>
+            <span class="n">sunrise_time</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">location</span><span class="o">.</span><span class="n">sunrise_time</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sunrise_time</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[0-2]\d:[0-5]\d&quot;</span><span class="p">,</span> <span class="n">location</span><span class="o">.</span><span class="n">sunset_time</span><span class="p">):</span>
+        <span class="n">hh</span><span class="p">,</span> <span class="n">mm</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">sunset_time</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+        <span class="n">sunset_time</span> <span class="o">=</span> <span class="n">start_date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">hour</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">hh</span><span class="p">),</span> <span class="n">minute</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">mm</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">suninfo</span><span class="o">.</span><span class="n">sunset_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">sunset_time</span> <span class="o">=</span> <span class="n">suninfo</span><span class="o">.</span><span class="n">sunset_time</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[+-]\d+&quot;</span><span class="p">,</span> <span class="n">location</span><span class="o">.</span><span class="n">sunset_time</span><span class="p">):</span>
+            <span class="n">sunset_time</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">location</span><span class="o">.</span><span class="n">sunset_time</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sunset_time</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">is_daytime</span> <span class="o">=</span> <span class="n">suninfo</span><span class="o">.</span><span class="n">always_up</span> <span class="ow">or</span> <span class="p">(</span>
+        <span class="n">sunrise_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="ow">and</span> <span class="n">sunset_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="ow">and</span> <span class="n">sunrise_time</span> <span class="o">&lt;</span> <span class="n">start_date</span> <span class="o">&lt;</span> <span class="n">sunset_time</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">is_daytime</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">location</span><span class="o">.</span><span class="n">daytime_configuration</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">sunrise_time</span><span class="p">,</span> <span class="n">sunset_time</span>
+    <span class="k">return</span> <span class="n">location</span><span class="o">.</span><span class="n">nighttime_configuration</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">sunrise_time</span><span class="p">,</span> <span class="n">sunset_time</span></div>
+
 
 
 <div class="viewcode-block" id="create_scc_netcdf">
@@ -284,7 +440,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Calculate measurement ID</span>
-    <span class="n">measurement_id</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">start_date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;%Y%m%d</span><span class="si">{</span><span class="n">location</span><span class="o">.</span><span class="n">scc_code</span><span class="si">}</span><span class="s2">%H%M&quot;</span><span class="p">)</span>
+    <span class="n">measurement_id</span> <span class="o">=</span> <span class="n">data_measurement_id</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">start_date</span><span class="p">)</span>
 
     <span class="c1"># Create SCC file</span>
     <span class="c1"># Output filename is always the measurement ID</span>
@@ -312,39 +468,12 @@
         <span class="n">nc</span><span class="o">.</span><span class="n">Sounding_File_Name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;rs_</span><span class="si">{</span><span class="n">measurement_id</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">.nc&quot;</span>
     <span class="c1"># nc.Overlap_File_Name = &#39;ov_&#39; + selected_start.strftime(&#39;%Y%m%daky%H&#39;) + &#39;.nc&#39;</span>
 
-    <span class="c1"># Calculate sunset and sunrise times for the current station</span>
-    <span class="n">suninfo</span> <span class="o">=</span> <span class="n">sun</span><span class="o">.</span><span class="n">get_sun_times</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">start_date</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[0-2]\d:[0-5]\d&quot;</span><span class="p">,</span> <span class="n">location</span><span class="o">.</span><span class="n">sunrise_time</span><span class="p">):</span>
-        <span class="n">hh</span><span class="p">,</span> <span class="n">mm</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">sunrise_time</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
-        <span class="n">hh</span><span class="p">,</span> <span class="n">mm</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">hh</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">mm</span><span class="p">)</span>
-        <span class="n">sunrise_time</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">start_date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">hour</span><span class="o">=</span><span class="n">hh</span><span class="p">,</span> <span class="n">minute</span><span class="o">=</span><span class="n">mm</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">suninfo</span><span class="o">.</span><span class="n">sunrise_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">sunrise_time</span> <span class="o">=</span> <span class="n">suninfo</span><span class="o">.</span><span class="n">sunrise_time</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[+-]\d+&quot;</span><span class="p">,</span> <span class="n">location</span><span class="o">.</span><span class="n">sunrise_time</span><span class="p">):</span>
-            <span class="n">sunrise_time</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">location</span><span class="o">.</span><span class="n">sunrise_time</span><span class="p">))</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">sunrise_time</span> <span class="o">=</span> <span class="kc">None</span>
-
-    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[0-2]\d:[0-5]\d&quot;</span><span class="p">,</span> <span class="n">location</span><span class="o">.</span><span class="n">sunset_time</span><span class="p">):</span>
-        <span class="n">hh</span><span class="p">,</span> <span class="n">mm</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">sunset_time</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
-        <span class="n">hh</span><span class="p">,</span> <span class="n">mm</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">hh</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">mm</span><span class="p">)</span>
-        <span class="n">sunset_time</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">start_date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">hour</span><span class="o">=</span><span class="n">hh</span><span class="p">,</span> <span class="n">minute</span><span class="o">=</span><span class="n">mm</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">suninfo</span><span class="o">.</span><span class="n">sunset_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">sunset_time</span> <span class="o">=</span> <span class="n">suninfo</span><span class="o">.</span><span class="n">sunset_time</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[+-]\d+&quot;</span><span class="p">,</span> <span class="n">location</span><span class="o">.</span><span class="n">sunset_time</span><span class="p">):</span>
-            <span class="n">sunset_time</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">location</span><span class="o">.</span><span class="n">sunset_time</span><span class="p">))</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">sunset_time</span> <span class="o">=</span> <span class="kc">None</span>
-
-    <span class="k">if</span> <span class="n">suninfo</span><span class="o">.</span><span class="n">always_up</span> <span class="ow">or</span> <span class="p">(</span>
-        <span class="n">sunrise_time</span> <span class="o">&lt;</span> <span class="n">pf</span><span class="o">.</span><span class="n">start_date</span> <span class="ow">and</span> <span class="n">pf</span><span class="o">.</span><span class="n">start_date</span> <span class="o">&lt;</span> <span class="n">sunset_time</span>
-    <span class="p">):</span>
-        <span class="n">nc</span><span class="o">.</span><span class="n">X_PollyXTPipelines_Configuration_ID</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">daytime_configuration</span>
-        <span class="n">nc</span><span class="o">.</span><span class="n">X_PollyXTPipelines_Is_Daytime</span> <span class="o">=</span> <span class="s2">&quot;yes&quot;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">nc</span><span class="o">.</span><span class="n">X_PollyXTPipelines_Configuration_ID</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">nighttime_configuration</span>
-        <span class="n">nc</span><span class="o">.</span><span class="n">X_PollyXTPipelines_Is_Daytime</span> <span class="o">=</span> <span class="s2">&quot;no&quot;</span>
+    <span class="c1"># Day or night configuration, from sunset and sunrise times for the current station</span>
+    <span class="n">configuration_id</span><span class="p">,</span> <span class="n">is_daytime</span><span class="p">,</span> <span class="n">sunrise_time</span><span class="p">,</span> <span class="n">sunset_time</span> <span class="o">=</span> <span class="n">day_night_configuration</span><span class="p">(</span>
+        <span class="n">location</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">start_date</span>
+    <span class="p">)</span>
+    <span class="n">nc</span><span class="o">.</span><span class="n">X_PollyXTPipelines_Configuration_ID</span> <span class="o">=</span> <span class="n">configuration_id</span>
+    <span class="n">nc</span><span class="o">.</span><span class="n">X_PollyXTPipelines_Is_Daytime</span> <span class="o">=</span> <span class="s2">&quot;yes&quot;</span> <span class="k">if</span> <span class="n">is_daytime</span> <span class="k">else</span> <span class="s2">&quot;no&quot;</span>
 
     <span class="n">nc</span><span class="o">.</span><span class="n">X_PollyXTPipelines_Sunrise_time</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">sunrise_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%H:%M&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">sunrise_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;NA&quot;</span>
@@ -461,18 +590,18 @@
 <span class="sd">        A tuple containing the measurement ID and the output path</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Calculate measurement ID</span>
+    <span class="c1"># Calculate measurement ID. The returned ID has no wavelength suffix, but the</span>
+    <span class="c1"># `Measurement_ID` attribute in the file does (see `calibration_measurement_id`).</span>
     <span class="n">measurement_id</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">start_date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;%Y%m%d</span><span class="si">{</span><span class="n">location</span><span class="o">.</span><span class="n">scc_code</span><span class="si">}</span><span class="s2">%H&quot;</span><span class="p">)</span>
-
-    <span class="c1"># Create SCC file</span>
-    <span class="c1"># Output filename is always the measurement ID</span>
-    <span class="n">output_filename</span> <span class="o">=</span> <span class="n">output_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;calibration_</span><span class="si">{</span><span class="n">measurement_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">wavelength</span><span class="p">)</span><span class="si">}</span><span class="s2">.nc&quot;</span>
-    <span class="n">nc</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">output_filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
 
     <span class="c1"># Find start/end indices for the +45 and -45 degree calibration cycles in Polly file</span>
     <span class="n">idx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">depol_cal_angle</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
     <span class="n">start_positive</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="n">idx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="n">start_positive</span> <span class="o">+</span> <span class="mi">4</span><span class="p">,</span> <span class="n">idx</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;no change from +45° to -45° found in the calibration period (is it complete?)&quot;</span>
+        <span class="p">)</span>
     <span class="n">end_positive</span> <span class="o">=</span> <span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">positive_length</span> <span class="o">=</span> <span class="n">end_positive</span> <span class="o">-</span> <span class="n">start_positive</span>
 
@@ -489,6 +618,9 @@
         <span class="n">end_negative</span> <span class="o">-=</span> <span class="n">negative_length</span> <span class="o">-</span> <span class="n">positive_length</span>
         <span class="n">negative_length</span> <span class="o">=</span> <span class="n">positive_length</span>
 
+    <span class="k">if</span> <span class="n">positive_length</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;calibration period is too short&quot;</span><span class="p">)</span>
+
     <span class="c1"># Define total and cross channels IDs from Polly</span>
     <span class="k">if</span> <span class="n">wavelength</span> <span class="o">==</span> <span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_355</span><span class="p">:</span>
         <span class="n">total_channel_idx</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">total_channel_355_nm_idx</span>
@@ -497,20 +629,12 @@
             <span class="n">location</span><span class="o">.</span><span class="n">calibration_355nm_total_channel_ids</span>
             <span class="o">+</span> <span class="n">location</span><span class="o">.</span><span class="n">calibration_355nm_cross_channel_ids</span>
         <span class="p">)</span>
-        <span class="n">nc</span><span class="o">.</span><span class="n">Measurement_ID</span> <span class="o">=</span> <span class="n">measurement_id</span> <span class="o">+</span> <span class="s2">&quot;35&quot;</span>
-        <span class="n">nc</span><span class="o">.</span><span class="n">X_PollyXTPipelines_Configuration_ID</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">location</span><span class="o">.</span><span class="n">calibration_configuration_355nm</span>
-        <span class="p">)</span>
     <span class="k">elif</span> <span class="n">wavelength</span> <span class="o">==</span> <span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_532</span><span class="p">:</span>
         <span class="n">total_channel_idx</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">total_channel_532_nm_idx</span>
         <span class="n">cross_channel_idx</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">cross_channel_532_nm_idx</span>
         <span class="n">channel_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
             <span class="n">location</span><span class="o">.</span><span class="n">calibration_532nm_total_channel_ids</span>
             <span class="o">+</span> <span class="n">location</span><span class="o">.</span><span class="n">calibration_532nm_cross_channel_ids</span>
-        <span class="p">)</span>
-        <span class="n">nc</span><span class="o">.</span><span class="n">Measurement_ID</span> <span class="o">=</span> <span class="n">measurement_id</span> <span class="o">+</span> <span class="s2">&quot;53&quot;</span>
-        <span class="n">nc</span><span class="o">.</span><span class="n">X_PollyXTPipelines_Configuration_ID</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">location</span><span class="o">.</span><span class="n">calibration_configuration_532nm</span>
         <span class="p">)</span>
     <span class="k">elif</span> <span class="n">wavelength</span> <span class="o">==</span> <span class="n">Wavelength</span><span class="o">.</span><span class="n">NM_1064</span><span class="p">:</span>
         <span class="n">total_channel_idx</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">total_channel_1064_nm_idx</span>
@@ -519,12 +643,61 @@
             <span class="n">location</span><span class="o">.</span><span class="n">calibration_1064nm_total_channel_ids</span>
             <span class="o">+</span> <span class="n">location</span><span class="o">.</span><span class="n">calibration_1064nm_cross_channel_ids</span>
         <span class="p">)</span>
-        <span class="n">nc</span><span class="o">.</span><span class="n">Measurement_ID</span> <span class="o">=</span> <span class="n">measurement_id</span> <span class="o">+</span> <span class="s2">&quot;10&quot;</span>
-        <span class="n">nc</span><span class="o">.</span><span class="n">X_PollyXTPipelines_Configuration_ID</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">location</span><span class="o">.</span><span class="n">calibration_configuration_1064nm</span>
-        <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown wavelength </span><span class="si">{</span><span class="n">wavelength</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Create SCC file</span>
+    <span class="c1"># Output filename is always the measurement ID</span>
+    <span class="n">output_filename</span> <span class="o">=</span> <span class="n">output_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;calibration_</span><span class="si">{</span><span class="n">measurement_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">wavelength</span><span class="p">)</span><span class="si">}</span><span class="s2">.nc&quot;</span>
+    <span class="n">nc</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">output_filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">_write_calibration_netcdf</span><span class="p">(</span>
+            <span class="n">nc</span><span class="p">,</span>
+            <span class="n">pf</span><span class="p">,</span>
+            <span class="n">location</span><span class="p">,</span>
+            <span class="n">wavelength</span><span class="p">,</span>
+            <span class="n">channel_ids</span><span class="p">,</span>
+            <span class="n">total_channel_idx</span><span class="p">,</span>
+            <span class="n">cross_channel_idx</span><span class="p">,</span>
+            <span class="n">start_positive</span><span class="p">,</span>
+            <span class="n">end_positive</span><span class="p">,</span>
+            <span class="n">start_negative</span><span class="p">,</span>
+            <span class="n">end_negative</span><span class="p">,</span>
+            <span class="n">positive_length</span><span class="p">,</span>
+            <span class="n">pol_calib_range_min</span><span class="p">,</span>
+            <span class="n">pol_calib_range_max</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+        <span class="c1"># Don&#39;t leave a broken file behind</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">output_filename</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">raise</span>
+    <span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">measurement_id</span><span class="p">,</span> <span class="n">output_filename</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_calibration_netcdf</span><span class="p">(</span>
+    <span class="n">nc</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">pf</span><span class="p">:</span> <span class="n">pollyxt</span><span class="o">.</span><span class="n">PollyXTFile</span><span class="p">,</span>
+    <span class="n">location</span><span class="p">:</span> <span class="n">Location</span><span class="p">,</span>
+    <span class="n">wavelength</span><span class="p">:</span> <span class="n">Wavelength</span><span class="p">,</span>
+    <span class="n">channel_ids</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">total_channel_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">cross_channel_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">start_positive</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">end_positive</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">start_negative</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">end_negative</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">positive_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">pol_calib_range_min</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">pol_calib_range_max</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">nc</span><span class="o">.</span><span class="n">Measurement_ID</span> <span class="o">=</span> <span class="n">calibration_measurement_id</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">start_date</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">)</span>
+    <span class="n">nc</span><span class="o">.</span><span class="n">X_PollyXTPipelines_Configuration_ID</span> <span class="o">=</span> <span class="n">calibration_configuration_id</span><span class="p">(</span>
+        <span class="n">location</span><span class="p">,</span> <span class="n">wavelength</span>
+    <span class="p">)</span>
 
     <span class="c1"># Create Dimensions. (mandatory)</span>
     <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s2">&quot;points&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">raw_signal</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
@@ -638,12 +811,6 @@
         <span class="n">start_negative</span><span class="p">:</span><span class="n">end_negative</span><span class="p">,</span> <span class="n">cross_channel_idx</span><span class="p">,</span> <span class="p">:</span>
     <span class="p">]</span>
 
-    <span class="c1"># Close the netCDF file.</span>
-    <span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-    <span class="k">return</span> <span class="n">measurement_id</span><span class="p">,</span> <span class="n">output_filename</span></div>
-
-
 
 <div class="viewcode-block" id="convert_pollyxt_file">
 <a class="viewcode-back" href="../../../convert-scc.html#pollyxt_pipelines.polly_to_scc.scc_netcdf.convert_pollyxt_file">[docs]</a>
@@ -734,24 +901,169 @@
 
     <span class="c1"># Generate calibration files</span>
     <span class="k">if</span> <span class="n">calibration</span><span class="p">:</span>
-        <span class="n">depol_channels</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">has_depol_channels</span><span class="p">()</span>
-
-        <span class="c1"># Check for any valid calibration intervals</span>
+        <span class="c1"># Only calibration periods strictly inside the converted range</span>
         <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">repo</span><span class="o">.</span><span class="n">get_calibration_periods</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">start</span> <span class="o">&gt;</span> <span class="n">measurement_start</span> <span class="ow">and</span> <span class="n">end</span> <span class="o">&lt;</span> <span class="n">measurement_end</span><span class="p">:</span>
-                <span class="n">pf</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">get_pollyxt_file</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+                <span class="n">files</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_convert_calibration_period</span><span class="p">(</span>
+                    <span class="n">repo</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">location</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                    <span class="c1"># The CLI has always reported the ID without the wavelength suffix</span>
+                    <span class="k">yield</span> <span class="n">f</span><span class="o">.</span><span class="n">measurement_id</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="n">f</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span></div>
 
-                <span class="c1"># Generate calibration files for all channels that exist!</span>
-                <span class="k">for</span> <span class="n">wv</span><span class="p">,</span> <span class="n">channel_exists</span> <span class="ow">in</span> <span class="n">depol_channels</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="k">if</span> <span class="n">channel_exists</span><span class="p">:</span>
-                        <span class="c1"># HACK, do something more robust here</span>
-                        <span class="k">try</span><span class="p">:</span>
-                            <span class="nb">id</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">create_scc_calibration_netcdf</span><span class="p">(</span>
-                                <span class="n">pf</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="n">wv</span>
-                            <span class="p">)</span>
-                            <span class="k">yield</span> <span class="nb">id</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span>
-                        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-                            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to generate calibration file: </span><span class="si">{</span><span class="n">ex</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_period</span><span class="p">(</span><span class="n">start</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">start</span><span class="si">:</span><span class="s2">%Y-%m-%d %H:%M</span><span class="si">}</span><span class="s2">–</span><span class="si">{</span><span class="n">end</span><span class="si">:</span><span class="s2">%H:%M</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_convert_calibration_period</span><span class="p">(</span>
+    <span class="n">repo</span><span class="p">:</span> <span class="n">pollyxt</span><span class="o">.</span><span class="n">PollyXTRepository</span><span class="p">,</span>
+    <span class="n">start</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span>
+    <span class="n">end</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">location</span><span class="p">:</span> <span class="n">Location</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">SCCFile</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Make the calibration files of one calibration period, one per wavelength with</span>
+<span class="sd">    depolarization channels. A wavelength that fails is logged and returned as a reason,</span>
+<span class="sd">    and the others are still made.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A tuple of the files made and the reasons for the ones skipped</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">files</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SCCFile</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">skipped</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">wavelengths</span> <span class="o">=</span> <span class="p">[</span><span class="n">wv</span> <span class="k">for</span> <span class="n">wv</span><span class="p">,</span> <span class="n">ok</span> <span class="ow">in</span> <span class="n">location</span><span class="o">.</span><span class="n">has_depol_channels</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">ok</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">wavelengths</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">files</span><span class="p">,</span> <span class="n">skipped</span>
+
+    <span class="n">pf</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">get_pollyxt_file</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">wv</span> <span class="ow">in</span> <span class="n">wavelengths</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">create_scc_calibration_netcdf</span><span class="p">(</span>
+                <span class="n">pf</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="n">wv</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">reason</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;calibration </span><span class="si">{</span><span class="n">_format_period</span><span class="p">(</span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="n">end</span><span class="p">)</span><span class="si">}</span><span class="s2"> at </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">wv</span><span class="p">)</span><span class="si">}</span><span class="s2"> nm: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">ex</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Calibration file not made: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">reason</span><span class="p">)</span>
+            <span class="n">skipped</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reason</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">SCCFile</span><span class="p">(</span>
+                <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;calibration&quot;</span><span class="p">,</span>
+                <span class="n">measurement_id</span><span class="o">=</span><span class="n">calibration_measurement_id</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">start_date</span><span class="p">,</span> <span class="n">wv</span><span class="p">),</span>
+                <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
+                <span class="n">start</span><span class="o">=</span><span class="n">utils</span><span class="o">.</span><span class="n">to_aware_utc</span><span class="p">(</span><span class="n">start</span><span class="p">),</span>
+                <span class="n">end</span><span class="o">=</span><span class="n">utils</span><span class="o">.</span><span class="n">to_aware_utc</span><span class="p">(</span><span class="n">end</span><span class="p">),</span>
+                <span class="n">configuration_id</span><span class="o">=</span><span class="n">calibration_configuration_id</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">wv</span><span class="p">),</span>
+                <span class="n">wavelength</span><span class="o">=</span><span class="n">wv</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">files</span><span class="p">,</span> <span class="n">skipped</span>
+
+
+<div class="viewcode-block" id="convert_window">
+<a class="viewcode-back" href="../../../convert-scc.html#pollyxt_pipelines.polly_to_scc.scc_netcdf.convert_window">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_window</span><span class="p">(</span>
+    <span class="n">repo</span><span class="p">:</span> <span class="n">pollyxt</span><span class="o">.</span><span class="n">PollyXTRepository</span><span class="p">,</span>
+    <span class="n">start</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span>
+    <span class="n">end</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">location</span><span class="p">:</span> <span class="n">Location</span><span class="p">,</span>
+    <span class="n">atmosphere</span><span class="p">:</span> <span class="n">Atmosphere</span> <span class="o">=</span> <span class="n">Atmosphere</span><span class="o">.</span><span class="n">STANDARD_ATMOSPHERE</span><span class="p">,</span>
+    <span class="n">calibration</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WindowConversion</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert one time window of a repository to SCC files.</span>
+
+<span class="sd">    Any window may be asked for, and asking again gives the same files with the same names:</span>
+<span class="sd">    measurement IDs and filenames depend only on the data and the location.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        repo: The PollyXT files to read from</span>
+<span class="sd">        start: Window start, inclusive. UTC: naive datetimes are taken as UTC and aware ones</span>
+<span class="sd">            are converted to UTC.</span>
+<span class="sd">        end: Window end, exclusive. Same rules as `start`.</span>
+<span class="sd">        output_path: Directory to write the files to. It must exist.</span>
+<span class="sd">        location: Where the measurement took place</span>
+<span class="sd">        atmosphere: Which atmosphere SCC should use for the data file</span>
+<span class="sd">        calibration: Set to False to make no calibration files</span>
+
+<span class="sd">    The window may extend past the repository&#39;s data on either side; it is clipped to the</span>
+<span class="sd">    data.</span>
+
+<span class="sd">    **Data file:** at most one, from the non-calibration measurements inside the window.</span>
+<span class="sd">    `start` and `end` on it are its first and last measurement, so the caller can apply its</span>
+<span class="sd">    own minimum duration. With no measurements, `data` is None.</span>
+
+<span class="sd">    **Calibration files:** a calibration period belongs to the window that contains its</span>
+<span class="sd">    start, even when it ends after `end`, and is made from the repository&#39;s data for the</span>
+<span class="sd">    whole period. So each period is converted by exactly one window. A period is skipped,</span>
+<span class="sd">    with a reason in `skipped`, when the repository&#39;s data ends during it, or when it begins</span>
+<span class="sd">    at the repository&#39;s first measurement (its real start is then unknown). A wavelength</span>
+<span class="sd">    whose file can&#39;t be made is also skipped with a reason; nothing is printed.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: `end` is not after `start`</span>
+<span class="sd">        Other exceptions for problems that make the whole window impossible, e.g. a corrupt</span>
+<span class="sd">        input file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">start</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">to_naive_utc</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">to_naive_utc</span><span class="p">(</span><span class="n">end</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">end</span> <span class="o">&lt;=</span> <span class="n">start</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Window end (</span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s2">) must be after its start (</span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+    <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">WindowConversion</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="c1"># Data file</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">pf</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">get_pollyxt_file</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">include_end</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">NoMeasurementsInTimePeriod</span><span class="p">:</span>
+        <span class="n">pf</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">pf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="o">~</span><span class="n">pf</span><span class="o">.</span><span class="n">calibration_mask</span><span class="p">):</span>
+        <span class="n">measurement_id</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">create_scc_netcdf</span><span class="p">(</span><span class="n">pf</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">atmosphere</span><span class="p">)</span>
+        <span class="n">configuration_id</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">day_night_configuration</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">start_date</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">SCCFile</span><span class="p">(</span>
+            <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">,</span>
+            <span class="n">measurement_id</span><span class="o">=</span><span class="n">measurement_id</span><span class="p">,</span>
+            <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
+            <span class="n">start</span><span class="o">=</span><span class="n">utils</span><span class="o">.</span><span class="n">to_aware_utc</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">start_date</span><span class="p">),</span>
+            <span class="n">end</span><span class="o">=</span><span class="n">utils</span><span class="o">.</span><span class="n">to_aware_utc</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">end_date</span><span class="p">),</span>
+            <span class="n">configuration_id</span><span class="o">=</span><span class="n">configuration_id</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Calibration files</span>
+    <span class="k">if</span> <span class="n">calibration</span><span class="p">:</span>
+        <span class="n">repo_start</span><span class="p">,</span> <span class="n">repo_end</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">get_time_period</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">cal_start</span><span class="p">,</span> <span class="n">cal_end</span> <span class="ow">in</span> <span class="n">repo</span><span class="o">.</span><span class="n">get_calibration_periods</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">start</span> <span class="o">&lt;=</span> <span class="n">cal_start</span> <span class="o">&lt;</span> <span class="n">end</span><span class="p">):</span>
+                <span class="k">continue</span>
+
+            <span class="n">period</span> <span class="o">=</span> <span class="n">_format_period</span><span class="p">(</span><span class="n">cal_start</span><span class="p">,</span> <span class="n">cal_end</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cal_end</span> <span class="o">&gt;=</span> <span class="n">repo_end</span><span class="p">:</span>
+                <span class="n">reason</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;calibration </span><span class="si">{</span><span class="n">period</span><span class="si">}</span><span class="s2">: the data ends during the calibration&quot;</span>
+            <span class="k">elif</span> <span class="n">cal_start</span> <span class="o">&lt;=</span> <span class="n">repo_start</span><span class="p">:</span>
+                <span class="n">reason</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;calibration </span><span class="si">{</span><span class="n">period</span><span class="si">}</span><span class="s2">: starts at the first measurement, so its real start is unknown&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">files</span><span class="p">,</span> <span class="n">skipped</span> <span class="o">=</span> <span class="n">_convert_calibration_period</span><span class="p">(</span>
+                    <span class="n">repo</span><span class="p">,</span> <span class="n">cal_start</span><span class="p">,</span> <span class="n">cal_end</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">location</span>
+                <span class="p">)</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">calibrations</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">skipped</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">skipped</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Calibration files not made: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">reason</span><span class="p">)</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">skipped</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reason</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
 
 </pre></div>
         </article>

@@ -200,6 +200,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../search-scc.html">Searching and downloading historic data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../manage-scc.html">Manage SCC Measurements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../network-api.html">Network API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../library-api.html">Using as a library</a></li>
 </ul>
 
 </div>
@@ -243,18 +244,21 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">contextlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bs4</span><span class="w"> </span><span class="kn">import</span> <span class="n">BeautifulSoup</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">pollyxt_pipelines.console</span><span class="w"> </span><span class="kn">import</span> <span class="n">console</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pollyxt_pipelines.locations</span><span class="w"> </span><span class="kn">import</span> <span class="n">Location</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pollyxt_pipelines.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pollyxt_pipelines.scc_access</span><span class="w"> </span><span class="kn">import</span> <span class="n">constants</span><span class="p">,</span> <span class="n">exceptions</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pollyxt_pipelines.scc_access.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">APIObject</span><span class="p">,</span> <span class="n">LidarConstant</span><span class="p">,</span> <span class="n">Measurement</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="SCC_Credentials">
@@ -480,12 +484,12 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="o">**</span><span class="n">download</span><span class="p">)</span>
                 <span class="k">yield</span> <span class="n">download</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-                <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[error]Error while downloading file from SCC[/error]&quot;</span><span class="p">)</span>
-                <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[error]URL:[/error] </span><span class="si">{</span><span class="n">download</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[error]Path:[/error] </span><span class="si">{</span><span class="n">download</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[error]Exception:[/error]&quot;</span><span class="p">)</span>
-                <span class="n">console</span><span class="o">.</span><span class="n">print_exception</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
+                    <span class="s2">&quot;Error while downloading file from SCC (URL: </span><span class="si">%s</span><span class="s2">, path: </span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span>
+                    <span class="n">download</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">],</span>
+                    <span class="n">download</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">],</span>
+                <span class="p">)</span>
                 <span class="k">continue</span></div>
 
 
@@ -558,8 +562,8 @@
         <span class="k">if</span> <span class="n">rs_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_anchillary</span><span class="p">(</span><span class="n">rs_filename</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;sounding&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">info</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">info</span><span class="o">.</span><span class="n">exists</span><span class="p">:</span>
-                <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;[warn]Radiosonde file[/warn] </span><span class="si">{</span><span class="n">rs_filename</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> [warn]already exists on SCC.[/warn]&quot;</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;Radiosonde file </span><span class="si">%s</span><span class="s2"> already exists on SCC.&quot;</span><span class="p">,</span> <span class="n">rs_filename</span><span class="o">.</span><span class="n">name</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">files</span><span class="p">[</span><span class="s2">&quot;sounding_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">rs_filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span>
@@ -567,8 +571,8 @@
         <span class="k">if</span> <span class="n">ov_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_anchillary</span><span class="p">(</span><span class="n">ov_filename</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;overlap&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">info</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">info</span><span class="o">.</span><span class="n">exists</span><span class="p">:</span>
-                <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;[warn]Overlap file[/warn] </span><span class="si">{</span><span class="n">ov_filename</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> [warn]already exists on SCC.[/warn]&quot;</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;Overlap file </span><span class="si">%s</span><span class="s2"> already exists on SCC.&quot;</span><span class="p">,</span> <span class="n">ov_filename</span><span class="o">.</span><span class="n">name</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">files</span><span class="p">[</span><span class="s2">&quot;overlap_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">ov_filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span>
@@ -576,8 +580,8 @@
         <span class="k">if</span> <span class="n">lr_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_anchillary</span><span class="p">(</span><span class="n">lr_filename</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;lidarratio&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">info</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">info</span><span class="o">.</span><span class="n">exists</span><span class="p">:</span>
-                <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;[warn]Lidar ratio file[/warn] </span><span class="si">{</span><span class="n">lr_filename</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> [warn]already exists on SCC.[/warn]&quot;</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;Lidar ratio file </span><span class="si">%s</span><span class="s2"> already exists on SCC.&quot;</span><span class="p">,</span> <span class="n">lr_filename</span><span class="o">.</span><span class="n">name</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">files</span><span class="p">[</span><span class="s2">&quot;lidar_ratio_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">lr_filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span>
@@ -626,11 +630,17 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fetches information about one measurement from SCC.</span>
 
+<span class="sd">        This is also the way to check whether a measurement is already uploaded: a missing</span>
+<span class="sd">        measurement returns `None` (it is not an error). This is part of the API.</span>
+
 <span class="sd">        Parameters:</span>
 <span class="sd">            measurement_id: Which measurement to lookup</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The measurement if it exists, None otherwise</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            UnexpectedResponse: SCC answered with an error other than &quot;not found&quot;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">url</span> <span class="o">=</span> <span class="n">constants</span><span class="o">.</span><span class="n">api_measurement_pattern</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">measurement_id</span><span class="p">)</span>
@@ -647,6 +657,61 @@
             <span class="k">return</span> <span class="n">Measurement</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">response_body</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">UnexpectedResponse</span><span class="p">()</span></div>
+
+
+    <span class="n">PRODUCTS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;hirelpp&quot;</span><span class="p">,</span> <span class="s2">&quot;cloudmask&quot;</span><span class="p">,</span> <span class="s2">&quot;elpp&quot;</span><span class="p">,</span> <span class="s2">&quot;elda&quot;</span><span class="p">,</span> <span class="s2">&quot;eldec&quot;</span><span class="p">,</span> <span class="s2">&quot;elic&quot;</span><span class="p">,</span> <span class="s2">&quot;elquick&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Product names accepted by `wait_for_product`&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SCC.wait_for_product">
+<a class="viewcode-back" href="../../network-api.html#pollyxt_pipelines.scc_access.SCC.wait_for_product">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wait_for_product</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">measurement_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">product</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;eldec&quot;</span><span class="p">,</span>
+        <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">300</span><span class="p">,</span>
+        <span class="n">poll</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Measurement</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Wait until SCC is no longer working on a measurement, and return it so the caller</span>
+<span class="sd">        can check the product&#39;s final status.</span>
+
+<span class="sd">        While the measurement is queued or being processed, this keeps waiting and the time</span>
+<span class="sd">        does not count towards `timeout`. Time while the measurement isn&#39;t visible on SCC</span>
+<span class="sd">        yet does count.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            measurement_id: The measurement to wait for</span>
+<span class="sd">            product: Which product the caller is interested in, one of `SCC.PRODUCTS`</span>
+<span class="sd">            timeout: Seconds to wait, not counting time in the queue or in processing</span>
+<span class="sd">            poll: Seconds between checks</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The measurement, once it is neither queued nor processing. Check</span>
+<span class="sd">            `getattr(measurement, product).status` for the result (e.g.</span>
+<span class="sd">            `ProductStatus.OK`).</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: Unknown product</span>
+<span class="sd">            TimeoutError: The measurement did not appear on SCC within `timeout`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">product</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">PRODUCTS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown product </span><span class="si">{</span><span class="n">product</span><span class="si">!r}</span><span class="s2">, use one of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">PRODUCTS</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">waited</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">measurement</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_measurement</span><span class="p">(</span><span class="n">measurement_id</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">measurement</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">measurement</span><span class="o">.</span><span class="n">is_queued</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">measurement</span><span class="o">.</span><span class="n">is_processing</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">measurement</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">waited</span> <span class="o">&gt;=</span> <span class="n">timeout</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">TimeoutError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Measurement </span><span class="si">{</span><span class="n">measurement_id</span><span class="si">}</span><span class="s2"> did not appear on SCC within </span><span class="si">{</span><span class="n">timeout</span><span class="si">}</span><span class="s2"> s&quot;</span>
+                    <span class="p">)</span>
+                <span class="n">waited</span> <span class="o">+=</span> <span class="n">poll</span>
+
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">poll</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="SCC.delete_measurement">
