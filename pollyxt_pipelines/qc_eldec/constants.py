@@ -28,6 +28,7 @@ AUTO_SCALE = True
 AXES_LIMITS = {
     355: (-0.01, 0.3),
     532: (-0.01, 0.3),
+    1064: (-0.01, 0.3),
 }
 
 # if auto scaling -> minimum bin for retrieval of axis limits of ratio profile plot
@@ -52,4 +53,20 @@ COLORS = {
         "invalid": "red",
         "previous": "0.7",
     },
+    1064: {
+        0: "darkred",
+        1: "chocolate",
+        "actual": "orangered",
+        "invalid": "red",
+        "previous": "0.7",
+    },
+}
+
+# colors for any other wavelength
+DEFAULT_COLORS = {
+    0: "black",
+    1: "dimgray",
+    "actual": "tab:blue",
+    "invalid": "red",
+    "previous": "0.7",
 }
