@@ -202,22 +202,30 @@ class PollyXTRepository:
             if (g.depol_cal_angle != self.location.depol_calibration_zero_state).all():
                 yield g.iloc[0]["timestamp"], g.iloc[-1]["timestamp"]
 
-    def get_pollyxt_file(self, time_start: datetime, time_end: datetime):
+    def get_pollyxt_file(
+        self, time_start: datetime, time_end: datetime, include_end: bool = True
+    ):
         """
         Create a PollyXTFile for the given time range.
 
         Parameters:
-            time_start: First measurement to include
-            time_end: Last measurement to include
+            time_start: First measurement to include (naive UTC)
+            time_end: Last measurement to include (naive UTC)
+            include_end: If False, a measurement exactly at `time_end` is left out.
 
         Returns:
             The PollyXTFile file for the requested period.
+
+        Raises:
+            NoMeasurementsInTimePeriod: There are no measurements in the period
         """
 
         # Filter index for given time range
-        mask = (self.index["timestamp"] >= time_start) & (
-            self.index["timestamp"] <= time_end
-        )
+        if include_end:
+            end_mask = self.index["timestamp"] <= time_end
+        else:
+            end_mask = self.index["timestamp"] < time_end
+        mask = (self.index["timestamp"] >= time_start) & end_mask
         targets = self.index[mask]
         if targets.shape[0] == 0:
             raise NoMeasurementsInTimePeriod()

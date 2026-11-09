@@ -2,15 +2,15 @@
 Routines for converting PollyXT files to SCC files
 """
 
-from datetime import timedelta
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Tuple
+from typing import List, Literal, Optional, Tuple
+import logging
 import re
 
 import numpy as np
 from netCDF4 import Dataset
-from astral import LocationInfo
-from astral.sun import sunrise, sunset
 
 from pollyxt_pipelines import sun, utils
 from pollyxt_pipelines.locations import Location
@@ -20,6 +20,143 @@ from pollyxt_pipelines.polly_to_scc.exceptions import (
     NoMeasurementsInTimePeriod,
     TimeOutsideFile,
 )
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class SCCFile:
+    """
+    One SCC netCDF file produced by a conversion.
+    """
+
+    kind: Literal["data", "calibration"]
+    """Whether this is a measurement (data) file or a depolarization calibration file"""
+
+    measurement_id: str
+    """SCC measurement ID, as written in the file's `Measurement_ID` attribute"""
+
+    path: Path
+    """Where the file was written"""
+
+    start: datetime
+    """Time of the first measurement in the file (timezone-aware, UTC)"""
+
+    end: datetime
+    """Time of the last measurement in the file (timezone-aware, UTC). This is the start
+    of the last 30 s profile, so a full hour of data spans 59.5 minutes."""
+
+    configuration_id: int
+    """SCC lidar configuration (system) ID to upload the file with"""
+
+    wavelength: Optional[Wavelength] = None
+    """Calibration files only: the calibrated wavelength"""
+
+
+@dataclass
+class WindowConversion:
+    """
+    The result of converting one time window with `convert_window`.
+    """
+
+    data: Optional[SCCFile]
+    """The data file, or None if the window has no (non-calibration) measurements"""
+
+    calibrations: List[SCCFile] = field(default_factory=list)
+    """Calibration files for the calibration periods that start in the window"""
+
+    skipped: List[str] = field(default_factory=list)
+    """Human-readable reasons for calibration files that were not made"""
+
+
+CALIBRATION_ID_SUFFIX = {
+    Wavelength.NM_355: "35",
+    Wavelength.NM_532: "53",
+    Wavelength.NM_1064: "10",
+}
+"""Suffix appended to the calibration measurement ID, per wavelength"""
+
+
+def data_measurement_id(location: Location, start_date: datetime) -> str:
+    """
+    Measurement ID of a data file: `YYYYMMDD{scc_code}HHMM`, from the time of its first
+    measurement.
+    """
+    return start_date.strftime(f"%Y%m%d{location.scc_code}%H%M")
+
+
+def calibration_measurement_id(
+    location: Location, start_date: datetime, wavelength: Wavelength
+) -> str:
+    """
+    Measurement ID of a calibration file: `YYYYMMDD{scc_code}HH` followed by `35`, `53` or
+    `10` for 355, 532 or 1064 nm, from the start of the calibration period.
+
+    Note that this can coincide with a data file's ID (e.g. a data file starting at HH:35).
+    The scheme is kept as it is on purpose.
+    """
+    if wavelength not in CALIBRATION_ID_SUFFIX:
+        raise ValueError(f"Unknown wavelength {wavelength}")
+    return (
+        start_date.strftime(f"%Y%m%d{location.scc_code}%H")
+        + CALIBRATION_ID_SUFFIX[wavelength]
+    )
+
+
+def calibration_configuration_id(
+    location: Location, wavelength: Wavelength
+) -> Optional[int]:
+    """SCC configuration ID for calibration files of the given wavelength"""
+    if wavelength == Wavelength.NM_355:
+        return location.calibration_configuration_355nm
+    if wavelength == Wavelength.NM_532:
+        return location.calibration_configuration_532nm
+    if wavelength == Wavelength.NM_1064:
+        return location.calibration_configuration_1064nm
+    raise ValueError(f"Unknown wavelength {wavelength}")
+
+
+def day_night_configuration(
+    location: Location, start_date: datetime
+) -> Tuple[int, bool, Optional[datetime], Optional[datetime]]:
+    """
+    Decide whether a data file starting at `start_date` uses the day or night configuration.
+
+    Returns:
+        A tuple of (configuration ID, is daytime, sunrise time, sunset time). The sunrise and
+        sunset times are None when the sun doesn't rise or set that day.
+    """
+
+    suninfo = sun.get_sun_times(location, start_date)
+
+    if re.match(r"[0-2]\d:[0-5]\d", location.sunrise_time):
+        hh, mm = location.sunrise_time.split(":")
+        sunrise_time = start_date.replace(hour=int(hh), minute=int(mm))
+    elif suninfo.sunrise_time is not None:
+        sunrise_time = suninfo.sunrise_time.replace(tzinfo=None)
+        if re.match(r"[+-]\d+", location.sunrise_time):
+            sunrise_time += timedelta(minutes=int(location.sunrise_time))
+    else:
+        sunrise_time = None
+
+    if re.match(r"[0-2]\d:[0-5]\d", location.sunset_time):
+        hh, mm = location.sunset_time.split(":")
+        sunset_time = start_date.replace(hour=int(hh), minute=int(mm))
+    elif suninfo.sunset_time is not None:
+        sunset_time = suninfo.sunset_time.replace(tzinfo=None)
+        if re.match(r"[+-]\d+", location.sunset_time):
+            sunset_time += timedelta(minutes=int(location.sunset_time))
+    else:
+        sunset_time = None
+
+    is_daytime = suninfo.always_up or (
+        sunrise_time is not None
+        and sunset_time is not None
+        and sunrise_time < start_date < sunset_time
+    )
+    if is_daytime:
+        return location.daytime_configuration, True, sunrise_time, sunset_time
+    return location.nighttime_configuration, False, sunrise_time, sunset_time
 
 
 def create_scc_netcdf(
@@ -47,7 +184,7 @@ def create_scc_netcdf(
     """
 
     # Calculate measurement ID
-    measurement_id = pf.start_date.strftime(f"%Y%m%d{location.scc_code}%H%M")
+    measurement_id = data_measurement_id(location, pf.start_date)
 
     # Create SCC file
     # Output filename is always the measurement ID
@@ -75,39 +212,12 @@ def create_scc_netcdf(
         nc.Sounding_File_Name = f"rs_{measurement_id[:-2]}.nc"
     # nc.Overlap_File_Name = 'ov_' + selected_start.strftime('%Y%m%daky%H') + '.nc'
 
-    # Calculate sunset and sunrise times for the current station
-    suninfo = sun.get_sun_times(location, pf.start_date)
-
-    if re.match(r"[0-2]\d:[0-5]\d", location.sunrise_time):
-        hh, mm = location.sunrise_time.split(":")
-        hh, mm = int(hh), int(mm)
-        sunrise_time = pf.start_date.replace(hour=hh, minute=mm)
-    elif suninfo.sunrise_time is not None:
-        sunrise_time = suninfo.sunrise_time.replace(tzinfo=None)
-        if re.match(r"[+-]\d+", location.sunrise_time):
-            sunrise_time += timedelta(minutes=int(location.sunrise_time))
-    else:
-        sunrise_time = None
-
-    if re.match(r"[0-2]\d:[0-5]\d", location.sunset_time):
-        hh, mm = location.sunset_time.split(":")
-        hh, mm = int(hh), int(mm)
-        sunset_time = pf.start_date.replace(hour=hh, minute=mm)
-    elif suninfo.sunset_time is not None:
-        sunset_time = suninfo.sunset_time.replace(tzinfo=None)
-        if re.match(r"[+-]\d+", location.sunset_time):
-            sunset_time += timedelta(minutes=int(location.sunset_time))
-    else:
-        sunset_time = None
-
-    if suninfo.always_up or (
-        sunrise_time < pf.start_date and pf.start_date < sunset_time
-    ):
-        nc.X_PollyXTPipelines_Configuration_ID = location.daytime_configuration
-        nc.X_PollyXTPipelines_Is_Daytime = "yes"
-    else:
-        nc.X_PollyXTPipelines_Configuration_ID = location.nighttime_configuration
-        nc.X_PollyXTPipelines_Is_Daytime = "no"
+    # Day or night configuration, from sunset and sunrise times for the current station
+    configuration_id, is_daytime, sunrise_time, sunset_time = day_night_configuration(
+        location, pf.start_date
+    )
+    nc.X_PollyXTPipelines_Configuration_ID = configuration_id
+    nc.X_PollyXTPipelines_Is_Daytime = "yes" if is_daytime else "no"
 
     nc.X_PollyXTPipelines_Sunrise_time = (
         sunrise_time.strftime("%H:%M") if sunrise_time is not None else "NA"
@@ -221,18 +331,18 @@ def create_scc_calibration_netcdf(
         A tuple containing the measurement ID and the output path
     """
 
-    # Calculate measurement ID
+    # Calculate measurement ID. The returned ID has no wavelength suffix, but the
+    # `Measurement_ID` attribute in the file does (see `calibration_measurement_id`).
     measurement_id = pf.start_date.strftime(f"%Y%m%d{location.scc_code}%H")
-
-    # Create SCC file
-    # Output filename is always the measurement ID
-    output_filename = output_path / f"calibration_{measurement_id}_{int(wavelength)}.nc"
-    nc = Dataset(output_filename, "w")
 
     # Find start/end indices for the +45 and -45 degree calibration cycles in Polly file
     idx = list(np.where(np.diff(pf.depol_cal_angle))[0])
     start_positive = 2
     idx = list(filter(lambda x: x >= start_positive + 4, idx))
+    if len(idx) == 0:
+        raise ValueError(
+            "no change from +45° to -45° found in the calibration period (is it complete?)"
+        )
     end_positive = idx[0]
     positive_length = end_positive - start_positive
 
@@ -249,6 +359,9 @@ def create_scc_calibration_netcdf(
         end_negative -= negative_length - positive_length
         negative_length = positive_length
 
+    if positive_length <= 0:
+        raise ValueError("calibration period is too short")
+
     # Define total and cross channels IDs from Polly
     if wavelength == Wavelength.NM_355:
         total_channel_idx = location.total_channel_355_nm_idx
@@ -257,20 +370,12 @@ def create_scc_calibration_netcdf(
             location.calibration_355nm_total_channel_ids
             + location.calibration_355nm_cross_channel_ids
         )
-        nc.Measurement_ID = measurement_id + "35"
-        nc.X_PollyXTPipelines_Configuration_ID = (
-            location.calibration_configuration_355nm
-        )
     elif wavelength == Wavelength.NM_532:
         total_channel_idx = location.total_channel_532_nm_idx
         cross_channel_idx = location.cross_channel_532_nm_idx
         channel_ids = np.array(
             location.calibration_532nm_total_channel_ids
             + location.calibration_532nm_cross_channel_ids
-        )
-        nc.Measurement_ID = measurement_id + "53"
-        nc.X_PollyXTPipelines_Configuration_ID = (
-            location.calibration_configuration_532nm
         )
     elif wavelength == Wavelength.NM_1064:
         total_channel_idx = location.total_channel_1064_nm_idx
@@ -279,12 +384,60 @@ def create_scc_calibration_netcdf(
             location.calibration_1064nm_total_channel_ids
             + location.calibration_1064nm_cross_channel_ids
         )
-        nc.Measurement_ID = measurement_id + "10"
-        nc.X_PollyXTPipelines_Configuration_ID = (
-            location.calibration_configuration_1064nm
-        )
     else:
         raise ValueError(f"Unknown wavelength {wavelength}")
+
+    # Create SCC file
+    # Output filename is always the measurement ID
+    output_filename = output_path / f"calibration_{measurement_id}_{int(wavelength)}.nc"
+    nc = Dataset(output_filename, "w")
+    try:
+        _write_calibration_netcdf(
+            nc,
+            pf,
+            location,
+            wavelength,
+            channel_ids,
+            total_channel_idx,
+            cross_channel_idx,
+            start_positive,
+            end_positive,
+            start_negative,
+            end_negative,
+            positive_length,
+            pol_calib_range_min,
+            pol_calib_range_max,
+        )
+    except BaseException:
+        # Don't leave a broken file behind
+        nc.close()
+        output_filename.unlink(missing_ok=True)
+        raise
+    nc.close()
+
+    return measurement_id, output_filename
+
+
+def _write_calibration_netcdf(
+    nc: Dataset,
+    pf: pollyxt.PollyXTFile,
+    location: Location,
+    wavelength: Wavelength,
+    channel_ids: np.ndarray,
+    total_channel_idx: int,
+    cross_channel_idx: int,
+    start_positive: int,
+    end_positive: int,
+    start_negative: int,
+    end_negative: int,
+    positive_length: int,
+    pol_calib_range_min: int,
+    pol_calib_range_max: int,
+):
+    nc.Measurement_ID = calibration_measurement_id(location, pf.start_date, wavelength)
+    nc.X_PollyXTPipelines_Configuration_ID = calibration_configuration_id(
+        location, wavelength
+    )
 
     # Create Dimensions. (mandatory)
     nc.createDimension("points", np.size(pf.raw_signal, axis=1))
@@ -398,11 +551,6 @@ def create_scc_calibration_netcdf(
         start_negative:end_negative, cross_channel_idx, :
     ]
 
-    # Close the netCDF file.
-    nc.close()
-
-    return measurement_id, output_filename
-
 
 def convert_pollyxt_file(
     repo: pollyxt.PollyXTRepository,
@@ -491,21 +639,163 @@ def convert_pollyxt_file(
 
     # Generate calibration files
     if calibration:
-        depol_channels = location.has_depol_channels()
-
-        # Check for any valid calibration intervals
+        # Only calibration periods strictly inside the converted range
         for start, end in repo.get_calibration_periods():
             if start > measurement_start and end < measurement_end:
-                pf = repo.get_pollyxt_file(start, end)
+                files, _ = _convert_calibration_period(
+                    repo, start, end, output_path, location
+                )
+                for f in files:
+                    # The CLI has always reported the ID without the wavelength suffix
+                    yield f.measurement_id[:-2], f.path, start, end
 
-                # Generate calibration files for all channels that exist!
-                for wv, channel_exists in depol_channels.items():
-                    if channel_exists:
-                        # HACK, do something more robust here
-                        try:
-                            id, path = create_scc_calibration_netcdf(
-                                pf, output_path, location, wavelength=wv
-                            )
-                            yield id, path, start, end
-                        except Exception as ex:
-                            print(f"Failed to generate calibration file: {ex}")
+
+def _format_period(start: datetime, end: datetime) -> str:
+    return f"{start:%Y-%m-%d %H:%M}–{end:%H:%M}"
+
+
+def _convert_calibration_period(
+    repo: pollyxt.PollyXTRepository,
+    start: datetime,
+    end: datetime,
+    output_path: Path,
+    location: Location,
+) -> Tuple[List[SCCFile], List[str]]:
+    """
+    Make the calibration files of one calibration period, one per wavelength with
+    depolarization channels. A wavelength that fails is logged and returned as a reason,
+    and the others are still made.
+
+    Returns:
+        A tuple of the files made and the reasons for the ones skipped
+    """
+
+    files: List[SCCFile] = []
+    skipped: List[str] = []
+
+    wavelengths = [wv for wv, ok in location.has_depol_channels().items() if ok]
+    if not wavelengths:
+        return files, skipped
+
+    pf = repo.get_pollyxt_file(start, end)
+    for wv in wavelengths:
+        try:
+            _, path = create_scc_calibration_netcdf(
+                pf, output_path, location, wavelength=wv
+            )
+        except Exception as ex:
+            reason = f"calibration {_format_period(start, end)} at {int(wv)} nm: {type(ex).__name__}: {ex}"
+            logger.warning("Calibration file not made: %s", reason)
+            skipped.append(reason)
+            continue
+
+        files.append(
+            SCCFile(
+                kind="calibration",
+                measurement_id=calibration_measurement_id(location, pf.start_date, wv),
+                path=path,
+                start=utils.to_aware_utc(start),
+                end=utils.to_aware_utc(end),
+                configuration_id=calibration_configuration_id(location, wv),
+                wavelength=wv,
+            )
+        )
+
+    return files, skipped
+
+
+def convert_window(
+    repo: pollyxt.PollyXTRepository,
+    start: datetime,
+    end: datetime,
+    output_path: Path,
+    location: Location,
+    atmosphere: Atmosphere = Atmosphere.STANDARD_ATMOSPHERE,
+    calibration: bool = True,
+) -> WindowConversion:
+    """
+    Convert one time window of a repository to SCC files.
+
+    Any window may be asked for, and asking again gives the same files with the same names:
+    measurement IDs and filenames depend only on the data and the location.
+
+    Parameters:
+        repo: The PollyXT files to read from
+        start: Window start, inclusive. UTC: naive datetimes are taken as UTC and aware ones
+            are converted to UTC.
+        end: Window end, exclusive. Same rules as `start`.
+        output_path: Directory to write the files to. It must exist.
+        location: Where the measurement took place
+        atmosphere: Which atmosphere SCC should use for the data file
+        calibration: Set to False to make no calibration files
+
+    The window may extend past the repository's data on either side; it is clipped to the
+    data.
+
+    **Data file:** at most one, from the non-calibration measurements inside the window.
+    `start` and `end` on it are its first and last measurement, so the caller can apply its
+    own minimum duration. With no measurements, `data` is None.
+
+    **Calibration files:** a calibration period belongs to the window that contains its
+    start, even when it ends after `end`, and is made from the repository's data for the
+    whole period. So each period is converted by exactly one window. A period is skipped,
+    with a reason in `skipped`, when the repository's data ends during it, or when it begins
+    at the repository's first measurement (its real start is then unknown). A wavelength
+    whose file can't be made is also skipped with a reason; nothing is printed.
+
+    Raises:
+        ValueError: `end` is not after `start`
+        Other exceptions for problems that make the whole window impossible, e.g. a corrupt
+        input file.
+    """
+
+    start = utils.to_naive_utc(start)
+    end = utils.to_naive_utc(end)
+    if end <= start:
+        raise ValueError(f"Window end ({end}) must be after its start ({start})")
+    output_path = Path(output_path)
+
+    result = WindowConversion(data=None)
+
+    # Data file
+    try:
+        pf = repo.get_pollyxt_file(start, end, include_end=False)
+    except NoMeasurementsInTimePeriod:
+        pf = None
+
+    if pf is not None and np.any(~pf.calibration_mask):
+        measurement_id, path = create_scc_netcdf(pf, output_path, location, atmosphere)
+        configuration_id, _, _, _ = day_night_configuration(location, pf.start_date)
+        result.data = SCCFile(
+            kind="data",
+            measurement_id=measurement_id,
+            path=path,
+            start=utils.to_aware_utc(pf.start_date),
+            end=utils.to_aware_utc(pf.end_date),
+            configuration_id=configuration_id,
+        )
+
+    # Calibration files
+    if calibration:
+        repo_start, repo_end = repo.get_time_period()
+        for cal_start, cal_end in repo.get_calibration_periods():
+            if not (start <= cal_start < end):
+                continue
+
+            period = _format_period(cal_start, cal_end)
+            if cal_end >= repo_end:
+                reason = f"calibration {period}: the data ends during the calibration"
+            elif cal_start <= repo_start:
+                reason = f"calibration {period}: starts at the first measurement, so its real start is unknown"
+            else:
+                files, skipped = _convert_calibration_period(
+                    repo, cal_start, cal_end, output_path, location
+                )
+                result.calibrations.extend(files)
+                result.skipped.extend(skipped)
+                continue
+
+            logger.warning("Calibration files not made: %s", reason)
+            result.skipped.append(reason)
+
+    return result

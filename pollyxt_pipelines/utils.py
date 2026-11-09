@@ -1,7 +1,7 @@
 """Various helper functions that fit nowhere"""
 
 from typing import List, Union, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import re
 
 
@@ -130,3 +130,22 @@ def parse_into_string_or_integer_list(
         return [int(x) for x in values]
     else:
         return values
+
+
+def to_naive_utc(dt: datetime) -> datetime:
+    """
+    Returns `dt` as a naive datetime in UTC. Naive datetimes are taken to be UTC already
+    and returned as they are; aware ones are converted to UTC.
+
+    PollyXT timestamps are naive UTC, so this is the form used internally.
+    """
+    if dt.tzinfo is None or dt.utcoffset() is None:
+        return dt
+    return dt.astimezone(timezone.utc).replace(tzinfo=None)
+
+
+def to_aware_utc(dt: datetime) -> datetime:
+    """
+    Returns `dt` as a timezone-aware datetime in UTC. Naive datetimes are taken to be UTC.
+    """
+    return to_naive_utc(dt).replace(tzinfo=timezone.utc)
