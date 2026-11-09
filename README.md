@@ -13,7 +13,7 @@ To get started, check the [**demo**](https://asciinema.org/a/380595) and read th
 
 ## Installation
 
-This project requires Python 3.8 or newer. It works on both Windows and Linux. It is available through `pip`:
+This project requires Python 3.10 or newer. It works on both Windows and Linux. It is available through `pip`:
 
 ```sh
 # Replace with the filename you downloaded

@@ -31,7 +31,7 @@ commands in a terminal (or Anaconda Prompt):
 
 .. code-block:: sh
 
-  conda create -n pollyenv python=3.8
+  conda create -n pollyenv python=3.12
   conda activate pollyenv
   pip install pollyxt-pipelines
 
